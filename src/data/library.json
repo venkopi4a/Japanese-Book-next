@@ -1,0 +1,730 @@
+[
+ {
+  "id": "q56x1oi",
+  "text": "雑誌",
+  "reading": "ざっし",
+  "meaning": "magazine",
+  "topic": "Reading"
+ },
+ {
+  "id": "z63aw41",
+  "text": "本",
+  "reading": "ほん",
+  "meaning": "book",
+  "topic": "Reading"
+ },
+ {
+  "id": "sxopp60",
+  "text": "よく",
+  "reading": "よく",
+  "meaning": "often",
+  "topic": "Frequency"
+ },
+ {
+  "id": "vkqqe76",
+  "text": "読みます",
+  "reading": "よみます",
+  "meaning": "read",
+  "topic": "Verbs"
+ },
+ {
+  "id": "533a0eb",
+  "text": "ニュース",
+  "reading": "ニュース",
+  "meaning": "news",
+  "topic": "Reading"
+ },
+ {
+  "id": "qx02e7d",
+  "text": "ときどき",
+  "reading": "ときどき",
+  "meaning": "sometimes",
+  "topic": "Frequency"
+ },
+ {
+  "id": "5esq18v",
+  "text": "見ます",
+  "reading": "みます",
+  "meaning": "watch",
+  "topic": "Verbs"
+ },
+ {
+  "id": "a616j0b",
+  "text": "野球",
+  "reading": "やきゅう",
+  "meaning": "baseball",
+  "topic": "Hobbies"
+ },
+ {
+  "id": "lnnp0gx",
+  "text": "アニメ",
+  "reading": "アニメ",
+  "meaning": "anime",
+  "topic": "Hobbies"
+ },
+ {
+  "id": "w55gorn",
+  "text": "漫画",
+  "reading": "まんが",
+  "meaning": "comic book",
+  "topic": "Reading"
+ },
+ {
+  "id": "rthul75",
+  "text": "ロック",
+  "reading": "ロック",
+  "meaning": "rock",
+  "topic": "Music"
+ },
+ {
+  "id": "y93nu6i",
+  "text": "聞きます",
+  "reading": "ききます",
+  "meaning": "listen",
+  "topic": "Verbs"
+ },
+ {
+  "id": "k0f2ack",
+  "text": "ジャズ",
+  "reading": "ジャズ",
+  "meaning": "jazz",
+  "topic": "Music"
+ },
+ {
+  "id": "g81xopa",
+  "text": "バスケットボール",
+  "reading": "バスケットボール",
+  "meaning": "basketball",
+  "topic": "Hobbies"
+ },
+ {
+  "id": "uvxvpih",
+  "text": "映画",
+  "reading": "えいが",
+  "meaning": "movie",
+  "topic": "Hobbies"
+ },
+ {
+  "id": "t6mo0by",
+  "text": "おはまえは",
+  "reading": "おなまえは",
+  "meaning": "what is your name",
+  "topic": "Greetings"
+ },
+ {
+  "id": "1h6f19e",
+  "text": "都市",
+  "reading": "とし",
+  "meaning": "city",
+  "topic": "Places"
+ },
+ {
+  "id": "kwkdn3p",
+  "text": "も",
+  "reading": "も",
+  "meaning": "also",
+  "topic": "Grammar"
+ },
+ {
+  "id": "gnpipxh",
+  "text": "静か",
+  "reading": "しずか",
+  "meaning": "quiet",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "uto51xc",
+  "text": "に住んでいます",
+  "reading": "にすんでいます",
+  "meaning": "I live in",
+  "topic": "Grammar"
+ },
+ {
+  "id": "tfpqh7w",
+  "text": "町",
+  "reading": "まち",
+  "meaning": "town",
+  "topic": "Places"
+ },
+ {
+  "id": "05d110t",
+  "text": "とても",
+  "reading": "とても",
+  "meaning": "very",
+  "topic": "Grammar"
+ },
+ {
+  "id": "vevp5wx",
+  "text": "賑やか",
+  "reading": "にぎやか",
+  "meaning": "lively",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "wu75see",
+  "text": "出身",
+  "reading": "しゅっしん",
+  "meaning": "from (I am from)",
+  "topic": "Places"
+ },
+ {
+  "id": "bqkwcvn",
+  "text": "私も",
+  "reading": "わたしも",
+  "meaning": "I am",
+  "topic": "People"
+ },
+ {
+  "id": "3rdqelo",
+  "text": "きれい",
+  "reading": "きれい",
+  "meaning": "clean",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "gcosq5d",
+  "text": "友達",
+  "reading": "ともだち",
+  "meaning": "friend",
+  "topic": "People"
+ },
+ {
+  "id": "s53ei3r",
+  "text": "明るい",
+  "reading": "あかるい",
+  "meaning": "happy / bright",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "9wb0x76",
+  "text": "面白い",
+  "reading": "おもしろい",
+  "meaning": "interesting",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "4tmtpii",
+  "text": "コート",
+  "reading": "コート",
+  "meaning": "coat",
+  "topic": "Clothing"
+ },
+ {
+  "id": "as3cnqc",
+  "text": "赤い",
+  "reading": "あかい",
+  "meaning": "red",
+  "topic": "Colors"
+ },
+ {
+  "id": "ojd7kc4",
+  "text": "かばん",
+  "reading": "かばん",
+  "meaning": "bag",
+  "topic": "Clothing"
+ },
+ {
+  "id": "zrax1hx",
+  "text": "靴",
+  "reading": "くつ",
+  "meaning": "shoes",
+  "topic": "Clothing"
+ },
+ {
+  "id": "3vgw2r4",
+  "text": "手袋",
+  "reading": "てぶくろ",
+  "meaning": "gloves",
+  "topic": "Clothing"
+ },
+ {
+  "id": "weisxsx",
+  "text": "ベトナム人",
+  "reading": "べとなむじん",
+  "meaning": "Vietnamese",
+  "topic": "People"
+ },
+ {
+  "id": "pzct7jc",
+  "text": "私の",
+  "reading": "わたしの",
+  "meaning": "my",
+  "topic": "Grammar"
+ },
+ {
+  "id": "tqwvuex",
+  "text": "白い",
+  "reading": "しろい",
+  "meaning": "white",
+  "topic": "Colors"
+ },
+ {
+  "id": "uusuzzc",
+  "text": "私の靴は赤いです",
+  "reading": "わたしのくつはあかいです",
+  "meaning": "My shoe is red",
+  "topic": "Grammar"
+ },
+ {
+  "id": "slaxiax",
+  "text": "じゃあ",
+  "reading": "じゃあ",
+  "meaning": "well then",
+  "topic": "Greetings"
+ },
+ {
+  "id": "ss5e1ct",
+  "text": "ホテル",
+  "reading": "ホテル",
+  "meaning": "hotel",
+  "topic": "Places"
+ },
+ {
+  "id": "7witu6s",
+  "text": "どこ",
+  "reading": "どこ",
+  "meaning": "where",
+  "topic": "Travel"
+ },
+ {
+  "id": "6d394ad",
+  "text": "ここ",
+  "reading": "ここ",
+  "meaning": "here",
+  "topic": "Travel"
+ },
+ {
+  "id": "akuozf2",
+  "text": "デパート",
+  "reading": "デパート",
+  "meaning": "department store",
+  "topic": "Places"
+ },
+ {
+  "id": "naiemmw",
+  "text": "バス停",
+  "reading": "ばすてい",
+  "meaning": "bus stop",
+  "topic": "Places"
+ },
+ {
+  "id": "p4608fx",
+  "text": "コンビニ",
+  "reading": "コンビニ",
+  "meaning": "convenience store",
+  "topic": "Places"
+ },
+ {
+  "id": "oii0523",
+  "text": "大学",
+  "reading": "だいがく",
+  "meaning": "university",
+  "topic": "Places"
+ },
+ {
+  "id": "asa9v3o",
+  "text": "そこ",
+  "reading": "そこ",
+  "meaning": "there",
+  "topic": "Travel"
+ },
+ {
+  "id": "0byts2n",
+  "text": "一",
+  "reading": "いち",
+  "meaning": "one",
+  "topic": "Numbers"
+ },
+ {
+  "id": "064t0ge",
+  "text": "二",
+  "reading": "に",
+  "meaning": "two",
+  "topic": "Numbers"
+ },
+ {
+  "id": "fui8bte",
+  "text": "二時",
+  "reading": "にじ",
+  "meaning": "two o'clock",
+  "topic": "Time"
+ },
+ {
+  "id": "d1q2m7t",
+  "text": "三",
+  "reading": "さん",
+  "meaning": "three",
+  "topic": "Numbers"
+ },
+ {
+  "id": "rbb45na",
+  "text": "一時半",
+  "reading": "いちじはん",
+  "meaning": "one thirty",
+  "topic": "Time"
+ },
+ {
+  "id": "ezen9e4",
+  "text": "今",
+  "reading": "いま",
+  "meaning": "now",
+  "topic": "Time"
+ },
+ {
+  "id": "ixtyqmb",
+  "text": "時",
+  "reading": "じ",
+  "meaning": "time / o'clock",
+  "topic": "Time"
+ },
+ {
+  "id": "wgh9zb5",
+  "text": "小さい",
+  "reading": "ちいさい",
+  "meaning": "small",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "cywco7y",
+  "text": "日本",
+  "reading": "にほん",
+  "meaning": "Japan",
+  "topic": "Places"
+ },
+ {
+  "id": "0z8f8ih",
+  "text": "カナダ",
+  "reading": "カナダ",
+  "meaning": "Canada",
+  "topic": "Places"
+ },
+ {
+  "id": "n0yot3d",
+  "text": "カナダ人",
+  "reading": "かなだじん",
+  "meaning": "I am Canadian",
+  "topic": "People"
+ },
+ {
+  "id": "wxq00u1",
+  "text": "大きい",
+  "reading": "おおきい",
+  "meaning": "big",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "mj2728w",
+  "text": "ブラジル人",
+  "reading": "ぶらじるじん",
+  "meaning": "Brazilian",
+  "topic": "People"
+ },
+ {
+  "id": "1yjriad",
+  "text": "ブラジル",
+  "reading": "ブラジル",
+  "meaning": "Brazil",
+  "topic": "Places"
+ },
+ {
+  "id": "dkdvtnw",
+  "text": "イギリス人",
+  "reading": "いぎりすじん",
+  "meaning": "British",
+  "topic": "People"
+ },
+ {
+  "id": "6tnye41",
+  "text": "イギリス",
+  "reading": "イギリス",
+  "meaning": "Britain",
+  "topic": "Places"
+ },
+ {
+  "id": "zy7ymg8",
+  "text": "地下鉄",
+  "reading": "ちかてつ",
+  "meaning": "subway",
+  "topic": "Travel"
+ },
+ {
+  "id": "bxzaj8d",
+  "text": "空港",
+  "reading": "くうこう",
+  "meaning": "airport",
+  "topic": "Travel"
+ },
+ {
+  "id": "gi9ebd3",
+  "text": "あそこ",
+  "reading": "あそこ",
+  "meaning": "over there",
+  "topic": "Travel"
+ },
+ {
+  "id": "do4xuv6",
+  "text": "地図",
+  "reading": "ちず",
+  "meaning": "map",
+  "topic": "Travel"
+ },
+ {
+  "id": "xz3krt8",
+  "text": "傘",
+  "reading": "かさ",
+  "meaning": "umbrella",
+  "topic": "Travel"
+ },
+ {
+  "id": "f9kmtdf",
+  "text": "切符",
+  "reading": "きっぷ",
+  "meaning": "ticket",
+  "topic": "Travel"
+ },
+ {
+  "id": "mklzo9d",
+  "text": "ラーメン",
+  "reading": "ラーメン",
+  "meaning": "ramen",
+  "topic": "Food"
+ },
+ {
+  "id": "e3kthef",
+  "text": "カレー",
+  "reading": "カレー",
+  "meaning": "curry",
+  "topic": "Food"
+ },
+ {
+  "id": "cet605l",
+  "text": "は",
+  "reading": "は",
+  "meaning": "this (topic particle)",
+  "topic": "Grammar"
+ },
+ {
+  "id": "8etqwss",
+  "text": "これは",
+  "reading": "これは",
+  "meaning": "this is",
+  "topic": "Grammar"
+ },
+ {
+  "id": "wo6d8i9",
+  "text": "おいしい",
+  "reading": "おいしい",
+  "meaning": "tasty",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "txexlul",
+  "text": "ピザ",
+  "reading": "ピザ",
+  "meaning": "pizza",
+  "topic": "Food"
+ },
+ {
+  "id": "pmunevb",
+  "text": "ケーキ",
+  "reading": "ケーキ",
+  "meaning": "cake",
+  "topic": "Food"
+ },
+ {
+  "id": "h9jg1q4",
+  "text": "それ",
+  "reading": "それ",
+  "meaning": "it / that",
+  "topic": "Grammar"
+ },
+ {
+  "id": "0bvzhm6",
+  "text": "これとそれ",
+  "reading": "これとそれ",
+  "meaning": "this and that",
+  "topic": "Grammar"
+ },
+ {
+  "id": "44t0dy7",
+  "text": "か",
+  "reading": "か",
+  "meaning": "is it? (question particle)",
+  "topic": "Grammar"
+ },
+ {
+  "id": "jic097d",
+  "text": "いいえ",
+  "reading": "いいえ",
+  "meaning": "no",
+  "topic": "Greetings"
+ },
+ {
+  "id": "1sxd7bc",
+  "text": "好き",
+  "reading": "すき",
+  "meaning": "like",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "hzof611",
+  "text": "さん",
+  "reading": "さん",
+  "meaning": "after someone's name (more polite)",
+  "topic": "Grammar"
+ },
+ {
+  "id": "7afgutu",
+  "text": "こんにちは",
+  "reading": "こんにちは",
+  "meaning": "hello",
+  "topic": "Greetings"
+ },
+ {
+  "id": "yl1sklu",
+  "text": "どうぞよろしく",
+  "reading": "どうぞよろしく",
+  "meaning": "Nice to meet you",
+  "topic": "Greetings"
+ },
+ {
+  "id": "1eb0r7r",
+  "text": "こんばんは",
+  "reading": "こんばんは",
+  "meaning": "Good evening",
+  "topic": "Greetings"
+ },
+ {
+  "id": "t6hxiwj",
+  "text": "じゃあね",
+  "reading": "じゃあね",
+  "meaning": "Bye",
+  "topic": "Greetings"
+ },
+ {
+  "id": "3xwum0a",
+  "text": "またあした",
+  "reading": "またあした",
+  "meaning": "See you tomorrow",
+  "topic": "Greetings"
+ },
+ {
+  "id": "rpe9jly",
+  "text": "この",
+  "reading": "この",
+  "meaning": "This",
+  "topic": "Grammar"
+ },
+ {
+  "id": "1j398ov",
+  "text": "スマホ",
+  "reading": "スマホ",
+  "meaning": "smartphone",
+  "topic": "Technology"
+ },
+ {
+  "id": "5vycexr",
+  "text": "パソコン",
+  "reading": "パソコン",
+  "meaning": "computer",
+  "topic": "Technology"
+ },
+ {
+  "id": "07floms",
+  "text": "はい",
+  "reading": "はい",
+  "meaning": "yes / here",
+  "topic": "Greetings"
+ },
+ {
+  "id": "vned8s5",
+  "text": "どうぞ",
+  "reading": "どうぞ",
+  "meaning": "Here you go",
+  "topic": "Greetings"
+ },
+ {
+  "id": "t12u32h",
+  "text": "すみません",
+  "reading": "すみません",
+  "meaning": "Excuse me",
+  "topic": "Greetings"
+ },
+ {
+  "id": "i2011nq",
+  "text": "帽子",
+  "reading": "ぼうし",
+  "meaning": "hat",
+  "topic": "Clothing"
+ },
+ {
+  "id": "lyt4erz",
+  "text": "パスポート",
+  "reading": "パスポート",
+  "meaning": "passport",
+  "topic": "Travel"
+ },
+ {
+  "id": "qmmkhel",
+  "text": "医者",
+  "reading": "いしゃ",
+  "meaning": "doctor",
+  "topic": "People"
+ },
+ {
+  "id": "pmmi8vh",
+  "text": "人",
+  "reading": "ひと",
+  "meaning": "person",
+  "topic": "People"
+ },
+ {
+  "id": "bel868s",
+  "text": "ご飯",
+  "reading": "ごはん",
+  "meaning": "rice",
+  "topic": "Food"
+ },
+ {
+  "id": "xnsto7u",
+  "text": "優しい",
+  "reading": "やさしい",
+  "meaning": "nice",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "llaxf8f",
+  "text": "学生",
+  "reading": "がくせい",
+  "meaning": "student",
+  "topic": "People"
+ },
+ {
+  "id": "ejwwnn7",
+  "text": "弁護士",
+  "reading": "べんごし",
+  "meaning": "lawyer",
+  "topic": "People"
+ },
+ {
+  "id": "nsn4ouh",
+  "text": "かっこいい",
+  "reading": "かっこいい",
+  "meaning": "cool",
+  "topic": "Adjectives"
+ },
+ {
+  "id": "3kbfj98",
+  "text": "です",
+  "reading": "です",
+  "meaning": "he/she/it is",
+  "topic": "Grammar"
+ },
+ {
+  "id": "r9yeiyb",
+  "text": "水",
+  "reading": "みず",
+  "meaning": "water",
+  "topic": "Food"
+ }
+]
