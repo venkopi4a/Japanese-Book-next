@@ -1,7 +1,7 @@
 const P="jb--Japanese-Book-next-";
 const OLD=[];
-const V=P+'c7b6b16f1c';
-const FILES=["./","index.html","index-CKuVZpFo.js","index-ClYT9gA3.css","manifest.webmanifest","icon-180.png","icon-192.png","icon-512.png","favicon-32.png"];
+const V=P+'ac93eb34d2';
+const FILES=["./","index.html","index-B1KRLJen.js","index-CcK4ThW6.css","manifest.webmanifest","icon-180.png","icon-192.png","icon-512.png","favicon-32.png","art-banner.jpg"];
 const url=(f)=>new URL(f,self.registration.scope).href;
 self.addEventListener('install',(e)=>{e.waitUntil(caches.open(V).then((c)=>c.addAll(FILES.map(url))))});
 self.addEventListener('message',(e)=>{if(e.data==='SKIP_WAITING')self.skipWaiting()});
