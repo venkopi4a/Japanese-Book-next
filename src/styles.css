@@ -224,3 +224,8 @@ textarea.input { padding: 12px 14px; min-height: 84px; resize: vertical; }
 .mile.done { color: var(--sk); border-color: var(--sk); background: color-mix(in srgb, var(--sk2) 55%, var(--sf)); }
 .mile.done b { color: var(--ink); }
 .tabbar button { font-size: 10.5px; }
+.namepad { margin-top: 12px; display: grid; gap: 6px; }
+.namepad > div { display: flex; justify-content: center; gap: 4px; }
+.namepad button { flex: 1; max-width: 34px; min-height: 44px; border-radius: 8px; border: 1px solid var(--ru); background: var(--bg); font-weight: 700; font-size: 16px; padding: 0; touch-action: manipulation; }
+.namepad button.wide { max-width: none; flex: 2; font-weight: 400; }
+.namepad button:active { background: var(--sf2); }
