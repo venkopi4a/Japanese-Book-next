@@ -165,12 +165,25 @@ await step('people', async () => {
   ok('with two people the picker shows on start', /Who’s studying\?/.test(await txt()));
   await page.click('button[aria-label="Study as Venko"]'); await page.waitForSelector('.tabbar'); await sleep(300);
   t = await txt(); ok('switching back keeps the first person\'s progress', /to practise/.test(t) && /、Venko/.test(t));
-  // iPhone Home Screen fallback: the phone's own name pop-up
+  // iPhone Home Screen: ways in that need neither the phone keyboard nor pop-ups
   await page.click('button[aria-label="Settings"]'); await sleep(300); await click('Switch person'); await sleep(300);
   await click('+ Add a person'); await sleep(150);
-  ok('the add form offers a fallback when the keyboard does not open', /Keyboard not opening\? Tap here/.test(await txt()));
-  promptAnswer = 'Ana'; await click('Keyboard not opening?'); await sleep(300);
-  ok('the fallback pop-up adds the person', /Ana/.test(await txt()) && !!(await page.$('button[aria-label="Study as Ana"]')));
+  await click('Keyboard not opening?'); await sleep(150);
+  ok('the add form offers on-screen letter buttons', (await page.$$('.namepad button')).length === 28);
+  const tapKey = (k) => page.evaluate((k) => [...document.querySelectorAll('.namepad button')].find((b) => b.textContent === k).click(), k);
+  for (const k of ['A', 'N', 'A']) await tapKey(k);
+  ok('letter buttons spell the name (first letter capital)', (await page.$eval('input[name=person]', (i) => i.value)) === 'Ana');
+  await click('Add'); await sleep(300);
+  ok('a person added with the letter buttons appears', !!(await page.$('button[aria-label="Study as Ana"]')));
+  await click('+ Add a person'); await sleep(150); await click('Skip for now'); await sleep(300);
+  ok('Skip for now adds a person without typing', !!(await page.$('button[aria-label="Study as Person 4"]')));
+  await click('Edit'); await sleep(150);
+  await page.evaluate(() => [...document.querySelectorAll('.person')].find((p) => /Person 4/.test(p.textContent)).querySelector('.link').click()); await sleep(150);
+  await click('Keyboard not opening?'); await sleep(150);
+  for (const k of ['B', 'O']) await tapKey(k);
+  await shot('k17-namepad');
+  await click('Save'); await sleep(300);
+  ok('a person can be renamed with the letter buttons', !!(await page.$('button[aria-label="Study as Bo"]')) && !(await page.$('button[aria-label="Study as Person 4"]')));
   await page.click('button[aria-label="Study as Venko"]'); await page.waitForSelector('.tabbar'); await sleep(300);
   const names = await page.evaluate(() => indexedDB.databases().then((l) => l.map((x) => x.name)));
   ok('each person has a separate database', names.includes('jb:/Japanese-Book-next/:local') && names.some((n) => /^jb:\/Japanese-Book-next\/:p/.test(n)), names.join(', '));
