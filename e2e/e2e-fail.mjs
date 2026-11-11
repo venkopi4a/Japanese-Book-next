@@ -1,0 +1,26 @@
+import http from 'node:http'; import os from 'node:os'; import fs from 'node:fs'; import path from 'node:path';
+import chromium from '@sparticuz/chromium'; import puppeteer from 'puppeteer-core';
+const OUT=path.resolve('e2e/out');fs.mkdirSync(OUT,{recursive:true});
+
+const BASE='/Japanese-Book-next/', ROOT=path.resolve('e2e/.dist-fail'), PORT=4181;
+const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.webmanifest':'application/manifest+json'};
+const srv=http.createServer((q,r)=>{let p=decodeURIComponent(q.url.split('?')[0]);if(!p.startsWith(BASE)){r.writeHead(404);return r.end()}p=p.slice(BASE.length)||'index.html';const f=path.join(ROOT,p);if(!fs.existsSync(f)||fs.statSync(f).isDirectory()){r.writeHead(404);return r.end()}r.writeHead(200,{'content-type':types[path.extname(f)]||'x','cache-control':'no-store'});fs.createReadStream(f).pipe(r)}).listen(PORT);
+const log=[];const ok=(n,c,d='')=>log.push(`${c?'PASS':'FAIL'} ${n}${d?' — '+d:''}`);const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const b=await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell'});
+const page=await b.newPage();await page.setViewport({width:390,height:844,deviceScaleFactor:2,isMobile:true,hasTouch:true});page.on('dialog',d=>d.accept());
+const txt=()=>page.evaluate(()=>document.body.innerText);
+const click=async(t,sel='button')=>{const h=await page.evaluateHandle((t,sel)=>[...document.querySelectorAll(sel)].reverse().find(e=>e.textContent.trim().startsWith(t)&&!e.disabled),t,sel);const el=h.asElement();if(!el)return false;await el.click();return true};
+const waitText=async(re,ms=8000)=>{const t0=Date.now();while(Date.now()-t0<ms){if(re.test(await txt()))return true;await sleep(120)}return false};
+await page.goto('http://localhost:'+PORT+BASE,{waitUntil:'networkidle0'});await page.waitForSelector('.big');
+await page.click('button[aria-label="Add or import words"]');await sleep(250);
+const [fc]=await Promise.all([page.waitForFileChooser(),click('Choose photos')]);await fc.accept([path.resolve('e2e/photos/photoA.jpg')]);await waitText(/Crop/);await sleep(700);await click('Read handwriting');
+ok('a failed recognition shows a clear error, not a blank or fake result',await waitText(/Could not read the photo/)&&/Nothing was saved/.test(await txt()));await page.screenshot({path:OUT+'/p13-error.png'});
+await click('Try again');await sleep(500);ok('Try again can fail again without breaking',await waitText(/Could not read the photo/));
+await click('Back to photos');await sleep(400);ok('Back to photos returns to the crop with the photo kept',/Crop/.test(await txt()));
+await click('Read handwriting');await waitText(/Could not read/);await click('Type the words myself');await sleep(400);
+ok('Type the words myself opens an empty review beside the photo',/Review words/.test(await txt())&&/Nothing to save yet/.test(await txt())&&(await page.$$('.thumb')).length===1);
+await click('Add a missing word');await sleep(250);await page.type('.sheet input[name=text]','手紙');await page.type('.sheet input[name=reading]','てがみ');await page.type('.sheet input[name=meaning]','letter');await click('Add word');await sleep(300);
+await click('Save 1 word');await sleep(300);await click('Add 1 word');await waitText(/1 word added/);
+const words=await page.evaluate(async()=>{const db=await new Promise(res=>{const r=indexedDB.open('jb:/Japanese-Book-next/:local');r.onsuccess=()=>res(r.result)});const q=db.transaction('words').objectStore('words').getAll();return new Promise(res=>q.onsuccess=()=>res(q.result.filter(w=>w.text==='手紙')))});
+ok('a hand-typed word is saved from the manual path, marked as from a photo',words.length===1&&words[0].source==='photo',JSON.stringify(words.map(w=>w.source)));
+console.log(log.join('\n'));if(log.some(l=>l.startsWith('FAIL')))process.exitCode=1;await b.close();srv.close();
