@@ -1,0 +1,28 @@
+{
+  "name": "japanese-book",
+  "private": true,
+  "version": "0.4.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "node e2e/run-all.mjs"
+  },
+  "dependencies": {
+    "idb": "^8.0.4",
+    "preact": "^11.1.1",
+    "wanakana": "^5.3.1"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@sparticuz/chromium": "^153.0.0",
+    "@types/node": "^26.6.6",
+    "fake-indexeddb": "^6.2.7",
+    "puppeteer-core": "^25.17.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
+  }
+}
