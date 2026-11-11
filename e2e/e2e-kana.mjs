@@ -9,7 +9,8 @@ const log = []; const ok = (n, c, d = '') => log.push(`${c ? 'PASS' : 'FAIL'} ${
 const b = await puppeteer.launch({ args: chromium.args, executablePath: await chromium.executablePath(), headless: 'shell' });
 const page = await b.newPage();
 await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-page.on('dialog', (d) => d.accept(d.type() === 'prompt' ? 'Venko' : undefined));
+let promptAnswer = 'Venko';
+page.on('dialog', (d) => d.accept(d.type() === 'prompt' ? promptAnswer : undefined));
 const errs = []; page.on('pageerror', (e) => errs.push('pageerror ' + e.message)); page.on('console', (m) => { if (m.type() === 'error') errs.push('console ' + m.text()); });
 // remember what the app says out loud, so listening questions can be answered
 await page.evaluateOnNewDocument(() => {
@@ -164,6 +165,13 @@ await step('people', async () => {
   ok('with two people the picker shows on start', /Who’s studying\?/.test(await txt()));
   await page.click('button[aria-label="Study as Venko"]'); await page.waitForSelector('.tabbar'); await sleep(300);
   t = await txt(); ok('switching back keeps the first person\'s progress', /to practise/.test(t) && /、Venko/.test(t));
+  // iPhone Home Screen fallback: the phone's own name pop-up
+  await page.click('button[aria-label="Settings"]'); await sleep(300); await click('Switch person'); await sleep(300);
+  await click('+ Add a person'); await sleep(150);
+  ok('the add form offers a fallback when the keyboard does not open', /Keyboard not opening\? Tap here/.test(await txt()));
+  promptAnswer = 'Ana'; await click('Keyboard not opening?'); await sleep(300);
+  ok('the fallback pop-up adds the person', /Ana/.test(await txt()) && !!(await page.$('button[aria-label="Study as Ana"]')));
+  await page.click('button[aria-label="Study as Venko"]'); await page.waitForSelector('.tabbar'); await sleep(300);
   const names = await page.evaluate(() => indexedDB.databases().then((l) => l.map((x) => x.name)));
   ok('each person has a separate database', names.includes('jb:/Japanese-Book-next/:local') && names.some((n) => /^jb:\/Japanese-Book-next\/:p/.test(n)), names.join(', '));
 });

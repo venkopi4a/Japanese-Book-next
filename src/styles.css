@@ -71,6 +71,8 @@ h2 { font-family: var(--serif); font-size: 19px; margin: 0 0 6px; }
 .input, .select { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--ru); border-radius: var(--r); background: var(--sf); }
 textarea.input { padding: 12px 14px; min-height: 84px; resize: vertical; }
 .input:focus { border-color: var(--ac); outline: none; }
+/* iPhone Home Screen apps: keep text fields selectable and tappable whatever their parents set */
+.input { -webkit-user-select: text; user-select: text; touch-action: manipulation; font-size: max(16px, 1em); }
 .input.ja { font-family: var(--serif); font-size: 22px; }
 .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 4px; scrollbar-width: none; }
 .chips::-webkit-scrollbar { display: none; }

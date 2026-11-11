@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import { dbName } from '../data/db';
 import { COLOURS, MAX_PROFILES, addProfile, lastProfileId, loadProfiles, removeProfile, renameProfile, type Profile } from '../app/profiles';
 
@@ -11,12 +11,18 @@ export function ProfilePicker({ onPick }: { onPick: (p: Profile) => void }) {
   const last = lastProfileId();
   const refresh = () => setList(loadProfiles());
 
-  const create = (e: Event) => {
-    e.preventDefault();
-    const p = addProfile(name);
+  const input = useRef<HTMLInputElement>(null);
+  const save = (raw: string) => {
+    const p = addProfile(raw);
     setName(''); setAdding(false); refresh();
     if (list.length === 0) onPick(p); // the very first person goes straight in
   };
+  const create = (e: Event) => { e.preventDefault(); if (name.trim()) save(name); };
+  /**
+   * Fallback for iPhone Home Screen apps, where the keyboard sometimes does not open for a text box.
+   * The phone's own pop-up always works there.
+   */
+  const askNative = () => { const n = window.prompt(list.length ? 'Name of the new person' : 'What’s your name?', name); if (n && n.trim()) save(n); };
   const remove = (p: Profile) => {
     if (!window.confirm(`Delete ${p.name} and all of ${p.name}'s words and progress on this device? This cannot be undone.`)) return;
     removeProfile(p.id);
@@ -49,13 +55,16 @@ export function ProfilePicker({ onPick }: { onPick: (p: Profile) => void }) {
       </div>
 
       {adding ? (
-        <form class="card" style="margin-top:22px" onSubmit={create}>
+        <form class="card" style="margin-top:22px" onSubmit={create} onClick={(e) => { if (!(e.target as HTMLElement).closest('button')) input.current?.focus(); }}>
           <label class="field" style="margin:0"><span>{list.length ? 'Name of the new person' : 'What’s your name?'}</span>
-            <input class="input" name="person" value={name} maxLength={24} autocomplete="off" onInput={(e) => setName((e.target as HTMLInputElement).value)} /></label>
+            {/* focus() inside the tap handler opens the keyboard on iPhone even when a plain tap does not */}
+            <input ref={input} class="input" type="text" name="person" value={name} maxLength={24} autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck={false} enterkeyhint="go" inputMode="text"
+              onTouchEnd={() => input.current?.focus()} onInput={(e) => setName((e.target as HTMLInputElement).value)} /></label>
           <div style="display:flex;gap:10px;margin-top:12px">
             {list.length > 0 && <button type="button" class="btn" style="flex:1" onClick={() => setAdding(false)}>Cancel</button>}
             <button class="btn primary" style="flex:2" type="submit" disabled={!name.trim()}>{list.length ? 'Add' : 'Start'}</button>
           </div>
+          <button type="button" class="link" style="width:100%;margin-top:6px;font-size:14px;font-weight:600;color:var(--mu)" onClick={askNative}>Keyboard not opening? Tap here</button>
         </form>
       ) : (
         <div style="display:flex;gap:10px;margin-top:26px">
