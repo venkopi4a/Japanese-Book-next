@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { useApp } from '../app/state';
-import { buildExercise, explainMistakes, type Exercise } from '../app/exercise';
+import { buildExercise, explainMistakes, romajiOf, type Exercise, type Known } from '../app/exercise';
 import { speak, speechSupported } from '../app/speech';
 import { Blossom, Icon } from '../app/icons';
 import { nearDiff } from '../domain/answer';
@@ -13,7 +13,7 @@ import type { MistakeDetail, Skill } from '../domain/types';
 import { ART } from './Today';
 
 export interface SessionItem extends PlanItem { promote: boolean }
-/** flash: a new word shown as a flashcard. second: the one extra try a missed item gets at the end of the session. */
+/** flash: a new word, taught with a lesson card (no test). second: the one extra try a missed item gets at the end of the session. */
 interface Q extends SessionItem { uid: number; firstTry: boolean; flash: boolean; second: boolean }
 interface Feedback { correct: boolean; mistakes: MistakeDetail[]; variantNote: string | null; picked: string | null }
 
@@ -24,13 +24,12 @@ function initialQueue(items: SessionItem[]): Q[] {
 }
 
 export function Session({ title, items, onClose, onAgain }: { title: string; items: SessionItem[]; onClose: () => void; onAgain: (items: SessionItem[]) => void }) {
-  const { repo, words, attempts, settings, reload } = useApp();
+  const { repo, words, states, attempts, settings, reload, katakanaDone } = useApp();
   const usable = useMemo(() => items.filter((i) => i.skill !== 'listening' || speechSupported()), [items]);
   const [queue, setQueue] = useState<Q[]>(() => initialQueue(usable));
   const [fb, setFb] = useState<Feedback | null>(null);
   const [typed, setTyped] = useState('');
   const [busy, setBusy] = useState(false);
-  const [shown, setShown] = useState(false);
   const [combo, setCombo] = useState(0);
   const total = useRef(queue.length);
   const resolved = useRef(0);
@@ -44,13 +43,18 @@ export function Session({ title, items, onClose, onAgain }: { title: string; ite
 
   const q = queue[0];
   const word = q ? words.find((w) => w.id === q.wordId) : undefined;
-  const ex: Exercise | null = useMemo(() => (q && word && !q.flash ? buildExercise(word, q.skill, words, settings, rng.current) : null), [q?.uid]);
+  const known = useMemo<Known>(() => ({
+    met: new Set(states.filter((s) => s.skill === 'recognition').map((s) => s.wordId)),
+    readingKnown: new Set(states.filter((s) => s.skill === 'reading' && s.box >= 2).map((s) => s.wordId)),
+    katakanaDone,
+  }), [q?.uid]);
+  const ex: Exercise | null = useMemo(() => (q && word && !q.flash ? buildExercise(word, q.skill, words, settings, rng.current, known) : null), [q?.uid]);
 
   useEffect(() => { repo.startSession('practice').then((s) => { session.current = s.id; }); return () => window.clearTimeout(timer.current); }, []);
   useEffect(() => {
     shownAt.current = Date.now();
-    setTyped(''); setFb(null); setBusy(false); setShown(false);
-    if (q && word && settings.autoPlay && ex?.type === 'listening-mc') speak(word.reading || word.text, settings.speechRate);
+    setTyped(''); setFb(null); setBusy(false);
+    if (q && word && settings.autoPlay && (ex?.type === 'listening-mc' || q.flash)) speak(word.reading || word.text, settings.speechRate);
     if (ex?.typed) setTimeout(() => inputRef.current?.focus(), 60);
   }, [q?.uid]);
 
@@ -65,14 +69,12 @@ export function Session({ title, items, onClose, onAgain }: { title: string; ite
   };
   const again = (item: Q): Q | undefined => (item.second ? undefined : { ...item, uid: ++uid, firstTry: false, second: true });
 
-  // ---- a new word: flashcard, then "Again" or "Got it" ----
-  const reveal = () => { setShown(true); if (word && settings.autoPlay) speak(word.reading || word.text, settings.speechRate); };
-  const rate = async (good: boolean) => {
+  // ---- a new word: a lesson card with everything visible, no test. The first quiz comes tomorrow. ----
+  const learn = async () => {
     if (!q || !word || busy) return;
     setBusy(true);
-    await repo.recordAnswer({ word, skill: 'recognition', exercise: 'flashcard', shown: word.text, expected: word.meaning, submitted: good ? 'got it' : 'again', correct: good, firstTry: q.firstTry, responseMs: Date.now() - shownAt.current, sessionId: session.current, promote: true, learning: true });
-    if (good) { stats.current.learned++; resolved.current++; advance(); }
-    else { const r = again(q); if (!r) resolved.current++; advance(r); }
+    await repo.introduce(word.id, 'recognition');
+    stats.current.learned++; resolved.current++; advance();
   };
 
   // ---- a review: a quiz question ----
@@ -108,7 +110,7 @@ export function Session({ title, items, onClose, onAgain }: { title: string; ite
   // ---- the end ----
   if (!q) {
     const s = stats.current;
-    const days = streak(attempts, Date.now());
+    const days = streak(attempts, Date.now(), [...states.map((x) => x.introducedAt), ...(s.learned ? [Date.now()] : [])]);
     const pct = s.answered ? Math.round((s.firstOk / s.answered) * 100) : null;
     const done = s.answered + s.learned > 0;
     return (
@@ -145,31 +147,25 @@ export function Session({ title, items, onClose, onAgain }: { title: string; ite
   const progress = Math.min(100, Math.round((resolved.current / Math.max(1, total.current)) * 100));
   const count = `${Math.min(resolved.current + 1, total.current)} / ${total.current}`;
 
-  // new word: flashcard
+  // new word: lesson card
   if (q.flash) {
+    const roma = romajiOf(word.reading || word.text);
     return (
       <Overlay>
-        <Top progress={progress} count={count} onClose={onClose} label={q.second ? 'One more look' : 'New word'} />
+        <Top progress={progress} count={count} onClose={onClose} label="New word" />
         <div class="q"><div class="stage">
-          <div class="qcard" key={q.uid} onClick={() => { if (!shown) reveal(); }}>
-            <span class="tag">{q.second ? 'One more look' : 'New word'}</span>
+          <div class="qcard lesson" key={q.uid}>
+            <span class="tag">New word</span>
             <div class="ja" lang="ja" style="margin-top:14px">{word.text}</div>
-            {!shown && <div class="hint">Tap to see the answer</div>}
-            {shown && (
-              <div class="reveal">
-                <div class="reading" lang="ja">{word.reading}</div>
-                <div class="en" style="font-size:28px">{word.meaning}</div>
-                {word.note && <div class="hint">{word.note}</div>}
-                {speechSupported() && <button class="btn" style="margin-top:14px" onClick={(e) => { e.stopPropagation(); speak(word.reading || word.text, settings.speechRate); }}><Icon name="speaker" /> Listen</button>}
-              </div>
-            )}
+            {word.reading && word.reading !== word.text && <div class="reading" lang="ja">{word.reading}</div>}
+            <div class="roma">{roma}</div>
+            <div class="en" style="font-size:28px;margin-top:6px">{word.meaning}</div>
+            {word.note && <div class="hint">{word.note}</div>}
+            {speechSupported() && <button class="btn" style="margin-top:14px" onClick={() => speak(word.reading || word.text, settings.speechRate)}><Icon name="speaker" /> Listen</button>}
+            <div class="hint" style="margin-top:12px">Take a good look. You will be asked about it tomorrow.</div>
           </div>
         </div></div>
-        <div class="foot" style="display:flex;gap:10px">
-          {!shown
-            ? <button class="btn primary" onClick={reveal}>Show answer</button>
-            : <><button class="btn" style="flex:1;min-height:54px" disabled={busy} onClick={() => rate(false)}>Again</button><button class="btn primary" style="flex:2" disabled={busy} onClick={() => rate(true)}>Got it</button></>}
-        </div>
+        <div class="foot"><button class="btn primary" disabled={busy} onClick={learn}>Got it</button></div>
       </Overlay>
     );
   }
@@ -187,6 +183,7 @@ export function Session({ title, items, onClose, onAgain }: { title: string; ite
           {ex.promptKind === 'audio'
             ? <button class="btn" style="min-height:96px;min-width:96px;border-radius:50%" aria-label="Play audio" onClick={() => speak(word.reading || word.text, settings.speechRate)}><Icon name="speaker" size={36} /></button>
             : <div class={ex.promptKind === 'ja' ? 'ja' : 'en'} lang={ex.promptKind === 'ja' ? 'ja' : undefined}>{ex.prompt}</div>}
+          {ex.help && <div class="reading help" lang="ja">{ex.help}</div>}
           <div class="hint">{ex.hint}</div>
         </div>
 
@@ -195,7 +192,7 @@ export function Session({ title, items, onClose, onAgain }: { title: string; ite
           <div class="opts">
             {ex.options.map((o) => {
               const cls = !fb ? '' : o === ex.answer ? ' good' : o === fb.picked ? ' bad' : ' dim';
-              return <button key={o} class={`opt${ex.optionsJa ? ' ja' : ''}${cls}`} lang={ex.optionsJa ? 'ja' : undefined} disabled={!!fb} onClick={() => submit(o)}>{o}{fb && o === ex.answer && <span class="bloom"><Blossom size={22} /></span>}</button>;
+              return <button key={o} class={`opt${ex.optionsJa ? ' ja' : ''}${cls}`} lang={ex.optionsJa ? 'ja' : undefined} disabled={!!fb} onClick={() => submit(o)}>{o}{ex.optionHelp[o] && <small class="ohelp" lang="ja">{ex.optionHelp[o]}</small>}{fb && o === ex.answer && <span class="bloom"><Blossom size={22} /></span>}</button>;
             })}
           </div>
         )}
@@ -215,7 +212,7 @@ export function Session({ title, items, onClose, onAgain }: { title: string; ite
             {!fb.correct && ex.typed && <div style="margin-top:4px">Answer: <span class="j" lang="ja" style="font-size:20px">{ex.answer}</span></div>}
             {fb.mistakes.length > 0 && explainMistakes(fb.mistakes).map((l) => <div class="m" key={l} style="margin-top:2px">{l}</div>)}
             {fb.variantNote && <div class="m" style="margin-top:2px">{fb.variantNote}</div>}
-            <div class="m" style="margin-top:6px"><span lang="ja">{word.text}</span> · <span lang="ja">{word.reading}</span> · {word.meaning}</div>
+            <div class="m" style="margin-top:6px"><span lang="ja">{word.text}</span> · <span lang="ja">{word.reading}</span> · {romajiOf(word.reading || word.text)} · {word.meaning}</div>
             {!fb.correct && !q.second && <div class="m" style="margin-top:6px">It will come back once more at the end.</div>}
           </div>
         )}

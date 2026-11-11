@@ -13,6 +13,7 @@ const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
 const b=await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell'});
 const page=await b.newPage();await page.setViewport({width:390,height:844,isMobile:true,hasTouch:true});
 const click=async(pg,t,sel='button')=>{const h=await pg.evaluateHandle((t,sel)=>[...document.querySelectorAll(sel)].find(e=>e.textContent.trim().startsWith(t)&&!e.disabled),t,sel);const el=h.asElement();if(!el)return false;await el.click();return true};
+await page.evaluateOnNewDocument(()=>{const B='jb:/Japanese-Book-next/:';if(!localStorage.getItem(B+'profiles')){localStorage.setItem(B+'profiles',JSON.stringify([{id:'local',name:'Test',colour:0}]));localStorage.setItem(B+'settings',JSON.stringify({kanaSkip:true}))}});
 await page.goto('http://localhost:4176'+BASE,{waitUntil:'networkidle0'});await page.waitForSelector('.big');
 await page.evaluate(()=>navigator.serviceWorker.ready);await sleep(800);
 const keys1=await page.evaluate(async()=>{const o={};for(const k of await caches.keys())o[k]=(await (await caches.open(k)).keys()).map(r=>r.url.split('/').pop()||'(root)');return o});
@@ -33,8 +34,8 @@ for(const u of [BASE,BASE+'index.html',BASE+'?from=homescreen']){
   ok(`opens with the server stopped: ${u}`,await p2.evaluate(()=>!!document.querySelector('.tabbar')).catch(()=>false));
   if(u===BASE){
     await p2.waitForSelector('.big');
-    ok('study works offline: practice session records answers',await (async()=>{await click(p2,'Start practice');await sleep(300);await click(p2,'Show answer');await sleep(250);await click(p2,'Got it');await sleep(1100);
-      return p2.evaluate(async()=>{const db=await new Promise(res=>{const r=indexedDB.open('jb:/Japanese-Book-next/:local');r.onsuccess=()=>res(r.result)});const n=await new Promise(res=>{const q=db.transaction('attempts').objectStore('attempts').count();q.onsuccess=()=>res(q.result)});return n>=1})})());
+    ok('study works offline: a lesson is saved',await (async()=>{await click(p2,'Start practice');await sleep(300);await click(p2,'Got it');await sleep(1100);
+      return p2.evaluate(async()=>{const db=await new Promise(res=>{const r=indexedDB.open('jb:/Japanese-Book-next/:local');r.onsuccess=()=>res(r.result)});const n=await new Promise(res=>{const q=db.transaction('skillStates').objectStore('skillStates').count();q.onsuccess=()=>res(q.result)});return n>=1})})());
   }
   await p2.close()}
 console.log(log.join('\n'));if(log.some(l=>l.startsWith('FAIL')))process.exitCode=1;await b.close();

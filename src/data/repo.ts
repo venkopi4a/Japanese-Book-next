@@ -1,17 +1,19 @@
-import { applyAnswer, newState, startOfDay } from '../domain/scheduler';
+import { DAY, applyAnswer, newState, startOfDay } from '../domain/scheduler';
+import { wordsIntroducedToday } from '../domain/session';
 import type { Attempt, ExerciseType, MistakeDetail, Skill, SkillState, Word } from '../domain/types';
 import { normaliseAnswer } from '../domain/kana';
 import type { ReviewItem } from '../import/review';
 import type { ImportDraft, JBDb, OutboxEntry, PhotoRecord, SessionRecord } from './db';
 import type { LibraryWord } from './library';
 
-export const APP_VERSION = '0.4.0';
+export const APP_VERSION = '0.5.0';
 const uuid = () => globalThis.crypto.randomUUID();
 
 export type NewWord = Partial<Word> & Pick<Word, 'text' | 'reading' | 'meaning'>;
 
 export interface AnswerInput {
-  word: Word; skill: Skill; exercise: ExerciseType;
+  /** Only the id is used, so kana (which are not notebook words) can be recorded too. */
+  word: Pick<Word, 'id'>; skill: Skill; exercise: ExerciseType;
   shown: string; expected: string; submitted: string;
   correct: boolean; firstTry: boolean;
   responseMs?: number | null; mistakes?: MistakeDetail[]; options?: string[] | null;
@@ -88,10 +90,24 @@ export class Repo {
     return this.db.getAllFromIndex('attempts', 'by-ts', IDBKeyRange.lowerBound(ts));
   }
 
-  /** Counts words whose first skill started today, for the daily new-word limit. */
+  /** Counts words whose first skill started today, for the daily new-word limit. Kana are counted separately. */
   async introducedToday(now = Date.now()): Promise<number> {
-    const day = startOfDay(now);
-    return (await this.getStates()).filter((s) => s.skill === 'recognition' && s.introducedAt >= day).length;
+    return wordsIntroducedToday(await this.getStates(), startOfDay(now));
+  }
+
+  /**
+   * Teaches a new item: its skill starts at box 0, first due tomorrow. This is a lesson, not an answer,
+   * so no attempt is written (statistics only ever come from real answers).
+   */
+  async introduce(wordId: string, skill: Skill, now = Date.now()): Promise<SkillState> {
+    const tx = this.db.transaction(['skillStates', 'outbox'], 'readwrite');
+    const existing = await tx.objectStore('skillStates').get([wordId, skill]);
+    if (existing) { await tx.done; return existing; }
+    const state = { ...newState(wordId, skill, now), dueAt: startOfDay(now) + DAY };
+    await tx.objectStore('skillStates').put(state);
+    await tx.objectStore('outbox').add({ table: 'skillStates', op: 'put', key: `${wordId}|${skill}`, payload: state, createdAt: now });
+    await tx.done;
+    return state;
   }
 
   /** Records one answer. The attempt, the new skill state and the sync queue entries are written together or not at all. */

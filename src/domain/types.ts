@@ -38,7 +38,8 @@ export interface SkillState {
 }
 
 export type ExerciseType =
-  | 'flashcard' | 'meaning-mc' | 'recall-mc' | 'reading-mc' | 'reading-type' | 'listening-mc' | 'spelling-type' | 'romaji-type';
+  | 'flashcard' | 'meaning-mc' | 'recall-mc' | 'reading-mc' | 'reading-type' | 'listening-mc' | 'spelling-type' | 'romaji-type'
+  | 'kana-sound-mc' | 'kana-listen-mc';
 
 export type MistakeKind =
   | 'dakuten' | 'handakuten' | 'small-kana' | 'long-vowel' | 'script' | 'confusable' | 'substitution' | 'missing' | 'extra';

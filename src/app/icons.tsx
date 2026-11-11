@@ -1,5 +1,6 @@
 const P: Record<string, string> = {
   today: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  kana: '<text x="12" y="17.5" text-anchor="middle" font-size="15" font-weight="600" stroke="none" fill="currentColor" font-family="Hiragino Sans, Noto Sans JP, sans-serif">あ</text>',
   notebook: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M8 17h11"/>',
   practice: '<path d="M5 19l1-4L16 5l3 3L9 18z"/>',
   progress: '<path d="M5 19v-8M12 19V5M19 19v-6"/>',

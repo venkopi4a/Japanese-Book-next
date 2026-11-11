@@ -10,7 +10,7 @@ if (run('npm', ['run', 'build'], { VITE_BASE: BASE }).status) process.exit(1);
 if (run('npx', ['vite', 'build', '--outDir', 'e2e/.dist-fail', '--emptyOutDir'], { VITE_BASE: BASE, VITE_RECOGNISER: 'fail' }).status) process.exit(1);
 
 let failed = 0;
-for (const suite of ['e2e.mjs', 'e2e-photo.mjs', 'e2e-fail.mjs', 'offline.mjs']) {
+for (const suite of ['e2e.mjs', 'e2e-kana.mjs', 'e2e-photo.mjs', 'e2e-fail.mjs', 'offline.mjs']) {
   const p = spawnSync('node', ['e2e/' + suite], { encoding: 'utf8', shell: sh, timeout: 280000, env: process.env });
   const lines = (p.stdout || '').split('\n');
   const pass = lines.filter((l) => l.startsWith('PASS')).length;

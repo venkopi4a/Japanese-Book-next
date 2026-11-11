@@ -1,9 +1,20 @@
 import { render } from 'preact';
+import { useCallback, useState } from 'preact/hooks';
 import './styles.css';
 import { App } from './App';
+import { autoProfile, loadProfiles, rememberProfile, type Profile } from './app/profiles';
 import { AppProvider } from './app/state';
+import { ProfilePicker } from './ui/ProfilePicker';
 
-render(<AppProvider><App /></AppProvider>, document.getElementById('app')!);
+function Root() {
+  const [profile, setProfile] = useState<Profile | null>(() => autoProfile(loadProfiles()));
+  const pick = (p: Profile) => { rememberProfile(p.id); setProfile(p); };
+  const switchProfile = useCallback(() => setProfile(null), []);
+  if (!profile) return <ProfilePicker onPick={pick} />;
+  return <AppProvider key={profile.id} profile={profile} onSwitch={switchProfile}><App /></AppProvider>;
+}
+
+render(<Root />, document.getElementById('app')!);
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).then((reg) => {

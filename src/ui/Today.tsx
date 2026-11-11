@@ -3,7 +3,10 @@ import { useApp } from '../app/state';
 import { Blossom, Icon } from '../app/icons';
 import { topicCounts } from '../app/topics';
 import { DAY, startOfDay } from '../domain/scheduler';
-import { planMistakes, planToday, planWeak } from '../domain/session';
+import { planMistakes, planToday, planWeak, wordsIntroducedToday } from '../domain/session';
+import { learnedKana } from '../domain/kanaPlan';
+import { kanaOf } from '../domain/kanaCourse';
+import { KanaToday, useKanaPlan, type StartKana } from './Kana';
 import { streak } from '../domain/stats';
 import type { SessionItem } from './Session';
 
@@ -12,15 +15,17 @@ export const ART = `${import.meta.env.BASE_URL}art-banner.jpg`;
 const asSession = (items: { wordId: string; skill: any; kind: 'new' | 'review'; reason: string }[]): SessionItem[] => items.map((i) => ({ ...i, promote: true }));
 const greeting = () => { const h = new Date().getHours(); return h < 5 || h >= 18 ? 'こんばんは' : h < 11 ? 'おはよう' : 'こんにちは'; };
 
-export function Today({ onStart, onAdd, onSettings, onTopic }: { onStart: (title: string, items: SessionItem[]) => void; onAdd: () => void; onSettings: () => void; onTopic: (topic: string) => void }) {
-  const { words, states, attempts, settings } = useApp();
+export function Today({ onStart, onKana, onKanaTab, onAdd, onSettings, onTopic }: { onStart: (title: string, items: SessionItem[]) => void; onKana: StartKana; onKanaTab: () => void; onAdd: () => void; onSettings: () => void; onTopic: (topic: string) => void }) {
+  const { words, states, attempts, settings, vocabLocked, katakanaDone, profile } = useApp();
+  const kana = useKanaPlan();
   const now = Date.now();
   const d = useMemo(() => {
     const day = startOfDay(now);
-    const introducedToday = states.filter((s) => s.skill === 'recognition' && s.introducedAt >= day).length;
+    const introducedToday = wordsIntroducedToday(states, day);
+    const studied = states.map((s) => s.introducedAt);
     const plan = planToday(words, states, { now, newLimit: settings.newLimit, introducedToday, romaji: settings.readingMode === 'romaji' });
-    const week = Array.from({ length: 7 }, (_, i) => { const t = startOfDay(now - (6 - i) * DAY); return { t, on: attempts.some((a) => startOfDay(a.ts) === t) }; });
-    return { plan, weak: planWeak(states, attempts), mistakes: planMistakes(attempts, day - DAY), answered: attempts.filter((a) => a.ts >= day).length, streak: streak(attempts, now), week };
+    const week = Array.from({ length: 7 }, (_, i) => { const t = startOfDay(now - (6 - i) * DAY); return { t, on: attempts.some((a) => startOfDay(a.ts) === t) || studied.some((x) => startOfDay(x) === t) }; });
+    return { plan, weak: planWeak(states, attempts), mistakes: planMistakes(attempts, day - DAY), answered: attempts.filter((a) => a.ts >= day).length, streak: streak(attempts, now, studied), week };
   }, [words, states, attempts, settings.newLimit, settings.readingMode]);
   const topics = useMemo(() => topicCounts(words), [words]);
   const { plan, weak, answered } = d;
@@ -38,10 +43,17 @@ export function Today({ onStart, onAdd, onSettings, onTopic }: { onStart: (title
           <button class="btn accent" style="min-height:44px;padding:0 14px" onClick={onAdd} aria-label="Add or import words"><Icon name="plus" size={18} /> Add</button>
           <button class="icon-btn ring" aria-label="Settings" onClick={onSettings}><Icon name="gear" size={20} /></button>
         </div>
-        <div class="greet"><div class="j" lang="ja">{greeting()}</div><div class="m">{new Date().toLocaleDateString('en', { weekday: 'long', day: 'numeric', month: 'long' })}</div></div>
+        <div class="greet"><div class="j" lang="ja">{greeting()}{profile.name ? `、${profile.name}` : ''}</div><div class="m">{new Date().toLocaleDateString('en', { weekday: 'long', day: 'numeric', month: 'long' })}</div></div>
       </div>
 
-      <div class="card pull">
+      {vocabLocked ? <>
+        <KanaToday plan={kana} onStart={onKana} />
+        <div class="section"><h2>Your path</h2>
+          <div class="row"><span><b>1. Hiragana</b><br /><span class="m">{learnedKana(states, 'hiragana')} of {kanaOf('hiragana').length} learned</span></span><button class="btn" onClick={onKanaTab}>Open chart</button></div>
+          <div class="row" style="opacity:.6"><span><b>2. Vocabulary</b><br /><span class="m">{words.length} words waiting. Opens after hiragana.</span></span></div>
+          <div class="row" style="opacity:.6"><span><b>3. Katakana</b><br /><span class="m">Comes after hiragana, alongside vocabulary.</span></span></div>
+        </div>
+      </> : <div class="card pull">
         <div class="eyebrow" style="margin:0 0 4px">Today</div>
         {total > 0
           ? <div class="big">{total} <span style="font-size:20px">to practise</span></div>
@@ -52,7 +64,11 @@ export function Today({ onStart, onAdd, onSettings, onTopic }: { onStart: (title
           <button class="btn" style="flex:1;padding:0 10px" disabled={weak.length === 0} onClick={() => onStart('Weak words', asSession(weak.slice(0, 15)))}>Weak words · {weak.length}</button>
           <button class="btn" style="flex:1;padding:0 10px" onClick={onAdd}>Add words</button>
         </div>
-      </div>
+      </div>}
+
+      {!vocabLocked && !katakanaDone && (kana.reviews.length + kana.newRows.length > 0) && (
+        <div class="section"><KanaToday plan={kana} onStart={onKana} compact /></div>
+      )}
 
       <div class="section">
         <div style="display:flex;justify-content:space-between;align-items:baseline"><h2>This week</h2><span class="m">{d.streak > 0 ? `${d.streak}-day streak` : 'Practise today to start a streak'}</span></div>
@@ -61,13 +77,13 @@ export function Today({ onStart, onAdd, onSettings, onTopic }: { onStart: (title
         <div class="m">{answered} of {GOAL} answers today</div>
       </div>
 
-      {topics.length > 0 && (
+      {!vocabLocked && topics.length > 0 && (
         <div class="section"><h2>Practise a topic</h2>
           <div class="chips" style="margin-top:6px">{topics.map(([t, n]) => <button key={t} class="chip" onClick={() => onTopic(t)}>{t}<small>{n}</small></button>)}</div>
         </div>
       )}
 
-      {next && (
+      {!vocabLocked && next && (
         <div class="section"><h2>Study next</h2>
           <div class="row" style="gap:12px"><div>{next.text}</div><button class="btn" onClick={next.run}>Start</button></div>
         </div>

@@ -42,12 +42,26 @@ export function skillAccuracy(attempts: Attempt[], now: number, days = 14, minSa
   return out;
 }
 
-/** Consecutive days with at least one answer, counted back from today (or from yesterday if today has none yet). */
-export function streak(attempts: Attempt[], now: number): number {
-  const days = new Set(attempts.map((a) => startOfDay(a.ts)));
+/**
+ * Consecutive days with at least one answer or lesson, counted back from today (or from yesterday if today has none yet).
+ * extra: other study moments, such as the times new words were taught.
+ */
+export function streak(attempts: Attempt[], now: number, extra: number[] = []): number {
+  const days = new Set([...attempts.map((a) => a.ts), ...extra].map(startOfDay));
   let day = startOfDay(now);
   if (!days.has(day)) day = startOfDay(day - 1);
   let n = 0;
   while (days.has(day)) { n++; day = startOfDay(day - 1); }
   return n;
+}
+
+/** The longest run of consecutive study days ever. */
+export function bestStreak(attempts: Attempt[], extra: number[] = []): number {
+  const days = [...new Set([...attempts.map((a) => a.ts), ...extra].map(startOfDay))].sort((a, b) => a - b);
+  let best = 0, run = 0, prev = NaN;
+  for (const d of days) {
+    run = startOfDay(prev + DAY + 3_600_000) === d ? run + 1 : 1; // +1h keeps daylight-saving days in line
+    best = Math.max(best, run); prev = d;
+  }
+  return best;
 }

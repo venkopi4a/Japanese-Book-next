@@ -1,4 +1,5 @@
 import { hasKanji } from './kana';
+import { isKanaId } from './kanaCourse';
 import { isDue, overdueDays, reasonFor } from './scheduler';
 import type { Attempt, ExerciseType, Skill, SkillState, Word } from './types';
 
@@ -35,6 +36,10 @@ function indexStates(states: SkillState[]) {
   }
   return byWord;
 }
+
+/** Words whose first skill started today (kana excluded), for the daily new-word limit. */
+export const wordsIntroducedToday = (states: SkillState[], dayStart: number) =>
+  states.filter((s) => s.skill === 'recognition' && !isKanaId(s.wordId) && s.introducedAt >= dayStart).length;
 
 /** Today's plan: overdue and due reviews first, then a limited number of new words. */
 export function planToday(words: Word[], states: SkillState[], opts: PlanOptions): Plan {
@@ -75,6 +80,7 @@ export function planWeak(states: SkillState[], attempts: Attempt[], recent = 5):
   }
   const out: { item: PlanItem; score: number }[] = [];
   for (const s of states) {
+    if (isKanaId(s.wordId)) continue; // kana have their own course
     const r = last.get(key(s.wordId, s.skill)) ?? [];
     const poor = r.length >= 3 && r.filter((a) => a.correct && a.firstTry).length / r.length < 0.6;
     if ((s.lapses >= 2 && s.box < 3) || poor) {
@@ -87,7 +93,7 @@ export function planWeak(states: SkillState[], attempts: Attempt[], recent = 5):
 /** Mistakes since a time: skills whose latest attempt in that window was not a clean first-try answer. */
 export function planMistakes(attempts: Attempt[], since: number): PlanItem[] {
   const latest = new Map<string, Attempt>();
-  for (const a of attempts.filter((x) => x.ts >= since).sort((x, y) => x.ts - y.ts)) latest.set(key(a.wordId, a.skill), a);
+  for (const a of attempts.filter((x) => x.ts >= since && !isKanaId(x.wordId)).sort((x, y) => x.ts - y.ts)) latest.set(key(a.wordId, a.skill), a);
   return [...latest.values()].filter((a) => !(a.correct && a.firstTry))
     .map((a) => ({ wordId: a.wordId, skill: a.skill, kind: 'review' as const, reason: 'You missed it in an earlier session' }));
 }
