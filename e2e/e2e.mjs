@@ -18,6 +18,7 @@ const txt=()=>page.evaluate(()=>document.body.innerText);
 const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
 const overflow=()=>page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
 const clickText=async(t,sel='button')=>{const h=await page.evaluateHandle((t,sel)=>[...document.querySelectorAll(sel)].find(e=>e.textContent.trim().startsWith(t)&&!e.disabled),t,sel);const el=h.asElement();if(!el)return false;await el.click();return true};
+await page.evaluateOnNewDocument(()=>{const B='jb:/Japanese-Book-next/:';if(!localStorage.getItem(B+'profiles')){localStorage.setItem(B+'profiles',JSON.stringify([{id:'local',name:'Test',colour:0}]));localStorage.setItem(B+'settings',JSON.stringify({kanaSkip:true}))}});
 await page.goto('http://localhost:4173'+BASE,{waitUntil:'networkidle0'});
 await page.waitForSelector('.big');await sleep(300);
 let t=await txt();
@@ -41,7 +42,7 @@ await page.type('input[type=search]','neko');await sleep(200);t=await txt();ok('
 await page.evaluate(()=>{const i=document.querySelector('input[type=search]');i.value='';i.dispatchEvent(new Event('input',{bubbles:true}))});
 // run a session
 await clickText('Today','.tabbar button');await sleep(200);
-await clickText('Start practice');await sleep(300);await shot('07-session-intro');t=await txt();ok('session starts with a flashcard for a new word',/New word/.test(t)&&/Show answer/.test(t));
+await clickText('Start practice');await sleep(300);await shot('07-session-intro');t=await txt();ok('a new word starts as a lesson card with reading, romaji and meaning shown',/New word/.test(t)&&/Got it/.test(t)&&/asked about it tomorrow/.test(t)&&!/Show answer/.test(t));
 let steps=0,wrongShot=false,qShot=false;const known=new Map();let misses=0;
 while(steps<200){t=await txt();if(/Session complete/.test(t))break;
  if(await clickText('Show answer')){await sleep(250);}
@@ -64,8 +65,7 @@ while(steps<200){t=await txt();if(/Session complete/.test(t))break;
 t=await txt();ok('session reaches summary',/Session complete/.test(t),`steps=${steps}, first-try misses=${misses}`);await shot('10-summary');
 const dbName='jb:'+BASE+':local';
 const dump=await page.evaluate(async(n)=>{const db=await new Promise((res,rej)=>{const r=indexedDB.open(n);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});const all=(s)=>new Promise(res=>{const q=db.transaction(s).objectStore(s).getAll();q.onsuccess=()=>res(q.result)});return {attempts:await all('attempts'),states:await all('skillStates'),outbox:(await all('outbox')).length,words:(await all('words')).length}},dbName);
-ok('attempts were recorded',dump.attempts.length>=10,`${dump.attempts.length} attempts, ${dump.states.length} states, outbox ${dump.outbox}, words ${dump.words}`);
-ok('attempt carries expected/submitted/options',dump.attempts.every(a=>a.expected&&a.submitted&&a.firstTry!==undefined&&(a.options===null||Array.isArray(a.options)))&&dump.attempts.every(a=>a.skill&&a.exercise&&a.appVersion&&a.deviceId));
+ok('lessons save a skill state per new word, due tomorrow, and write no answers',dump.states.length>=10&&dump.attempts.length===0&&dump.states.every(s=>s.box===0&&s.dueAt>Date.now()),`${dump.attempts.length} attempts, ${dump.states.length} states, outbox ${dump.outbox}, words ${dump.words}`);
 await clickText('Done');await sleep(300);t=await txt();ok('Today updates after session',/0 new words|All done/.test(t)||!/10 new words/.test(t),t.split('\n').slice(0,6).join(' | '));await shot('11-today-after');
 // unlock skills by seeding states so typed exercises can be tested
 await page.evaluate(async(n)=>{const db=await new Promise(res=>{const r=indexedDB.open(n);r.onsuccess=()=>res(r.result)});const words=await new Promise(res=>{const q=db.transaction('words').objectStore('words').getAll();q.onsuccess=()=>res(q.result)});const tx=db.transaction('skillStates','readwrite');const st=tx.objectStore('skillStates');const now=Date.now();for(const w of words.filter(w=>['学生','弁護士','ニュース','雑誌'].includes(w.text))){for(const s of ['recognition','recall'])st.put({wordId:w.id,skill:s,box:3,dueAt:now-86400000,correct:3,lapses:0,introducedAt:now-5*86400000,lastAt:now-4*86400000,lastCorrect:true})}await new Promise(r=>tx.oncomplete=r)},dbName);
@@ -79,10 +79,12 @@ ok('typed mistake is explained',/Not quite/.test(t)&&/Answer:/.test(t),(t.match(
 await clickText('Next');await sleep(200);
 // reading in romaji mode
 await clickText('Done').catch(()=>{});
-await page.evaluate(()=>{localStorage.setItem('jb:/Japanese-Book-next/:settings',JSON.stringify({readingMode:'romaji'}))});
+await page.evaluate(()=>{localStorage.setItem('jb:/Japanese-Book-next/:settings',JSON.stringify({readingMode:'romaji',kanaSkip:true}))});
 await page.reload({waitUntil:'networkidle0'});await page.waitForSelector('.big');await clickText('Practice','.tabbar button');await sleep(150);
 const rd=await clickText('Reading','.row');await sleep(300);t=await txt();ok('romaji mode offers typed romaji for reading',/romaji \(beginner mode\)/.test(t),rd+' | '+t.split('\n').slice(0,6).join(' | '));
 await shot('14-romaji');const w=await page.evaluate(()=>document.querySelector('.qcard .ja')?.textContent);const rom=romajiFor(w);await page.type('input.input',rom);await sleep(100);ok('romaji mode previews the kana',/[ぁ-んー]{3,}/.test(await page.evaluate(()=>document.querySelector('form .m')?.textContent||'')),w+' '+rom);await clickText('Check');await sleep(300);ok('romaji answer is accepted for reading',/Lovely|Correct/.test(await txt()));
+{const at=await page.evaluate(async(n)=>{const db=await new Promise(res=>{const r=indexedDB.open(n);r.onsuccess=()=>res(r.result)});return new Promise(res=>{const q=db.transaction('attempts').objectStore('attempts').getAll();q.onsuccess=()=>res(q.result)})},dbName);
+ok('quiz answers are recorded with expected/submitted/options',at.length>=1&&at.every(a=>a.expected&&a.submitted&&a.firstTry!==undefined&&(a.options===null||Array.isArray(a.options))&&a.skill&&a.exercise&&a.appVersion&&a.deviceId),`${at.length} attempts`)}
 // dark mode
 await page.emulateMediaFeatures([{name:'prefers-color-scheme',value:'dark'}]);await sleep(300);await shot('15-dark-session');
 await page.reload({waitUntil:'networkidle0'});await page.waitForSelector('.big');await shot('16-dark-today');

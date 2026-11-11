@@ -176,3 +176,49 @@ textarea.input { padding: 12px 14px; min-height: 84px; resize: vertical; }
 @keyframes bloom { 0% { transform: scale(.2) rotate(-40deg); opacity: 0 } 70% { transform: scale(1.25) rotate(8deg); opacity: 1 } 100% { transform: scale(1) rotate(0) } }
 @keyframes fall { 0% { transform: translate(0, -20px) rotate(0); opacity: 0 } 10% { opacity: .9 } 100% { transform: translate(40px, 240px) rotate(300deg); opacity: 0 } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ---- v0.5: profiles, lessons, kana, progress ---- */
+.picker .people { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; }
+.person { width: 132px; text-align: center; }
+.person-btn { width: 100%; background: var(--sf); border: 1px solid var(--ru); border-radius: 20px; padding: 18px 8px 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: var(--shadow); }
+.person-btn:active { transform: scale(.98); }
+.avatar { width: 64px; height: 64px; border-radius: 50%; color: #FFF8EE; display: grid; place-items: center; font-family: var(--serif); font-weight: 700; font-size: 30px; }
+.pname { font-weight: 700; font-size: 17px; overflow-wrap: anywhere; }
+.qcard.lesson .roma { color: var(--mu); font-size: 18px; margin-top: 2px; letter-spacing: .02em; }
+.qcard .reading.help { font-size: 18px; color: var(--mu); }
+.opt .ohelp { display: block; font-family: var(--sans); font-weight: 400; font-size: 13px; color: var(--mu); margin-top: 2px; }
+.kana-big { font-family: var(--serif); font-weight: 700; font-size: 96px; line-height: 1.1; }
+.opts.grid2 { grid-template-columns: 1fr 1fr; }
+.opt.kana-opt { font-size: 40px; min-height: 84px; }
+.lesson-preview { font-size: 28px; line-height: 1.3; letter-spacing: .04em; color: var(--ink); display: flex; flex-wrap: wrap; column-gap: 18px; }
+.lesson-preview > span { white-space: nowrap; }
+.kgrid { display: grid; gap: 6px; margin-top: 8px; }
+.kcell { min-height: 58px; border-radius: 12px; border: 1px solid var(--ru); background: var(--sf); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 0; }
+.kcell .j { font-size: 24px; line-height: 1.1; }
+.kcell small { font-size: 11px; color: var(--mu); }
+.kcell.new { opacity: .55; }
+.kcell.miss { border-color: var(--warn); background: var(--warn-bg); }
+.kcell.ok { border-color: var(--sk); background: var(--sk2); }
+.kcell.strong { border-color: var(--ok); background: var(--ok-bg); }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i.kcell { display: inline-block; width: 14px; height: 14px; min-height: 0; border-radius: 4px; padding: 0; opacity: 1; }
+.level-card { display: flex; gap: 14px; align-items: center; }
+.level-badge { width: 70px; height: 70px; flex: none; border-radius: 50%; background: var(--sk2); color: var(--sk); display: grid; place-items: center; }
+.ring-row { display: flex; gap: 16px; align-items: center; margin-top: 6px; }
+.legend-list { display: grid; gap: 8px; font-size: 15px; min-width: 0; }
+.legend-list i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+.legend-list .m { font-size: 12px; margin-left: 16px; }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 14px; }
+.cal-h { text-align: center; font-size: 11px; color: var(--mu); }
+.cal-d { aspect-ratio: 1; border-radius: 8px; background: var(--sk2); color: var(--sk); display: grid; place-items: center; }
+.cal-d.off { background: var(--sf2); }
+.cal-d.future { background: none; border: 1px dashed var(--ru); }
+.cal-d.today { box-shadow: inset 0 0 0 2px var(--ac); }
+.miles { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-top: 8px; }
+.mile { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; padding: 10px 4px; border-radius: 14px; border: 1px solid var(--ru); background: var(--sf); color: var(--ru); font-size: 13px; }
+.mile b { color: var(--mu); font-weight: 700; }
+.mile .m { font-size: 11px; }
+.mile.done { color: var(--sk); border-color: var(--sk); background: color-mix(in srgb, var(--sk2) 55%, var(--sf)); }
+.mile.done b { color: var(--ink); }
+.tabbar button { font-size: 10.5px; }

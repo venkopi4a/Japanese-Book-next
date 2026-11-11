@@ -23,6 +23,15 @@ Attempts are never edited or deleted. Statistics are computed from them.
 One IndexedDB database per base path and per account (`jb:<base>:<user>`). Every write also queues an outbox entry for sync.
 Signing out wipes that account's local data. Two accounts never share a local database.
 
+## Added in v0.5
+- Profiles: a "Who's studying?" picker. Each person has their own database (`jb:<base>:<profileId>`) and settings key. The first person gets the id `local`, so data from before profiles is kept. One person on a device opens straight in; two or more see the picker on start.
+- Kana course (`src/domain/kanaCourse.ts`, `kanaPlan.ts`): hiragana then katakana, each 46 basic + 25 voiced + 33 combinations, taught in whole rows (default 15 kana a day). A lesson shows learn cards, then checks each kana by sight (pick the sound) and by sound (pick the kana); a miss gets one extra try at the end. No new rows while 5 or more kana are back at box 0.
+- Vocabulary waits until all hiragana is at recognition box 1 or higher, unless the person ticks "I already read hiragana".
+- Teach first: a new word is shown on a lesson card with reading, romaji, meaning and audio. `repo.introduce` starts it at box 0, due tomorrow. No attempt is written, because a lesson is not an answer.
+- Questions draw wrong options from words already met when at least three exist. Kanji show their kana until the reading is known (reading box 2+); katakana shows romaji until katakana is learned.
+- Voice picker: Japanese voices ranked Premium > Enhanced > default, with a remembered choice and a fallback when the voice disappears.
+- Progress: level (everything learned), words ring (learned = recognition box 1+, mastered = known), kana bars, streak with best ever and a 4-week calendar, milestones. Lesson days count for the streak.
+
 ## Planned for later stages
 Interface and design system (Stage 2), Supabase accounts, Row Level Security and sync (Stage 3),
 photo import through a secure server-side function (Stage 4), progress screens (Stage 5).
