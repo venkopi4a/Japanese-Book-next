@@ -186,6 +186,9 @@ await step('voice', async () => {
   await page.click('button[aria-label="Settings"]'); await sleep(300);
   const t = await txt();
   ok('settings has a voice picker with a try button', !!(await page.$('select[name=voice]')) && /Try this voice/.test(t));
+  ok('settings says which voices the phone shares, with a refresh button', /Looking for voices|shares \d+ Japanese|not sharing any Japanese voice/.test(t) && /Refresh list/.test(t));
+  await sleep(4300);
+  ok('after looking, settings reports the result (headless Chromium has no Japanese voice)', /not sharing any Japanese voice|shares \d+ Japanese/.test(await txt()));
   await click('Want a more natural voice?'); await sleep(150);
   ok('settings explains how to get free natural voices on iPhone', /Spoken Content/.test(await txt()) && /Enhanced/.test(await txt()));
   await shot('k13-settings-voice');

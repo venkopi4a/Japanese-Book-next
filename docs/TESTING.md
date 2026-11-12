@@ -1,6 +1,6 @@
 # What has been tested (version 0.4.0, warm redesign)
 
-## Automated rules and data tests: 114 tests, all passing (`npm test`)
+## Automated rules and data tests: 116 tests, all passing (`npm test`)
 data 8, answer checking and romaji 21, scheduler and sessions 17, distractors and statistics 11, review rules 9,
 photo import (database upgrade, duplicates, saving, drafts, recognition providers, cancellation) 12.
 
