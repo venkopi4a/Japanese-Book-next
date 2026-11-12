@@ -19,9 +19,10 @@ from kokoro_onnx import Kokoro
 from misaki import ja
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT_DIR = os.path.join(ROOT, 'public', 'audio')
-MANIFEST = os.path.join(ROOT, 'src', 'data', 'audio.json')
-REPORT = os.path.join(ROOT, 'scripts', 'audio-report.json')
+OUT_BASE = os.environ.get('AUDIO_OUT', ROOT)  # where results go (default: the repo)
+OUT_DIR = os.path.join(OUT_BASE, 'public', 'audio')
+MANIFEST = os.path.join(OUT_BASE, 'src', 'data', 'audio.json')
+REPORT = os.path.join(OUT_BASE, 'scripts', 'audio-report.json')
 WORD_VOICES = ['jf_alpha', 'jf_tebukuro', 'jf_nezumi', 'jf_gongitsune']
 KANA_TRIES = [(v, suffix, speed) for suffix, speed in [('ː', 0.9), ('', 0.9), ('ː.', 0.85), ('.', 0.85)] for v in ['jf_tebukuro', 'jf_alpha', 'jf_nezumi', 'jf_gongitsune']]
 
@@ -95,18 +96,23 @@ def main():
             chosen = (audio, sr, 'openjtalk mei', heard(whisper, audio, sr, times=3))
         else:
             sources = [it['text'], it['reading']] if it['text'] != it['reading'] else [it['reading']]
-            best = None
-            for voice in WORD_VOICES:
-                for src in sources:
-                    ph = g2p(src)[0]
-                    audio, sr = kokoro.create(ph, voice=voice, speed=0.9, lang='ja', is_phonemes=True)
-                    audio = trim(audio, sr)
-                    t = heard(whisper, audio, sr)
-                    if best is None: best = (audio, sr, f'kokoro {voice} (unverified: heard {t})', t)
-                    if word_ok(t, it['reading']):
-                        chosen = (audio, sr, f'kokoro {voice}' + (' from kanji' if src != it['reading'] else ''), t); break
+            # a full stop gives short words a clean, finished ending (without it: えき was heard as "eki-e")
+            for suffix in ['.', '']:
+                for voice in WORD_VOICES:
+                    for src in sources:
+                        ph = g2p(src)[0]
+                        audio, sr = kokoro.create(ph + suffix, voice=voice, speed=0.9, lang='ja', is_phonemes=True)
+                        audio = trim(audio, sr)
+                        t = heard(whisper, audio, sr)
+                        if word_ok(t, it['reading']):
+                            chosen = (audio, sr, f'kokoro {voice}' + (' from kanji' if src != it['reading'] else ''), t); break
+                    if chosen: break
                 if chosen: break
-            if not chosen: chosen = best
+            if not chosen:
+                # no natural take was heard correctly: Open JTalk Mei always says the exact reading, so nothing wrong ships
+                x, sr = pyopenjtalk.tts(it['reading'], speed=0.9)
+                audio = trim((x / 32768.0).astype(np.float32), sr)
+                chosen = (audio, sr, 'openjtalk mei (fallback)', heard(whisper, audio, sr))
         audio, sr, how, t = chosen
         name = hashlib.sha1(key.encode()).hexdigest()[:10] + '.m4a'
         encode(audio, sr, os.path.join(OUT_DIR, name))
