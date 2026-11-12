@@ -25,15 +25,16 @@ You (Claude Code) work on branches and open PRs; he merges them in the browser.
    Kana first: vocabulary is locked until every hiragana (104) is at recognition box >=1, unless the person ticks "I already read hiragana" (`kanaSkip`).
    Questions use only words/kana already met when enough exist. Kanji show their kana until the word's reading skill is box >=2; katakana shows romaji until katakana is learned.
    Kana progress uses normal skill states and attempts with ids `kana:<h|k>:<char>`; vocabulary planners, limits and stats must ignore them (`isKanaId`).
-   Kana lessons are one chart row (≤5 kana, ~3 min): learn card → check, per kana, then listening, then a matching game (not recorded). Learn cards are saved at once (`repo.introduce`), so leaving keeps progress and the lesson resumes at the next unseen kana. The daily goal (kanaLimit/5 lessons) is a recommendation, never a lock.
+   Kana lessons are one chart row (≤5 kana, 11 steps, ~2 min, with a visible "step N of M"): learn card → check, per kana, then a matching game (not recorded). Listening starts in the next day's review. Learn cards are saved at once (`repo.introduce`), so leaving keeps progress and the lesson resumes at the next unseen kana. The daily goal (kanaLimit/5 lessons) is a recommendation, never a lock.
 6. Photo import never saves anything unconfirmed. Statuses: confirmed, needs-check, duplicate, removed. Editing never auto-confirms. Duplicates are re-checked at save. The original photo is kept. Drafts survive reloads.
 7. Recognition is behind the `Recogniser` interface (`src/recognise/provider.ts`). Today it is a clearly labelled placeholder. No real provider yet: costs money and needs a secret key.
 8. No secrets in the repo or the frontend, ever. A real provider key lives only in a Supabase Edge Function.
 9. Storage is per profile and per base path (`jb:<BASE_URL>:<profileId>`; the first profile is `local`, so pre-profile data carries over). Never read or clear another app's data on the same origin (the old app uses cache `jpbook-v5`, a localStorage prefix and an IndexedDB named `japanese-book`). The service worker only deletes caches with its own prefix.
-10. Never ask Venko to run terminal commands. Never push to `main` directly, always branch + PR.
+10. Pronunciation uses the app's own recordings first (`public/audio`, `src/data/audio.json`, see `docs/AUDIO.md`): Kokoro for words, Open JTalk Mei for single kana, every word take Whisper-checked. The phone voice is only the fallback for words without a recording. Every built-in kana and word must have a recording (`tests/audio.test.ts`).
+11. Never ask Venko to run terminal commands. Never push to `main` directly, always branch + PR.
 
 ## Layout
-`src/domain/` rules (pure, heavily tested) · `src/data/` db, repo, library · `src/import/review.ts` import rules · `src/recognise/` provider interface · `src/app/` state, profiles, settings, exercise builder, speech (voice picker), image · `src/domain/kanaCourse.ts` + `kanaPlan.ts` kana course · `src/domain/levels.ts` levels and milestones · `src/ui/` screens · `src/styles.css` the whole design system · `vite.config.ts` (also generates `sw.js` at build time) · `tests/` unit tests · `e2e/` browser tests · `docs/` architecture, recognition, testing, publishing.
+`src/domain/` rules (pure, heavily tested) · `src/data/` db, repo, library · `src/import/review.ts` import rules · `src/recognise/` provider interface · `src/app/` state, profiles, settings, exercise builder, speech (recordings first, phone voice fallback), image · `scripts/make-audio.py` makes the recordings · `src/domain/kanaCourse.ts` + `kanaPlan.ts` kana course · `src/domain/levels.ts` levels and milestones · `src/ui/` screens · `src/styles.css` the whole design system · `vite.config.ts` (also generates `sw.js` at build time) · `tests/` unit tests · `e2e/` browser tests · `docs/` architecture, recognition, testing, publishing.
 
 ## Design direction
 Warm, illustrated, matches the app icon (sakura, red sun, Mount Fuji, indigo). Mobile-first for iPhone 12 Pro. Light and dark themes. Practice: flashcards for new words, quizzes for reviews, rewarding, gentle on wrong answers.
@@ -41,7 +42,7 @@ Warm, illustrated, matches the app icon (sakura, red sun, Mount Fuji, indigo). M
 ## Publishing
 See `docs/PUBLISHING.md`. A push to `main` runs tests and deploys to GitHub Pages through `.github/workflows/deploy.yml`. Pull requests run `ci.yml`.
 
-## Where we are (v0.5.0) and what is next
-Done: bite-sized resumable kana lessons with a lesson path, profiles ("Who's studying?"), kana course (hiragana then katakana, chart, lessons), teach-first new words, reading help, voice picker, redesigned Progress (level, milestones, streak calendar), Today/Notebook/Practice/Progress, topic selection, strict answer checking, scheduler, photo-import workflow, offline PWA with update prompt, warm redesign.
+## Where we are (v0.7.0) and what is next
+Done: the app's own natural voice (recordings), bite-sized resumable kana lessons with a lesson path, profiles ("Who's studying?"), kana course (hiragana then katakana, chart, lessons), teach-first new words, reading help, voice picker, redesigned Progress (level, milestones, streak calendar), Today/Notebook/Practice/Progress, topic selection, strict answer checking, scheduler, photo-import workflow, offline PWA with update prompt, warm redesign.
 Not yet tested on a real iPhone: camera/picker, touch-drag cropping, keyboard, safe areas, audio, animations.
 Next: (1) verify the Pages deploy works, (2) Stage 3: Supabase accounts (email + password), RLS, sync from the outbox, an Edge Function for recognition, (3) compare recognition providers on 3-5 real handwriting photos from Venko, (4) Progress/word-detail polish, (5) cutover of the live app (only with explicit approval). Explain the cost of any paid service before using it. Free tier first.

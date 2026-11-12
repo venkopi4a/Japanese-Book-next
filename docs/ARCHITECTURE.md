@@ -39,6 +39,9 @@ Signing out wipes that account's local data. Two accounts never share a local da
 - The Kana tab shows the course as a path (done with 1-3 blossoms of strength, current, locked), with the chart one tap away. Finished lessons can be practised; practice only moves the schedule for kana that are due.
 - The daily goal is kanaLimit / 5 lessons. It is shown as blossoms and never locks the next lesson. Reviews run 10 at a time.
 
+## Added in v0.7: the app's own voice
+See `docs/AUDIO.md`. Recordings for every kana and every built-in word are shipped with the app and played first; the phone's voice is the fallback.
+
 ## Planned for later stages
 Interface and design system (Stage 2), Supabase accounts, Row Level Security and sync (Stage 3),
 photo import through a secure server-side function (Stage 4), progress screens (Stage 5).
