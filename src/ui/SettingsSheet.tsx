@@ -3,13 +3,19 @@ import { useApp } from '../app/state';
 import { APP_VERSION } from '../data/repo';
 import { dbName } from '../data/db';
 import { loadProfiles, removeProfile } from '../app/profiles';
-import { japaneseVoices, onVoicesChanged, speak, speechSupported, voiceQuality } from '../app/speech';
+import { chooseVoice, japaneseVoices, loadVoices, onVoicesChanged, speak, speechSupported, voiceQuality, type VoiceLike } from '../app/speech';
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { settings, setSettings, repo, profile, switchProfile, hiraganaDone } = useApp();
-  const [voices, setVoices] = useState(japaneseVoices);
+  const [voices, setVoices] = useState<VoiceLike[]>(japaneseVoices);
+  const [loading, setLoading] = useState(true);
   const [voiceHelp, setVoiceHelp] = useState(false);
-  useEffect(() => onVoicesChanged(() => setVoices(japaneseVoices())), []);
+  // iPhones hand over the voice list late and do not always announce it, so keep checking for a few seconds
+  const refresh = () => { setLoading(true); void loadVoices().then((v) => { setVoices(v); setLoading(false); }); };
+  useEffect(() => { refresh(); return onVoicesChanged(() => setVoices(japaneseVoices())); }, []);
+  const chosen = settings.voiceURI ? voices.find((v) => v.voiceURI === settings.voiceURI) : undefined;
+  const using = chooseVoice(voices, settings.voiceURI);
+  const natural = voices.filter((v) => voiceQuality(v) >= 2);
   const sel = <K extends keyof typeof settings>(k: K, v: string) => setSettings({ [k]: typeof settings[k] === 'number' ? Number(v) : v } as any);
   const others = loadProfiles().length > 1;
 
@@ -20,7 +26,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
     const req = indexedDB.deleteDatabase(dbName(import.meta.env.BASE_URL, profile.id));
     req.onsuccess = req.onerror = req.onblocked = () => location.reload();
   };
-  const label = (v: SpeechSynthesisVoice) => `${v.name}${voiceQuality(v) >= 2 && !/enhanced|premium/i.test(v.name) ? ' (natural)' : ''}`;
+  const label = (v: VoiceLike) => `${v.name}${voiceQuality(v) >= 2 && !/enhanced|premium/i.test(v.name) ? ' (natural)' : ''}`;
 
   return (
     <div class="sheet-bg" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -41,8 +47,16 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
               <option value="">Best available{voices[0] ? ` (${voices[0].name})` : ''}</option>
               {voices.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{label(v)}</option>)}
             </select></label>
-          {voices.length === 0 && <p class="m" style="margin:6px 0 0">No Japanese voice found on this device yet.</p>}
-          <button class="btn" style="width:100%;margin-top:10px" onClick={() => speak('こんにちは。日本語を勉強しましょう。', settings.speechRate)}>Try this voice</button>
+          <div class="voice-info m" role="status">
+            {loading ? 'Looking for voices on this phone…'
+              : voices.length === 0 ? 'This phone is not sharing any Japanese voice with the app yet.'
+              : <>This phone shares {voices.length} Japanese {voices.length === 1 ? 'voice' : 'voices'} with the app: {voices.map((v) => v.name).join(', ')}.{natural.length === 0 && ' None of them is an Enhanced or Premium voice.'}</>}
+            {settings.voiceURI && !chosen && !loading && <div style="color:var(--warn);margin-top:4px">Your chosen voice is not available right now, so {using?.name ?? 'the default voice'} is used.</div>}
+          </div>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <button class="btn" style="flex:2" onClick={() => speak('こんにちは。日本語を勉強しましょう。', settings.speechRate, settings.voiceURI)}>Try this voice</button>
+            <button class="btn" style="flex:1" disabled={loading} onClick={refresh}>Refresh list</button>
+          </div>
           <button class="link" style="margin-top:8px" onClick={() => setVoiceHelp(!voiceHelp)}>{voiceHelp ? 'Hide' : 'Want a more natural voice?'}</button>
           {voiceHelp && (
             <div class="card" style="margin-top:8px;font-size:15px">
@@ -52,9 +66,9 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
                 <li>Tap <b>Accessibility</b>, then <b>Spoken Content</b>, then <b>Voices</b>.</li>
                 <li>Tap <b>Japanese</b>.</li>
                 <li>Tap a voice and download the <b>Enhanced</b> or <b>Premium</b> version (about 100–400 MB, Wi-Fi recommended).</li>
-                <li>Close this app fully and open it again. Pick the new voice here.</li>
+                <li>Close this app fully (swipe it away) and open it again, then tap <b>Refresh list</b> here.</li>
               </ol>
-              <p class="m" style="margin:8px 0 0">Siri voices cannot be used by web apps, so they do not appear in the list.</p>
+              <p class="m" style="margin:8px 0 0"><b>If the new voice still is not in the list,</b> your iPhone is not sharing it with web apps. Apple decides this, and some iOS versions only share the basic voices. Siri voices are never shared. The app cannot unlock them.</p>
             </div>
           )}
           <label class="field"><span>Speaking speed</span><select class="select" value={settings.speechRate} onChange={(e) => sel('speechRate', (e.target as HTMLSelectElement).value)}><option value={0.7}>Slow</option><option value={0.9}>Normal</option><option value={1.1}>Fast</option></select></label>

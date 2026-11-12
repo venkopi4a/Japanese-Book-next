@@ -8,7 +8,7 @@ import { scriptDone } from '../domain/kanaPlan';
 import type { Attempt, SkillState, Word } from '../domain/types';
 import type { Profile } from './profiles';
 import { DEFAULTS, applyTheme, loadSettings, saveSettings, type Settings } from './settings';
-import { setPreferredVoice } from './speech';
+import { loadVoices, setPreferredVoice } from './speech';
 
 interface ToastMsg { text: string; action?: { label: string; run: () => void } }
 interface Ctx {
@@ -34,6 +34,7 @@ export function AppProvider({ profile, onSwitch, children }: { profile: Profile;
   useEffect(() => {
     const s = loadSettings(profile.id);
     setS(s); applyTheme(s.theme); setPreferredVoice(s.voiceURI);
+    void loadVoices(); // warm up the voice list so the first word already uses the chosen voice
     (async () => {
       const repo = new Repo(await openUserDb(dbName(import.meta.env.BASE_URL, profile.id)));
       await repo.seedLibrary(LIBRARY);

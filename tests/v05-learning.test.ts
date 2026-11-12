@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { buildExercise, readingHelp, type Known } from '../src/app/exercise';
 import { DEFAULTS } from '../src/app/settings';
-import { chooseVoice, rankVoices } from '../src/app/speech';
+import { chooseVoice, loadVoices, rankVoices } from '../src/app/speech';
 import { autoProfile, settingsKey } from '../src/app/profiles';
 import { dbName, openUserDb } from '../src/data/db';
 import { Repo, blankWord } from '../src/data/repo';
@@ -96,6 +96,15 @@ describe('voices', () => {
   const all = [v('Samantha', 'a', 'en-US'), v('Kyoko', 'com.apple.voice.compact.ja-JP.Kyoko'), v('Kyoko (Enhanced)', 'com.apple.voice.enhanced.ja-JP.Kyoko'), v('O-Ren (Premium)', 'com.apple.voice.premium.ja-JP.O-Ren'), v('Hattori', 'h', 'ja_JP')];
   it('lists only Japanese voices, most natural first', () => {
     expect(rankVoices(all).map((x) => x.name)).toEqual(['O-Ren (Premium)', 'Kyoko (Enhanced)', 'Hattori', 'Kyoko']);
+  });
+  it('waits for a voice list that arrives late and in pieces (as on iPhone)', async () => {
+    let calls = 0;
+    const late = () => { calls++; return calls < 3 ? [] : calls < 5 ? all.slice(0, 2) : all; };
+    const got = await loadVoices(late, 1000, 1);
+    expect(got.map((x) => x.name)).toEqual(['O-Ren (Premium)', 'Kyoko (Enhanced)', 'Hattori', 'Kyoko']);
+  });
+  it('gives up after the timeout when the phone shares no voices', async () => {
+    expect(await loadVoices(() => [], 5, 1)).toEqual([]);
   });
   it('uses the chosen voice, or the most natural one if the choice is gone', () => {
     expect(chooseVoice(all, 'h')?.name).toBe('Hattori');
