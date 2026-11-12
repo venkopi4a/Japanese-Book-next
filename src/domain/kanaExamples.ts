@@ -1,0 +1,23 @@
+/** One everyday example word for each basic kana: [word, meaning]. Romaji is generated, so it never disagrees with the word. */
+export const KANA_EXAMPLES: Record<string, [string, string]> = {
+  あ: ['あめ', 'rain'], い: ['いぬ', 'dog'], う: ['うみ', 'sea'], え: ['えき', 'station'], お: ['おちゃ', 'green tea'],
+  か: ['かさ', 'umbrella'], き: ['きく', 'to listen'], く: ['くち', 'mouth'], け: ['けしごむ', 'eraser'], こ: ['こえ', 'voice'],
+  さ: ['さかな', 'fish'], し: ['しお', 'salt'], す: ['すし', 'sushi'], せ: ['せかい', 'world'], そ: ['そら', 'sky'],
+  た: ['たこ', 'octopus'], ち: ['ちず', 'map'], つ: ['つき', 'moon'], て: ['て', 'hand'], と: ['とり', 'bird'],
+  な: ['なつ', 'summer'], に: ['にく', 'meat'], ぬ: ['ぬの', 'cloth'], ね: ['ねこ', 'cat'], の: ['のり', 'seaweed'],
+  は: ['はな', 'flower'], ひ: ['ひと', 'person'], ふ: ['ふね', 'boat'], へ: ['へや', 'room'], ほ: ['ほし', 'star'],
+  ま: ['まど', 'window'], み: ['みみ', 'ear'], む: ['むし', 'insect'], め: ['め', 'eye'], も: ['もり', 'forest'],
+  や: ['やま', 'mountain'], ゆ: ['ゆき', 'snow'], よ: ['よる', 'night'],
+  ら: ['らいねん', 'next year'], り: ['りんご', 'apple'], る: ['るす', 'not at home'], れ: ['れきし', 'history'], ろ: ['ろく', 'six'],
+  わ: ['わたし', 'I, me'], を: ['ほんをよむ', 'read a book (を marks the object)'], ん: ['ほん', 'book'],
+  ア: ['アイス', 'ice cream'], イ: ['インク', 'ink'], ウ: ['ウイルス', 'virus'], エ: ['エレベーター', 'elevator'], オ: ['オレンジ', 'orange'],
+  カ: ['カメラ', 'camera'], キ: ['キロ', 'kilo'], ク: ['クラス', 'class'], ケ: ['ケーキ', 'cake'], コ: ['コーヒー', 'coffee'],
+  サ: ['サラダ', 'salad'], シ: ['シャツ', 'shirt'], ス: ['スープ', 'soup'], セ: ['セーター', 'sweater'], ソ: ['ソファ', 'sofa'],
+  タ: ['タクシー', 'taxi'], チ: ['チーズ', 'cheese'], ツ: ['ツアー', 'tour'], テ: ['テレビ', 'TV'], ト: ['トマト', 'tomato'],
+  ナ: ['ナイフ', 'knife'], ニ: ['ニュース', 'news'], ヌ: ['ヌードル', 'noodles'], ネ: ['ネクタイ', 'necktie'], ノ: ['ノート', 'notebook'],
+  ハ: ['ハンバーガー', 'hamburger'], ヒ: ['ヒーター', 'heater'], フ: ['フォーク', 'fork'], ヘ: ['ヘリコプター', 'helicopter'], ホ: ['ホテル', 'hotel'],
+  マ: ['マスク', 'face mask'], ミ: ['ミルク', 'milk'], ム: ['ムード', 'mood'], メ: ['メール', 'email'], モ: ['モデル', 'model'],
+  ヤ: ['ヤード', 'yard'], ユ: ['ユーモア', 'humour'], ヨ: ['ヨーグルト', 'yogurt'],
+  ラ: ['ラジオ', 'radio'], リ: ['リボン', 'ribbon'], ル: ['ルール', 'rule'], レ: ['レモン', 'lemon'], ロ: ['ロボット', 'robot'],
+  ワ: ['ワイン', 'wine'], ン: ['パン', 'bread'],
+};

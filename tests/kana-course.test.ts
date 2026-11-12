@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '../src/domain/distractors';
 import { KANA, KANA_ROWS, kanaOf, isKanaId } from '../src/domain/kanaCourse';
-import { STRUGGLE_LIMIT, kanaIntroducedToday, kanaQuestion, learnedKana, planKana, scriptDone } from '../src/domain/kanaPlan';
+import { STRUGGLE_LIMIT, kanaIntroducedToday, kanaQuestion, learnedKana, lessonStatuses, lessonSteps, planKana, scriptDone } from '../src/domain/kanaPlan';
 import { DAY, newState } from '../src/domain/scheduler';
 import type { SkillState } from '../src/domain/types';
 
@@ -34,30 +34,46 @@ describe('kana course', () => {
   });
 });
 
-describe('kana plan', () => {
-  it('a beginner gets whole rows up to the daily limit', () => {
+describe('kana plan: short lessons that resume', () => {
+  const ans = (id: string, p: Partial<SkillState> = {}, skill: SkillState['skill'] = 'recognition') => st(id, { lastAt: NOW - DAY, lastCorrect: true, box: 1, dueAt: NOW + DAY, ...p }, skill);
+  it('a lesson is one row: a beginner starts with あ い う え お', () => {
     const p = planKana([], { now: NOW, newLimit: 15 });
-    expect(p.newRows.map((r) => r.label)).toEqual(['あ い う え お', 'か き く け こ', 'さ し す せ そ']);
+    expect(p.lesson?.row.label).toBe('あ い う え お');
+    expect(p.lesson).toMatchObject({ index: 0, total: KANA_ROWS.length, done: 0, started: false });
+    expect(p.goal).toBe(3);
     expect(p.reviews).toHaveLength(0);
-    expect(planKana([], { now: NOW, newLimit: 12 }).newRows).toHaveLength(2); // never half a row
-    expect(planKana([], { now: NOW, newLimit: 3 }).newRows).toHaveLength(1); // but always at least one row when there is room
   });
-  it('counts kana introduced today against the limit and skips rows already started', () => {
-    const today = hira.slice(0, 5).map((k) => st(k.id, { introducedAt: NOW - 1000, box: 1, dueAt: NOW + DAY }));
-    expect(kanaIntroducedToday(today, NOW)).toBe(5);
-    const p = planKana(today, { now: NOW, newLimit: 15, introducedToday: 5 });
-    expect(p.newRows.map((r) => r.label)).toEqual(['か き く け こ', 'さ し す せ そ']);
+  it('a lesson left halfway is continued, and kana only seen on a card are not reviews yet', () => {
+    const states = [ans(hira[0]!.id), ans(hira[1]!.id), st(hira[2]!.id, { dueAt: NOW - 1 })]; // う was shown but never answered
+    const p = planKana(states, { now: NOW });
+    expect(p.lesson?.row.label).toBe('あ い う え お');
+    expect(p.lesson).toMatchObject({ done: 2, started: true });
+    expect(p.reviews.map((r) => r.kanaId)).not.toContain(hira[2]!.id);
+  });
+  it('finished lessons count towards the daily goal; the goal never locks the next lesson', () => {
+    const today = KANA_ROWS.slice(0, 3).flatMap((r) => r.chars.map((k) => ans(k.id, { introducedAt: NOW - 1000 })));
+    expect(kanaIntroducedToday(today, NOW)).toBe(15);
+    const p = planKana(today, { now: NOW, newLimit: 15 });
+    expect(p.lessonsToday).toBe(3);
+    expect(p.goalReached).toBe(true);
+    expect(p.lesson?.row.label).toBe('た ち つ て と');
+  });
+  it('lesson statuses: done, then one current, then locked; strength grows with the boxes', () => {
+    const states = [...KANA_ROWS[0]!.chars.map((k) => ans(k.id, { box: 4 })), ...KANA_ROWS[1]!.chars.map((k) => ans(k.id, { box: 1 }))];
+    const l = lessonStatuses(states);
+    expect(l.slice(0, 4).map((x) => x.status)).toEqual(['done', 'done', 'current', 'locked']);
+    expect(l[0]!.strength).toBe(3);
+    expect(l[1]!.strength).toBe(1);
   });
   it('due kana come back as reviews with a reason', () => {
-    const p = planKana([st(hira[0]!.id, { box: 1, dueAt: NOW - DAY, lastCorrect: true })], { now: NOW });
+    const p = planKana([ans(hira[0]!.id, { dueAt: NOW - DAY })], { now: NOW });
     expect(p.reviews).toEqual([{ kanaId: hira[0]!.id, skill: 'recognition', reason: 'Overdue by 1 day', promote: true }]);
   });
-  it(`holds new rows while ${STRUGGLE_LIMIT} or more kana are back at box 0`, () => {
-    const missed = hira.slice(0, STRUGGLE_LIMIT).map((k) => st(k.id, { box: 0, dueAt: NOW, lastCorrect: false }));
-    const p = planKana(missed, { now: NOW });
-    expect(p.held).toBe(true);
-    expect(p.newRows).toHaveLength(0);
-    expect(p.reviews.length).toBe(STRUGGLE_LIMIT);
+  it(`recommends reviewing first when ${STRUGGLE_LIMIT} or more answered kana are back at box 0`, () => {
+    const missed = hira.slice(0, STRUGGLE_LIMIT).map((k) => ans(k.id, { box: 0, dueAt: NOW, lastCorrect: false }));
+    expect(planKana(missed, { now: NOW }).held).toBe(true);
+    const onlyShown = hira.slice(0, STRUGGLE_LIMIT).map((k) => st(k.id)); // shown on cards, never answered: not struggling
+    expect(planKana(onlyShown, { now: NOW }).held).toBe(false);
   });
   it('hiragana is done once every hiragana has been answered right after its lesson', () => {
     const almost = hira.slice(1).map((k) => st(k.id, { box: 1 }));
@@ -66,6 +82,44 @@ describe('kana plan', () => {
     expect(scriptDone([...almost, st(hira[0]!.id, { box: 0 })], 'hiragana')).toBe(false);
     expect(scriptDone([...almost, st(hira[0]!.id, { box: 2 })], 'hiragana')).toBe(true);
     expect(scriptDone([...almost, st(hira[0]!.id, { box: 2 })], 'katakana')).toBe(false);
+  });
+});
+
+describe('lesson steps', () => {
+  const row = KANA_ROWS[1]!; // か き く け こ
+  const opts = (canHear = true) => ({ canHear, now: NOW, rng: mulberry32(7) });
+  it('teaches each kana then checks it straight away, then listening, then a matching game', () => {
+    const s = lessonSteps(row, [], opts());
+    expect(s.map((x) => x.kind).slice(0, 10)).toEqual(['learn', 'quiz', 'learn', 'quiz', 'learn', 'quiz', 'learn', 'quiz', 'learn', 'quiz']);
+    expect(s.slice(10, 15).every((x) => x.kind === 'quiz' && x.skill === 'listening')).toBe(true);
+    expect(s[15]?.kind).toBe('match');
+    expect(s).toHaveLength(16); // short: 5 cards, 10 questions, 1 game
+  });
+  it('without speech there are no listening questions', () => {
+    expect(lessonSteps(row, [], opts(false)).some((x) => x.kind === 'quiz' && x.skill === 'listening')).toBe(false);
+  });
+  it('resuming skips kana already answered, so nothing is repeated', () => {
+    const states = row.chars.slice(0, 3).flatMap((k) => [st(k.id, { lastAt: NOW, box: 1 }), st(k.id, { lastAt: NOW, box: 1 }, 'listening')]);
+    const s = lessonSteps(row, states, opts());
+    expect(s.filter((x) => x.kind === 'learn').map((x) => (x as { kana: { char: string } }).kana.char)).toEqual(['け', 'こ']);
+    expect(s.filter((x) => x.kind === 'quiz' && x.skill === 'listening')).toHaveLength(2);
+  });
+  it('continuing a lesson retries the kana of that row that were missed before leaving', () => {
+    const states = [st(row.chars[0]!.id, { lastAt: NOW, box: 0, lastCorrect: false })];
+    const retry = lessonSteps(row, states, opts()).filter((x) => x.kind === 'quiz' && x.reason === 'Missed earlier');
+    expect(retry).toHaveLength(1);
+    expect((retry[0] as { kana: { char: string } }).kana.char).toBe('か');
+  });
+  it('a finished lesson becomes practice that only moves the schedule for due kana', () => {
+    const states = row.chars.flatMap((k, i) => [st(k.id, { lastAt: NOW - DAY, box: 2, dueAt: i === 0 ? NOW - DAY : NOW + 3 * DAY }), st(k.id, { lastAt: NOW - DAY, box: 2, dueAt: NOW + 3 * DAY }, 'listening')]);
+    const s = lessonSteps(row, states, opts());
+    const quiz = s.filter((x) => x.kind === 'quiz') as { kana: { char: string }; promote: boolean; lesson: boolean; skill: string }[];
+    expect(quiz).toHaveLength(10);
+    expect(quiz.every((q) => !q.lesson)).toBe(true);
+    expect(quiz.filter((q) => q.promote).map((q) => q.kana.char + q.skill)).toEqual(['かrecognition']);
+  });
+  it('three-kana rows (や ゆ よ) also end with the matching game', () => {
+    expect(lessonSteps(KANA_ROWS.find((r) => r.chars.length === 3)!, [], opts()).at(-1)?.kind).toBe('match');
   });
 });
 

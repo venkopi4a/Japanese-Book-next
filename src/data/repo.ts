@@ -6,7 +6,7 @@ import type { ReviewItem } from '../import/review';
 import type { ImportDraft, JBDb, OutboxEntry, PhotoRecord, SessionRecord } from './db';
 import type { LibraryWord } from './library';
 
-export const APP_VERSION = '0.5.0';
+export const APP_VERSION = '0.6.0';
 const uuid = () => globalThis.crypto.randomUUID();
 
 export type NewWord = Partial<Word> & Pick<Word, 'text' | 'reading' | 'meaning'>;
@@ -20,7 +20,7 @@ export interface AnswerInput {
   sessionId: string; now?: number;
   /** false: a right answer is recorded but does not move the schedule (extra practice on items that are not due). */
   promote?: boolean;
-  /** true for the first time a skill is introduced: not knowing a brand-new word is not a lapse. */
+  /** true right after a lesson: missing an item that was never answered before is not a lapse. */
   learning?: boolean;
 }
 
@@ -119,7 +119,8 @@ export class Repo {
     const base = existing ?? newState(a.word.id, a.skill, now);
     const keep = a.promote === false && a.correct && existing;
     let state = keep ? existing : applyAnswer(base, a.correct, a.firstTry, now);
-    if (a.learning && !existing && !a.correct) state = { ...state, lapses: 0 };
+    // not knowing something that was only just taught (never answered before) is not a lapse
+    if (a.learning && !a.correct && (!existing || existing.lastAt === null)) state = { ...state, lapses: base.lapses };
     const attempt: Attempt = {
       id: uuid(), wordId: a.word.id, sessionId: a.sessionId, ts: now, exercise: a.exercise, skill: a.skill,
       shown: a.shown, expected: a.expected, submitted: a.submitted, correct: a.correct, firstTry: a.firstTry,

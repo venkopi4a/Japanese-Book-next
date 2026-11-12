@@ -34,7 +34,7 @@ await step('welcome', async () => {
   await shot('k01-welcome');
   await page.type('input[name=person]', 'Venko'); await click('Start'); await page.waitForSelector('.tabbar'); await sleep(300);
   const t2 = await txt();
-  ok('a brand-new learner starts with hiragana, not vocabulary', /Today's kana/i.test(t2) && /あ い う え お/.test(t2) && /か き く け こ/.test(t2) && /Start lesson/.test(t2) && /Opens after hiragana/.test(t2), t2.split('\n').slice(0, 12).join(' | '));
+  ok('a brand-new learner starts with hiragana, not vocabulary', /Today's kana/i.test(t2) && /あ い う え お/.test(t2) && /Lesson 1 of/.test(t2) && /about \d+ min/.test(t2) && /Start lesson/.test(t2) && /Opens after hiragana/.test(t2), t2.split('\n').slice(0, 12).join(' | '));
   ok('greeting uses the name', /、Venko/.test(t2));
   ok('no horizontal overflow (Today, kana first)', (await overflow()) <= 0);
   await shot('k02-today-kana');
@@ -47,52 +47,91 @@ await step('practice locked', async () => {
 });
 
 await step('chart', async () => {
-  await tab('Kana'); const t = await txt();
-  ok('kana tab shows the chart and progress', /0 of 104 learned/.test(t) && /Basic/.test(t) && /With ゛ and ゜/.test(t) && /Combinations/.test(t));
+  await tab('Kana'); let t = await txt();
+  ok('kana tab shows a lesson path: lesson 1 next, the rest locked', /Lesson 1/.test(t) && /Next up/.test(t) && /Locked/.test(t) && /0 of 104 learned/.test(t));
+  await shot('k03-kana-path');
+  await click('Chart', '.seg-toggle button'); await sleep(150); t = await txt();
+  ok('the chart view shows every stage', /Basic/.test(t) && /With ゛ and ゜/.test(t) && /Combinations/.test(t));
   const cells = await page.$$eval('.kcell[aria-label]', (e) => e.length);
   ok('hiragana chart has all 104 characters', cells === 104, String(cells));
   ok('no horizontal overflow (Kana)', (await overflow()) <= 0);
-  await shot('k03-kana-chart');
+  await shot('k03b-kana-chart');
   await click('Katakana', '.chip'); await sleep(150);
   ok('katakana chart switches script', /ア/.test(await txt()) && /カ/.test(await txt()));
   await click('Hiragana', '.chip'); await sleep(150);
+  await click('Lessons', '.seg-toggle button'); await sleep(150);
 });
 
-await step('lesson', async () => {
-  await click('Start lesson'); await sleep(350);
-  let t = await txt();
-  ok('a lesson starts with a learn card: character, sound and a memory hint', /New hiragana/.test(t) && /あ/.test(t) && /apple/.test(t));
-  await shot('k04-learn-card');
-  const ROMA = { あ: 'a', い: 'i', う: 'u', え: 'e', お: 'o', か: 'ka', き: 'ki', く: 'ku', け: 'ke', こ: 'ko', さ: 'sa', し: 'shi', す: 'su', せ: 'se', そ: 'so' };
-  let learns = 0, quizzes = 0, wrongs = 0, qShot = false, steps = 0;
-  while (steps++ < 120) {
-    t = await txt();
-    if (/Kana lesson complete/.test(t)) break;
-    if (/New hiragana/.test(t)) { learns++; await click('Next'); await sleep(200); continue; }
+const ROMA = { あ: 'a', い: 'i', う: 'u', え: 'e', お: 'o', か: 'ka', き: 'ki', く: 'ku', け: 'ke', こ: 'ko' };
+const counts = { learn: 0, quiz: 0, wrong: 0, match: 0 };
+const shots = { q: false, w: false, m: false };
+/** Plays the open lesson until it ends, or until `stopAfterLearns` learn cards have been answered. */
+async function play(stopAfterLearns = Infinity, wrongFirst = false) {
+  let n = 0, localLearns = 0;
+  while (n++ < 80) {
+    const t = await txt();
+    if (/Lesson complete/.test(t)) return 'done';
+    if (await page.$('.learn')) {
+      if (localLearns >= stopAfterLearns) return 'stopped';
+      counts.learn++; localLearns++; await click('Got it'); await sleep(250); continue;
+    }
+    if (await page.$('.match')) {
+      if (!shots.m) { await shot('k06b-match'); shots.m = true; }
+      const left = await page.$$eval('.match > div:first-child button', (b) => b.map((x) => x.textContent));
+      for (const k of left) {
+        await page.evaluate((k) => [...document.querySelectorAll('.match > div:first-child button')].find((b) => b.textContent === k).click(), k);
+        await page.evaluate((r) => [...document.querySelectorAll('.match > div:last-child button')].find((b) => b.textContent === r).click(), ROMA[k]);
+        await sleep(80);
+      }
+      counts.match++; await sleep(900); continue;
+    }
     const opts = await page.$$('.opt:not([disabled])');
-    if (!opts.length) { if (await click('Next')) await sleep(200); else await sleep(200); continue; }
-    if (!qShot) { await shot('k05-kana-question'); qShot = true; }
+    if (!opts.length) { if (!(await click('Continue'))) await sleep(200); continue; }
+    if (!shots.q) { await shot('k05-kana-question'); shots.q = true; }
     const big = await page.evaluate(() => document.querySelector('.qcard .kana-big')?.textContent);
     const want = big ? ROMA[big] : await page.evaluate(() => window.__said[window.__said.length - 1]);
     const texts = await Promise.all(opts.map((o) => o.evaluate((e) => e.textContent)));
-    // answer the first question wrong on purpose, to check the extra try
-    let idx = texts.indexOf(want); if (quizzes === 0 && texts.length > 1) idx = (idx + 1) % texts.length;
-    await opts[idx < 0 ? 0 : idx].click(); quizzes++; await sleep(200);
-    if (/Not quite/.test(await txt())) { wrongs++; if (wrongs === 1) await shot('k06-kana-wrong'); await click('Next'); await sleep(200); } else await sleep(700);
+    let idx = texts.indexOf(want);
+    if (wrongFirst && counts.quiz === 0) idx = (idx + 1) % texts.length;
+    await opts[idx < 0 ? 0 : idx].click(); counts.quiz++; await sleep(250);
+    if (/Not quite/.test(await txt())) { counts.wrong++; if (!shots.w) { await shot('k06-kana-wrong'); shots.w = true; } await click('Continue'); await sleep(250); } else await sleep(700);
   }
-  t = await txt();
-  ok('the lesson teaches three rows (15 kana) and checks each by sight and sound', learns === 15 && quizzes >= 30, `learn=${learns} quiz=${quizzes} wrong=${wrongs}`);
-  ok('a missed kana gets one extra try at the end', wrongs >= 1 && quizzes >= 31);
-  ok('lesson summary shows hiragana progress', /Kana lesson complete/.test(t) && /hiragana learned/.test(t), t.split('\n').slice(0, 10).join(' | '));
+  return 'stuck';
+}
+
+await step('lesson', async () => {
+  await click('Start lesson'); await sleep(350);
+  const t = await txt();
+  ok('a lesson starts with a learn card: character, sound, memory hint and an example word', !!(await page.$('.learn')) && /あ/.test(t) && /apple/.test(t) && /あめ/.test(t) && /rain/.test(t) && /Lesson 1/.test(t));
+  await shot('k04-learn-card');
+  // learn two kana, then leave
+  const r1 = await play(2, true);
+  ok('each new kana is checked right after its card', r1 === 'stopped' && counts.learn === 2 && counts.quiz >= 2, JSON.stringify(counts));
+  await page.click('button[aria-label="End session"]'); await sleep(400);
+  const t2 = await txt();
+  ok('leaving halfway keeps progress: the lesson offers to continue at 2 of 5', /Continue where you left off/.test(t2) && /2 of 5 done/.test(t2) && /Continue lesson/.test(t2), t2.split('\n').slice(0, 14).join(' | '));
+  await shot('k04b-continue');
+  await click('Continue lesson'); await sleep(350);
+  const firstAfter = await page.$eval('.kana-disc', (e) => e.textContent.trim()).catch(() => '');
+  ok('continuing starts at the next unseen kana, not from the beginning', firstAfter === 'う', firstAfter);
+  const r2 = await play();
+  ok('the whole lesson is short: 5 cards, about 10 questions and one matching game', r2 === 'done' && counts.learn === 5 && counts.quiz >= 10 && counts.quiz <= 12 && counts.match === 1, JSON.stringify(counts));
+  ok('a missed kana gets one extra try before the end', counts.wrong >= 1 && counts.quiz === 11, JSON.stringify(counts));
+  const t3 = await txt();
+  ok('the end screen shows blossoms, the row, progress and a Next lesson button', /Lesson complete/.test(t3) && /Hiragana/.test(t3) && /Next lesson/.test(t3) && (await page.$$('.stars > span')).length === 3, t3.split('\n').slice(0, 12).join(' | '));
   await shot('k07-kana-summary');
   const states = await allOf('skillStates');
   const atts = await allOf('attempts');
   const rec = states.filter((s) => s.wordId.startsWith('kana:') && s.skill === 'recognition');
-  ok('kana answers are saved like any other answer', rec.length === 15 && atts.length >= 30 && atts.every((a) => a.exercise.startsWith('kana-')), `${rec.length} states, ${atts.length} attempts`);
-  ok('a lesson kana missed at first is not counted as a lapse', rec.every((s) => s.lapses === 0));
-  await click('Done'); await sleep(300);
-  const t2 = await txt();
-  ok('after the lesson, today is done (daily limit 15) and the path shows progress', /15 of 104 learned/.test(t2) && /All done for today|Review first/.test(t2), t2.split('\n').slice(0, 12).join(' | '));
+  ok('kana answers are saved like any other answer', rec.length === 5 && atts.length === 11 && atts.every((a) => a.exercise.startsWith('kana-')), `${rec.length} states, ${atts.length} attempts`);
+  ok('missing a kana right after its card is not a lapse', rec.every((s) => s.lapses === 0));
+  await click('Next lesson'); await sleep(350);
+  ok('Next lesson goes straight to lesson 2 (か row)', /Lesson 2/.test(await txt()) && (await page.$eval('.kana-disc', (e) => e.textContent.trim()).catch(() => '')).startsWith('か'));
+  await page.click('button[aria-label="End session"]'); await sleep(400);
+  const t4 = await txt();
+  ok('after one lesson the daily goal shows 1 of 3 and the path marks lesson 1 done', /1\/3/.test(t4) && /Tap to practise/.test(t4) && /5 of 104 learned/.test(t4), t4.split('\n').slice(0, 16).join(' | '));
+  ok('no horizontal overflow (Kana path)', (await overflow()) <= 0);
+  await shot('k07b-path-after');
 });
 
 await step('unlock', async () => {

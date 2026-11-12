@@ -32,6 +32,13 @@ Signing out wipes that account's local data. Two accounts never share a local da
 - Voice picker: Japanese voices ranked Premium > Enhanced > default, with a remembered choice and a fallback when the voice disappears.
 - Progress: level (everything learned), words ring (learned = recognition box 1+, mastered = known), kana bars, streak with best ever and a 4-week calendar, milestones. Lesson days count for the streak.
 
+## Added in v0.6: bite-sized kana lessons
+- A lesson is one row of the chart (at most 5 kana, about 3 minutes): learn card then an immediate check for each kana, a listening round, and a matching game at the end (the game is not recorded).
+- Learn cards are saved as they happen (`repo.introduce`). Leaving halfway keeps everything; the lesson continues at the next kana not yet answered and retries the ones missed before leaving.
+- Kana only seen on a card are never reviews and never count as struggling. A wrong first answer right after a card is not a lapse.
+- The Kana tab shows the course as a path (done with 1-3 blossoms of strength, current, locked), with the chart one tap away. Finished lessons can be practised; practice only moves the schedule for kana that are due.
+- The daily goal is kanaLimit / 5 lessons. It is shown as blossoms and never locks the next lesson. Reviews run 10 at a time.
+
 ## Planned for later stages
 Interface and design system (Stage 2), Supabase accounts, Row Level Security and sync (Stage 3),
 photo import through a secure server-side function (Stage 4), progress screens (Stage 5).

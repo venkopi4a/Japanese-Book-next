@@ -66,7 +66,7 @@ export function Today({ onStart, onKana, onKanaTab, onAdd, onSettings, onTopic }
         </div>
       </div>}
 
-      {!vocabLocked && !katakanaDone && (kana.reviews.length + kana.newRows.length > 0) && (
+      {!vocabLocked && !katakanaDone && (kana.reviews.length > 0 || !!kana.lesson) && (
         <div class="section"><KanaToday plan={kana} onStart={onKana} compact /></div>
       )}
 
