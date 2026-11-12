@@ -298,5 +298,305 @@
   "reading": "げ",
   "voice": "openjtalk mei",
   "whisper_heard": "ゲッゲッゲッ"
+ },
+ "ご": {
+  "kind": "kana",
+  "reading": "ご",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ごっごっごっ"
+ },
+ "ざ": {
+  "kind": "kana",
+  "reading": "ざ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ザッザッザッ"
+ },
+ "じ": {
+  "kind": "kana",
+  "reading": "じ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チッチッチッ"
+ },
+ "ず": {
+  "kind": "kana",
+  "reading": "ず",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ずっ!ずっ!ずっ!"
+ },
+ "ぜ": {
+  "kind": "kana",
+  "reading": "ぜ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ゼッゼッゼッ"
+ },
+ "ぞ": {
+  "kind": "kana",
+  "reading": "ぞ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ゾッゾッゾッ"
+ },
+ "だ": {
+  "kind": "kana",
+  "reading": "だ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "だ、だ、だ。"
+ },
+ "ぢ": {
+  "kind": "kana",
+  "reading": "ぢ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "じっじっじっ"
+ },
+ "づ": {
+  "kind": "kana",
+  "reading": "づ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ずっ!ずっ!ずっ!"
+ },
+ "で": {
+  "kind": "kana",
+  "reading": "で",
+  "voice": "openjtalk mei",
+  "whisper_heard": "テッテッテッ"
+ },
+ "ど": {
+  "kind": "kana",
+  "reading": "ど",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ドッドッドッ"
+ },
+ "ば": {
+  "kind": "kana",
+  "reading": "ば",
+  "voice": "openjtalk mei",
+  "whisper_heard": "バン!バン!バン!"
+ },
+ "び": {
+  "kind": "kana",
+  "reading": "び",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ビッ、ビッ、ビッ"
+ },
+ "ぶ": {
+  "kind": "kana",
+  "reading": "ぶ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "え?え?え?"
+ },
+ "べ": {
+  "kind": "kana",
+  "reading": "べ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ゲッゲッゲッ"
+ },
+ "ぼ": {
+  "kind": "kana",
+  "reading": "ぼ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ドッドッドッ"
+ },
+ "ぱ": {
+  "kind": "kana",
+  "reading": "ぱ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "タン、タン、タン。"
+ },
+ "ぴ": {
+  "kind": "kana",
+  "reading": "ぴ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ピッ、ピッ、ピッ。"
+ },
+ "ぷ": {
+  "kind": "kana",
+  "reading": "ぷ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ふっ、ふっ、ふっ。"
+ },
+ "ぺ": {
+  "kind": "kana",
+  "reading": "ぺ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ゲッゲッゲッ"
+ },
+ "ぽ": {
+  "kind": "kana",
+  "reading": "ぽ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ふっふっふっ"
+ },
+ "きゃ": {
+  "kind": "kana",
+  "reading": "きゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "キャッ!キャッ!キャッ!"
+ },
+ "きゅ": {
+  "kind": "kana",
+  "reading": "きゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ギュッギュッギュッ"
+ },
+ "きょ": {
+  "kind": "kana",
+  "reading": "きょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "キョッキョッキョッ"
+ },
+ "しゃ": {
+  "kind": "kana",
+  "reading": "しゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "さあ、さあ、さあ。"
+ },
+ "しゅ": {
+  "kind": "kana",
+  "reading": "しゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "すっ、すっ、すっ。"
+ },
+ "しょ": {
+  "kind": "kana",
+  "reading": "しょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "そ、そ、そ。"
+ },
+ "ちゃ": {
+  "kind": "kana",
+  "reading": "ちゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チャッチャッチャッ"
+ },
+ "ちゅ": {
+  "kind": "kana",
+  "reading": "ちゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チッチッチッ"
+ },
+ "ちょ": {
+  "kind": "kana",
+  "reading": "ちょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チョッチョッチョッ"
+ },
+ "にゃ": {
+  "kind": "kana",
+  "reading": "にゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ねっ、ねっ、ねっ。"
+ },
+ "にゅ": {
+  "kind": "kana",
+  "reading": "にゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ユッ、ユッ、ユッ。"
+ },
+ "にょ": {
+  "kind": "kana",
+  "reading": "にょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "よっ!よっ!よっ!"
+ },
+ "ひゃ": {
+  "kind": "kana",
+  "reading": "ひゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チャッチャッチャッ"
+ },
+ "ひゅ": {
+  "kind": "kana",
+  "reading": "ひゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "きゅっきゅっきゅっ"
+ },
+ "ひょ": {
+  "kind": "kana",
+  "reading": "ひょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ひょ!ひょ!ひょ!"
+ },
+ "みゃ": {
+  "kind": "kana",
+  "reading": "みゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "まっ、まっ、まっ。"
+ },
+ "みゅ": {
+  "kind": "kana",
+  "reading": "みゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ギュッギュッギュッ"
+ },
+ "みょ": {
+  "kind": "kana",
+  "reading": "みょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ぬ、ぬ、ぬ。"
+ },
+ "りゃ": {
+  "kind": "kana",
+  "reading": "りゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "や、や、や。"
+ },
+ "りゅ": {
+  "kind": "kana",
+  "reading": "りゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ギュッギュッギュッ"
+ },
+ "りょ": {
+  "kind": "kana",
+  "reading": "りょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "よっ!よっ!よっ!"
+ },
+ "ぎゃ": {
+  "kind": "kana",
+  "reading": "ぎゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "やっ!やっ!やっ!"
+ },
+ "ぎゅ": {
+  "kind": "kana",
+  "reading": "ぎゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ギッギッギッ"
+ },
+ "ぎょ": {
+  "kind": "kana",
+  "reading": "ぎょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ちょっちょっちょっ"
+ },
+ "じゃ": {
+  "kind": "kana",
+  "reading": "じゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チャッチャッチャッ"
+ },
+ "じゅ": {
+  "kind": "kana",
+  "reading": "じゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "じゅっじゅっじゅっ"
+ },
+ "じょ": {
+  "kind": "kana",
+  "reading": "じょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ちょっちょっちょっ"
+ },
+ "びゃ": {
+  "kind": "kana",
+  "reading": "びゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ぱっ、ぱっ、ぱっ。"
+ },
+ "びゅ": {
+  "kind": "kana",
+  "reading": "びゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ギッギッギッ"
  }
 }
