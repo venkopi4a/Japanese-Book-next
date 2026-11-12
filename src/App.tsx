@@ -2,9 +2,7 @@ import { useState } from 'preact/hooks';
 import { Icon } from './app/icons';
 import { AddSheet } from './ui/AddSheet';
 import { Kana } from './ui/Kana';
-import { KanaSession } from './ui/KanaSession';
-import type { KanaRow } from './domain/kanaCourse';
-import type { KanaItem } from './domain/kanaPlan';
+import { KanaSession, type KanaMode } from './ui/KanaSession';
 import { Notebook } from './ui/Notebook';
 import { PhotoFlow } from './ui/PhotoFlow';
 import { Practice } from './ui/Practice';
@@ -24,8 +22,8 @@ export function App() {
   const [settings, setSettings] = useState(false);
   const [pTopics, setPTopics] = useState<{ topics: string[]; key: number }>({ topics: [], key: 0 });
   const start = (title: string, items: SessionItem[]) => items.length && setSession({ title, items, key: Date.now() });
-  const [kana, setKana] = useState<{ title: string; rows: KanaRow[]; reviews: KanaItem[]; key: number } | null>(null);
-  const startKana = (title: string, rows: KanaRow[], reviews: KanaItem[]) => { if (rows.length + reviews.length) setKana({ title, rows, reviews, key: Date.now() }); };
+  const [kana, setKana] = useState<{ mode: KanaMode; key: number } | null>(null);
+  const startKana = (mode: KanaMode) => { if (mode.kind === 'lesson' || mode.items.length) setKana({ mode, key: Date.now() }); };
   const [addOpen, setAddOpen] = useState(false);
   const [flow, setFlow] = useState<{ files: File[]; resume: boolean; key: number } | null>(null);
   const add = () => setAddOpen(true);
@@ -40,7 +38,7 @@ export function App() {
         {TABS.map(([k, label]) => <button key={k} aria-current={tab === k ? 'page' : undefined} onClick={() => setTab(k)}><Icon name={k} />{label}</button>)}
       </nav>
       {session && <Session key={session.key} title={session.title} items={session.items} onClose={() => setSession(null)} onAgain={(items) => setSession({ title: 'Missed words', items, key: Date.now() })} />}
-      {kana && <KanaSession key={kana.key} title={kana.title} rows={kana.rows} reviews={kana.reviews} onClose={() => setKana(null)} />}
+      {kana && <KanaSession key={kana.key} mode={kana.mode} onStart={startKana} onClose={() => setKana(null)} />}
       {word && <WordSheet key={word.id ?? 'new'} wordId={word.id} onClose={() => setWord(null)} />}
       {addOpen && <AddSheet onClose={() => setAddOpen(false)} onType={() => { setAddOpen(false); setWord({ id: null }); }}
         onPick={(files) => { setAddOpen(false); setFlow({ files, resume: false, key: Date.now() }); }}

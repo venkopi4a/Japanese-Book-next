@@ -35,6 +35,13 @@ describe('teach first', () => {
     expect(again.introducedAt).toBe(NOW);
     expect(await repo.outboxSize()).toBe(1);
   });
+  it('missing a kana right after its lesson card is not a lapse; missing it later is', async () => {
+    await repo.introduce('kana:h:か', 'recognition', NOW);
+    const first = await repo.recordAnswer({ word: { id: 'kana:h:か' }, skill: 'recognition', exercise: 'kana-sound-mc', shown: 'か', expected: 'ka', submitted: 'ki', correct: false, firstTry: true, sessionId: 's', now: NOW + 1, learning: true });
+    expect(first.state.lapses).toBe(0);
+    const later = await repo.recordAnswer({ word: { id: 'kana:h:か' }, skill: 'recognition', exercise: 'kana-sound-mc', shown: 'か', expected: 'ka', submitted: 'ki', correct: false, firstTry: false, sessionId: 's', now: NOW + 2, learning: true });
+    expect(later.state.lapses).toBe(1);
+  });
   it('kana lessons do not use up the daily new-word limit', async () => {
     await repo.introduce('kana:h:あ', 'recognition', NOW);
     await repo.introduce('a', 'recognition', NOW);
