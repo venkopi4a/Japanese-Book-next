@@ -71,6 +71,7 @@ export function KanaSession({ mode, onClose, onStart }: { mode: KanaMode; onClos
     if (step?.kind !== 'learn' || busy) return;
     setBusy(true);
     await repo.introduce(step.kana.id, 'recognition');
+    if (speechSupported()) await repo.introduce(step.kana.id, 'listening'); // first heard in tomorrow's review
     met.current.add(step.kana.id);
     stats.current.learned++; done.current++; advance();
   };
@@ -100,6 +101,8 @@ export function KanaSession({ mode, onClose, onStart }: { mode: KanaMode; onClos
   };
 
   const progress = Math.min(100, Math.round((done.current / Math.max(1, total.current)) * 100));
+  const stepNo = Math.min(total.current, done.current + 1);
+  const phase = !step ? '' : step.kind === 'learn' ? 'New kana' : step.kind === 'match' ? 'Final game' : step.second ? 'One more try' : 'Quick check';
 
   // ---------- the end ----------
   if (!step) {
@@ -141,7 +144,7 @@ export function KanaSession({ mode, onClose, onStart }: { mode: KanaMode; onClos
   }
 
   const title = mode.kind === 'lesson' ? `Lesson ${mode.index + 1}` : mode.title;
-  const top = <Top progress={progress} title={title} combo={combo} onClose={close} />;
+  const top = <Top progress={progress} title={title} phase={phase} count={`${stepNo} of ${total.current}`} combo={combo} onClose={close} />;
 
   // ---------- learn card ----------
   if (step.kind === 'learn') {
@@ -235,13 +238,13 @@ function Match({ kanas, rate, onDone }: { kanas: KanaChar[]; rate: number; onDon
 function Overlay({ children }: { children: preact.ComponentChildren }) {
   return <div class="overlay kana-session" role="dialog" aria-modal="true"><div class="inner">{children}</div></div>;
 }
-function Top({ progress, title, combo, onClose }: { progress: number; title: string; combo: number; onClose: () => void }) {
+function Top({ progress, title, phase, count, combo, onClose }: { progress: number; title: string; phase: string; count: string; combo: number; onClose: () => void }) {
   return (
     <div class="topbar">
       <button class="icon-btn" aria-label="End session" onClick={onClose}><Icon name="close" /></button>
       <div style="flex:1">
         <div class="track" role="progressbar" aria-label={title} aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}><i style={`width:${progress}%`}>{progress > 0 && <span class="tip"><Blossom size={22} /></span>}</i></div>
-        <div class="m" style="margin-top:8px;font-size:12px;display:flex;justify-content:space-between"><span>{title}</span>{combo >= 3 && <span class="combo-mini"><Blossom size={12} /> {combo}</span>}</div>
+        <div class="m step-line"><span>{title} · {phase}</span>{combo >= 3 && <span class="combo-mini"><Blossom size={12} /> {combo}</span>}<b class="step-count">{count}</b></div>
       </div>
       <span style="width:8px" />
     </div>

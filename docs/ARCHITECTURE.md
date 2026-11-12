@@ -33,7 +33,7 @@ Signing out wipes that account's local data. Two accounts never share a local da
 - Progress: level (everything learned), words ring (learned = recognition box 1+, mastered = known), kana bars, streak with best ever and a 4-week calendar, milestones. Lesson days count for the streak.
 
 ## Added in v0.6: bite-sized kana lessons
-- A lesson is one row of the chart (at most 5 kana, about 3 minutes): learn card then an immediate check for each kana, a listening round, and a matching game at the end (the game is not recorded).
+- A lesson is one row of the chart (at most 5 kana, 11 steps, about 2 minutes, with "step N of M" always shown): learn card then an immediate check for each kana, and a matching game at the end (the game is not recorded). A kana's listening skill starts in the next day's review, once its sight question has been answered.
 - Learn cards are saved as they happen (`repo.introduce`). Leaving halfway keeps everything; the lesson continues at the next kana not yet answered and retries the ones missed before leaving.
 - Kana only seen on a card are never reviews and never count as struggling. A wrong first answer right after a card is not a lapse.
 - The Kana tab shows the course as a path (done with 1-3 blossoms of strength, current, locked), with the chart one tap away. Finished lessons can be practised; practice only moves the schedule for kana that are due.

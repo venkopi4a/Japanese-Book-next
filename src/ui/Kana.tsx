@@ -14,8 +14,8 @@ export function useKanaPlan(): KanaPlan {
   return useMemo(() => planKana(states, { now: Date.now(), newLimit: settings.kanaLimit }), [states, settings.kanaLimit]);
 }
 
-/** Steps take about 10 seconds each: 5 kana ≈ 16 steps ≈ 3 minutes. */
-const minutes = (steps: number) => `about ${Math.max(2, Math.round(steps / 6))} min`;
+/** Steps take about 10 seconds each: 5 kana = 11 steps ≈ 2 minutes. */
+const minutes = (steps: number) => `about ${Math.max(1, Math.round(steps / 6))} min`;
 
 /** Today's kana: the next lesson (continued if it was left halfway), the daily goal and due reviews. */
 export function KanaToday({ plan, onStart, compact = false }: { plan: KanaPlan; onStart: StartKana; compact?: boolean }) {
@@ -35,7 +35,7 @@ export function KanaToday({ plan, onStart, compact = false }: { plan: KanaPlan; 
       {l ? <>
         <div class="m" style="margin-top:8px">{l.started && l.done < l.row.chars.length ? 'Continue where you left off' : plan.goalReached ? 'Daily goal done. One more if you like:' : `Lesson ${l.index + 1} of ${l.total}`}</div>
         <div class="lesson-preview j" lang="ja"><span>{l.row.label}</span></div>
-        <div class="m" style="margin:2px 0 14px">{l.row.chars.length} {l.row.script} · {minutes(l.row.chars.length * 3 + 1)}{l.started && l.done ? ` · ${l.done} of ${l.row.chars.length} done` : ''}</div>
+        <div class="m" style="margin:2px 0 14px">{l.row.chars.length} {l.row.script} · {minutes(l.row.chars.length * 2 + 1)} · {l.row.chars.length * 2 + 1} steps{l.started && l.done ? ` · ${l.done} of ${l.row.chars.length} done` : ''}</div>
         {reviewFirst
           ? <><button class="btn primary" onClick={startReview}>Review {Math.min(n, REVIEW_SESSION)} kana first</button>
             <button class="btn" style="width:100%;margin-top:8px" onClick={startLesson}>{l.started ? 'Continue lesson' : 'Start lesson'}</button></>

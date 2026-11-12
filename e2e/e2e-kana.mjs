@@ -111,6 +111,7 @@ await step('lesson', async () => {
   ok('kana and example words play the app\'s own recordings, not the phone voice', played.length >= 2, played.slice(-2).join(' '));
   const reach = await page.evaluate(async (u) => (await fetch(u)).status, played[0]);
   ok('the recording files are published', reach === 200, String(reach));
+  ok('the lesson always shows how much is left (step 1 of 11)', /1 of 11/.test(t) && /New kana/.test(t), (t.match(/\d+ of \d+/) || [''])[0]);
   await shot('k04-learn-card');
   // learn two kana, then leave
   const r1 = await play(2, true);
@@ -123,15 +124,15 @@ await step('lesson', async () => {
   const firstAfter = await page.$eval('.kana-disc', (e) => e.textContent.trim()).catch(() => '');
   ok('continuing starts at the next unseen kana, not from the beginning', firstAfter === 'う', firstAfter);
   const r2 = await play();
-  ok('the whole lesson is short: 5 cards, about 10 questions and one matching game', r2 === 'done' && counts.learn === 5 && counts.quiz >= 10 && counts.quiz <= 12 && counts.match === 1, JSON.stringify(counts));
-  ok('a missed kana gets one extra try before the end', counts.wrong >= 1 && counts.quiz === 11, JSON.stringify(counts));
+  ok('the whole lesson is short: 5 cards, 5 quick checks and one matching game', r2 === 'done' && counts.learn === 5 && counts.quiz === 6 && counts.match === 1, JSON.stringify(counts));
+  ok('the kana missed before leaving is retried when the lesson continues', counts.wrong >= 1, JSON.stringify(counts));
   const t3 = await txt();
   ok('the end screen shows blossoms, the row, progress and a Next lesson button', /Lesson complete/.test(t3) && /Hiragana/.test(t3) && /Next lesson/.test(t3) && (await page.$$('.stars > span')).length === 3, t3.split('\n').slice(0, 12).join(' | '));
   await shot('k07-kana-summary');
   const states = await allOf('skillStates');
   const atts = await allOf('attempts');
   const rec = states.filter((s) => s.wordId.startsWith('kana:') && s.skill === 'recognition');
-  ok('kana answers are saved like any other answer', rec.length === 5 && atts.length === 11 && atts.every((a) => a.exercise.startsWith('kana-')), `${rec.length} states, ${atts.length} attempts`);
+  ok('kana answers are saved like any other answer', rec.length === 5 && atts.length === 6 && atts.every((a) => a.exercise.startsWith('kana-')), `${rec.length} states, ${atts.length} attempts`);
   ok('missing a kana right after its card is not a lapse', rec.every((s) => s.lapses === 0));
   await click('Next lesson'); await sleep(350);
   ok('Next lesson goes straight to lesson 2 (か row)', /Lesson 2/.test(await txt()) && (await page.$eval('.kana-disc', (e) => e.textContent.trim()).catch(() => '')).startsWith('か'));
