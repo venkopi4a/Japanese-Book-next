@@ -10,7 +10,7 @@ Accounts and sync are Stage 3. Nothing here touches your live app.
 - `src/import/` the safety rules for photo import: nothing uncertain is saved until you confirm it.
 - `src/recognise/` the recognition provider interface and the placeholder (see `docs/RECOGNITION.md`).
 - `src/ui/`, `src/app/` the screens and app state. `src/styles.css` is the whole design system.
-- `tests/` 117 automated tests. `e2e/` real-browser tests (`npm run e2e`). `docs/` architecture, publishing, testing notes, katakana corrections.
+- `tests/` 122 automated tests. `e2e/` real-browser tests (`npm run e2e`). `docs/` architecture, publishing, testing notes, katakana corrections.
 - `.github/workflows/` automatic checks on pull requests and automatic publishing on merge. `CLAUDE.md` is the guide for Claude Code.
 
 ## Commands (run by Claude, not by you)
