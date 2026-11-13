@@ -35,11 +35,59 @@
   "voice": "openjtalk mei",
   "whisper_heard": "かお、かお、かお。"
  },
+ "が": {
+  "kind": "kana",
+  "reading": "が",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ファッ!ファッ!ファッ!"
+ },
  "き": {
   "kind": "kana",
   "reading": "き",
   "voice": "openjtalk mei",
   "whisper_heard": "キッキッキッ"
+ },
+ "きゃ": {
+  "kind": "kana",
+  "reading": "きゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "キャッ!キャッ!キャッ!"
+ },
+ "きゅ": {
+  "kind": "kana",
+  "reading": "きゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ギュッギュッギュッ"
+ },
+ "きょ": {
+  "kind": "kana",
+  "reading": "きょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "キョッキョッキョッ"
+ },
+ "ぎ": {
+  "kind": "kana",
+  "reading": "ぎ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "キッキッキッ"
+ },
+ "ぎゃ": {
+  "kind": "kana",
+  "reading": "ぎゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "やっ!やっ!やっ!"
+ },
+ "ぎゅ": {
+  "kind": "kana",
+  "reading": "ぎゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ギッギッギッ"
+ },
+ "ぎょ": {
+  "kind": "kana",
+  "reading": "ぎょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ちょっちょっちょっ"
  },
  "く": {
   "kind": "kana",
@@ -47,11 +95,23 @@
   "voice": "openjtalk mei",
   "whisper_heard": "くっくっくっ"
  },
+ "ぐ": {
+  "kind": "kana",
+  "reading": "ぐ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ふっ ふっ ふっ"
+ },
  "け": {
   "kind": "kana",
   "reading": "け",
   "voice": "openjtalk mei",
   "whisper_heard": "けっ、けっ、けっ。"
+ },
+ "げ": {
+  "kind": "kana",
+  "reading": "げ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ゲッゲッゲッ"
  },
  "こ": {
   "kind": "kana",
@@ -59,11 +119,23 @@
   "voice": "openjtalk mei",
   "whisper_heard": "ぽっぽっぽ"
  },
+ "ご": {
+  "kind": "kana",
+  "reading": "ご",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ごっごっごっ"
+ },
  "さ": {
   "kind": "kana",
   "reading": "さ",
   "voice": "openjtalk mei",
   "whisper_heard": "サッサッサッ"
+ },
+ "ざ": {
+  "kind": "kana",
+  "reading": "ざ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ザッザッザッ"
  },
  "し": {
   "kind": "kana",
@@ -71,11 +143,59 @@
   "voice": "openjtalk mei",
   "whisper_heard": "し、し、し。"
  },
+ "しゃ": {
+  "kind": "kana",
+  "reading": "しゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "さあ、さあ、さあ。"
+ },
+ "しゅ": {
+  "kind": "kana",
+  "reading": "しゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "すっ、すっ、すっ。"
+ },
+ "しょ": {
+  "kind": "kana",
+  "reading": "しょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "そ、そ、そ。"
+ },
+ "じ": {
+  "kind": "kana",
+  "reading": "じ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チッチッチッ"
+ },
+ "じゃ": {
+  "kind": "kana",
+  "reading": "じゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チャッチャッチャッ"
+ },
+ "じゅ": {
+  "kind": "kana",
+  "reading": "じゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "じゅっじゅっじゅっ"
+ },
+ "じょ": {
+  "kind": "kana",
+  "reading": "じょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ちょっちょっちょっ"
+ },
  "す": {
   "kind": "kana",
   "reading": "す",
   "voice": "openjtalk mei",
   "whisper_heard": "スッ、スッ、スッ。"
+ },
+ "ず": {
+  "kind": "kana",
+  "reading": "ず",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ずっ!ずっ!ずっ!"
  },
  "せ": {
   "kind": "kana",
@@ -83,11 +203,23 @@
   "voice": "openjtalk mei",
   "whisper_heard": "せっせっせっ"
  },
+ "ぜ": {
+  "kind": "kana",
+  "reading": "ぜ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ゼッゼッゼッ"
+ },
  "そ": {
   "kind": "kana",
   "reading": "そ",
   "voice": "openjtalk mei",
   "whisper_heard": "そ、そ、そ。"
+ },
+ "ぞ": {
+  "kind": "kana",
+  "reading": "ぞ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ゾッゾッゾッ"
  },
  "た": {
   "kind": "kana",
@@ -95,11 +227,41 @@
   "voice": "openjtalk mei",
   "whisper_heard": "た、た、た。"
  },
+ "だ": {
+  "kind": "kana",
+  "reading": "だ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "だ、だ、だ。"
+ },
  "ち": {
   "kind": "kana",
   "reading": "ち",
   "voice": "openjtalk mei",
   "whisper_heard": "チッチッチッ"
+ },
+ "ちゃ": {
+  "kind": "kana",
+  "reading": "ちゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チャッチャッチャッ"
+ },
+ "ちゅ": {
+  "kind": "kana",
+  "reading": "ちゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チッチッチッ"
+ },
+ "ちょ": {
+  "kind": "kana",
+  "reading": "ちょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チョッチョッチョッ"
+ },
+ "ぢ": {
+  "kind": "kana",
+  "reading": "ぢ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "じっじっじっ"
  },
  "つ": {
   "kind": "kana",
@@ -107,9 +269,21 @@
   "voice": "openjtalk mei",
   "whisper_heard": "つっつっつっ"
  },
+ "づ": {
+  "kind": "kana",
+  "reading": "づ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ずっ!ずっ!ずっ!"
+ },
  "て": {
   "kind": "kana",
   "reading": "て",
+  "voice": "openjtalk mei",
+  "whisper_heard": "テッテッテッ"
+ },
+ "で": {
+  "kind": "kana",
+  "reading": "で",
   "voice": "openjtalk mei",
   "whisper_heard": "テッテッテッ"
  },
@@ -118,6 +292,12 @@
   "reading": "と",
   "voice": "openjtalk mei",
   "whisper_heard": "と、と、と。"
+ },
+ "ど": {
+  "kind": "kana",
+  "reading": "ど",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ドッドッドッ"
  },
  "な": {
   "kind": "kana",
@@ -130,6 +310,24 @@
   "reading": "に",
   "voice": "openjtalk mei",
   "whisper_heard": "に、に、に"
+ },
+ "にゃ": {
+  "kind": "kana",
+  "reading": "にゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ねっ、ねっ、ねっ。"
+ },
+ "にゅ": {
+  "kind": "kana",
+  "reading": "にゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ユッ、ユッ、ユッ。"
+ },
+ "にょ": {
+  "kind": "kana",
+  "reading": "にょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "よっ!よっ!よっ!"
  },
  "ぬ": {
   "kind": "kana",
@@ -155,15 +353,81 @@
   "voice": "openjtalk mei",
   "whisper_heard": "ラッラッラッ"
  },
+ "ば": {
+  "kind": "kana",
+  "reading": "ば",
+  "voice": "openjtalk mei",
+  "whisper_heard": "バン!バン!バン!"
+ },
+ "ぱ": {
+  "kind": "kana",
+  "reading": "ぱ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "タン、タン、タン。"
+ },
  "ひ": {
   "kind": "kana",
   "reading": "ひ",
   "voice": "openjtalk mei",
   "whisper_heard": "チッチッチッ"
  },
+ "ひゃ": {
+  "kind": "kana",
+  "reading": "ひゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "チャッチャッチャッ"
+ },
+ "ひゅ": {
+  "kind": "kana",
+  "reading": "ひゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "きゅっきゅっきゅっ"
+ },
+ "ひょ": {
+  "kind": "kana",
+  "reading": "ひょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ひょ!ひょ!ひょ!"
+ },
+ "び": {
+  "kind": "kana",
+  "reading": "び",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ビッ、ビッ、ビッ"
+ },
+ "びゃ": {
+  "kind": "kana",
+  "reading": "びゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ぱっ、ぱっ、ぱっ。"
+ },
+ "びゅ": {
+  "kind": "kana",
+  "reading": "びゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ギッギッギッ"
+ },
+ "ぴ": {
+  "kind": "kana",
+  "reading": "ぴ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ピッ、ピッ、ピッ。"
+ },
  "ふ": {
   "kind": "kana",
   "reading": "ふ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ふっ、ふっ、ふっ。"
+ },
+ "ぶ": {
+  "kind": "kana",
+  "reading": "ぶ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "え?え?え?"
+ },
+ "ぷ": {
+  "kind": "kana",
+  "reading": "ぷ",
   "voice": "openjtalk mei",
   "whisper_heard": "ふっ、ふっ、ふっ。"
  },
@@ -173,9 +437,33 @@
   "voice": "openjtalk mei",
   "whisper_heard": "え?え?え?"
  },
+ "べ": {
+  "kind": "kana",
+  "reading": "べ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ゲッゲッゲッ"
+ },
+ "ぺ": {
+  "kind": "kana",
+  "reading": "ぺ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ゲッゲッゲッ"
+ },
  "ほ": {
   "kind": "kana",
   "reading": "ほ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ふっふっふっ"
+ },
+ "ぼ": {
+  "kind": "kana",
+  "reading": "ぼ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ドッドッドッ"
+ },
+ "ぽ": {
+  "kind": "kana",
+  "reading": "ぽ",
   "voice": "openjtalk mei",
   "whisper_heard": "ふっふっふっ"
  },
@@ -190,6 +478,24 @@
   "reading": "み",
   "voice": "openjtalk mei",
   "whisper_heard": "みっ、みっ、みっ。"
+ },
+ "みゃ": {
+  "kind": "kana",
+  "reading": "みゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "まっ、まっ、まっ。"
+ },
+ "みゅ": {
+  "kind": "kana",
+  "reading": "みゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ギュッギュッギュッ"
+ },
+ "みょ": {
+  "kind": "kana",
+  "reading": "みょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ぬ、ぬ、ぬ。"
  },
  "む": {
   "kind": "kana",
@@ -239,6 +545,24 @@
   "voice": "openjtalk mei",
   "whisper_heard": "リ、リ、リ"
  },
+ "りゃ": {
+  "kind": "kana",
+  "reading": "りゃ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "や、や、や。"
+ },
+ "りゅ": {
+  "kind": "kana",
+  "reading": "りゅ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "ギュッギュッギュッ"
+ },
+ "りょ": {
+  "kind": "kana",
+  "reading": "りょ",
+  "voice": "openjtalk mei",
+  "whisper_heard": "よっ!よっ!よっ!"
+ },
  "る": {
   "kind": "kana",
   "reading": "る",
@@ -275,328 +599,1108 @@
   "voice": "openjtalk mei",
   "whisper_heard": ""
  },
- "が": {
+ "びょ": {
   "kind": "kana",
-  "reading": "が",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ファッ!ファッ!ファッ!"
- },
- "ぎ": {
-  "kind": "kana",
-  "reading": "ぎ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "キッキッキッ"
- },
- "ぐ": {
-  "kind": "kana",
-  "reading": "ぐ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ふっ ふっ ふっ"
- },
- "げ": {
-  "kind": "kana",
-  "reading": "げ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ゲッゲッゲッ"
- },
- "ご": {
-  "kind": "kana",
-  "reading": "ご",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ごっごっごっ"
- },
- "ざ": {
-  "kind": "kana",
-  "reading": "ざ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ザッザッザッ"
- },
- "じ": {
-  "kind": "kana",
-  "reading": "じ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "チッチッチッ"
- },
- "ず": {
-  "kind": "kana",
-  "reading": "ず",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ずっ!ずっ!ずっ!"
- },
- "ぜ": {
-  "kind": "kana",
-  "reading": "ぜ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ゼッゼッゼッ"
- },
- "ぞ": {
-  "kind": "kana",
-  "reading": "ぞ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ゾッゾッゾッ"
- },
- "だ": {
-  "kind": "kana",
-  "reading": "だ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "だ、だ、だ。"
- },
- "ぢ": {
-  "kind": "kana",
-  "reading": "ぢ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "じっじっじっ"
- },
- "づ": {
-  "kind": "kana",
-  "reading": "づ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ずっ!ずっ!ずっ!"
- },
- "で": {
-  "kind": "kana",
-  "reading": "で",
-  "voice": "openjtalk mei",
-  "whisper_heard": "テッテッテッ"
- },
- "ど": {
-  "kind": "kana",
-  "reading": "ど",
+  "reading": "びょ",
   "voice": "openjtalk mei",
   "whisper_heard": "ドッドッドッ"
  },
- "ば": {
+ "ぴゃ": {
   "kind": "kana",
-  "reading": "ば",
+  "reading": "ぴゃ",
   "voice": "openjtalk mei",
-  "whisper_heard": "バン!バン!バン!"
+  "whisper_heard": "た、た、た。"
  },
- "び": {
+ "ぴゅ": {
   "kind": "kana",
-  "reading": "び",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ビッ、ビッ、ビッ"
- },
- "ぶ": {
-  "kind": "kana",
-  "reading": "ぶ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "え?え?え?"
- },
- "べ": {
-  "kind": "kana",
-  "reading": "べ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ゲッゲッゲッ"
- },
- "ぼ": {
-  "kind": "kana",
-  "reading": "ぼ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ドッドッドッ"
- },
- "ぱ": {
-  "kind": "kana",
-  "reading": "ぱ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "タン、タン、タン。"
- },
- "ぴ": {
-  "kind": "kana",
-  "reading": "ぴ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ピッ、ピッ、ピッ。"
- },
- "ぷ": {
-  "kind": "kana",
-  "reading": "ぷ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ふっ、ふっ、ふっ。"
- },
- "ぺ": {
-  "kind": "kana",
-  "reading": "ぺ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ゲッゲッゲッ"
- },
- "ぽ": {
-  "kind": "kana",
-  "reading": "ぽ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ふっふっふっ"
- },
- "きゃ": {
-  "kind": "kana",
-  "reading": "きゃ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "キャッ!キャッ!キャッ!"
- },
- "きゅ": {
-  "kind": "kana",
-  "reading": "きゅ",
+  "reading": "ぴゅ",
   "voice": "openjtalk mei",
   "whisper_heard": "ギュッギュッギュッ"
  },
- "きょ": {
+ "ぴょ": {
   "kind": "kana",
-  "reading": "きょ",
+  "reading": "ぴょ",
   "voice": "openjtalk mei",
-  "whisper_heard": "キョッキョッキョッ"
+  "whisper_heard": "ギョッギョッギョッ"
  },
- "しゃ": {
-  "kind": "kana",
-  "reading": "しゃ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "さあ、さあ、さあ。"
+ "あめ": {
+  "kind": "word",
+  "reading": "あめ",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "あめー"
  },
- "しゅ": {
-  "kind": "kana",
-  "reading": "しゅ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "すっ、すっ、すっ。"
+ "いぬ": {
+  "kind": "word",
+  "reading": "いぬ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "犬"
  },
- "しょ": {
-  "kind": "kana",
-  "reading": "しょ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "そ、そ、そ。"
+ "うみ": {
+  "kind": "word",
+  "reading": "うみ",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "海"
  },
- "ちゃ": {
-  "kind": "kana",
-  "reading": "ちゃ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "チャッチャッチャッ"
+ "えき": {
+  "kind": "word",
+  "reading": "えき",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "駅"
  },
- "ちゅ": {
-  "kind": "kana",
-  "reading": "ちゅ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "チッチッチッ"
+ "おちゃ": {
+  "kind": "word",
+  "reading": "おちゃ",
+  "voice": "kokoro jf_gongitsune",
+  "whisper_heard": "お茶"
  },
- "ちょ": {
-  "kind": "kana",
-  "reading": "ちょ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "チョッチョッチョッ"
+ "かさ": {
+  "kind": "word",
+  "reading": "かさ",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "かっさ"
  },
- "にゃ": {
-  "kind": "kana",
-  "reading": "にゃ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ねっ、ねっ、ねっ。"
+ "きく": {
+  "kind": "word",
+  "reading": "きく",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "聞く"
  },
- "にゅ": {
-  "kind": "kana",
-  "reading": "にゅ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ユッ、ユッ、ユッ。"
+ "くち": {
+  "kind": "word",
+  "reading": "くち",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "くちー"
  },
- "にょ": {
-  "kind": "kana",
-  "reading": "にょ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "よっ!よっ!よっ!"
+ "けしごむ": {
+  "kind": "word",
+  "reading": "けしごむ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "消しゴム"
  },
- "ひゃ": {
-  "kind": "kana",
-  "reading": "ひゃ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "チャッチャッチャッ"
+ "こえ": {
+  "kind": "word",
+  "reading": "こえ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "声"
  },
- "ひゅ": {
-  "kind": "kana",
-  "reading": "ひゅ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "きゅっきゅっきゅっ"
+ "さかな": {
+  "kind": "word",
+  "reading": "さかな",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "さあかな"
  },
- "ひょ": {
-  "kind": "kana",
-  "reading": "ひょ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ひょ!ひょ!ひょ!"
+ "しお": {
+  "kind": "word",
+  "reading": "しお",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "死ぬ"
  },
- "みゃ": {
-  "kind": "kana",
-  "reading": "みゃ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "まっ、まっ、まっ。"
+ "すし": {
+  "kind": "word",
+  "reading": "すし",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "寿司"
  },
- "みゅ": {
-  "kind": "kana",
-  "reading": "みゅ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ギュッギュッギュッ"
+ "せかい": {
+  "kind": "word",
+  "reading": "せかい",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "世界"
  },
- "みょ": {
-  "kind": "kana",
-  "reading": "みょ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ぬ、ぬ、ぬ。"
+ "そら": {
+  "kind": "word",
+  "reading": "そら",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "空"
  },
- "りゃ": {
-  "kind": "kana",
-  "reading": "りゃ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "や、や、や。"
+ "たこ": {
+  "kind": "word",
+  "reading": "たこ",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "たっこ"
  },
- "りゅ": {
-  "kind": "kana",
-  "reading": "りゅ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ギュッギュッギュッ"
+ "ちず": {
+  "kind": "word",
+  "reading": "ちず",
+  "voice": "kokoro jf_gongitsune",
+  "whisper_heard": "チーズ"
  },
- "りょ": {
-  "kind": "kana",
-  "reading": "りょ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "よっ!よっ!よっ!"
+ "つき": {
+  "kind": "word",
+  "reading": "つき",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "好き"
  },
- "ぎゃ": {
-  "kind": "kana",
-  "reading": "ぎゃ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "やっ!やっ!やっ!"
+ "とり": {
+  "kind": "word",
+  "reading": "とり",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "通り"
  },
- "ぎゅ": {
-  "kind": "kana",
-  "reading": "ぎゅ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ギッギッギッ"
+ "なつ": {
+  "kind": "word",
+  "reading": "なつ",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "夏"
  },
- "ぎょ": {
-  "kind": "kana",
-  "reading": "ぎょ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ちょっちょっちょっ"
+ "にく": {
+  "kind": "word",
+  "reading": "にく",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "肉"
  },
- "じゃ": {
-  "kind": "kana",
-  "reading": "じゃ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "チャッチャッチャッ"
+ "ぬの": {
+  "kind": "word",
+  "reading": "ぬの",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ぬの"
  },
- "じゅ": {
-  "kind": "kana",
-  "reading": "じゅ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "じゅっじゅっじゅっ"
+ "ねこ": {
+  "kind": "word",
+  "reading": "ねこ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "猫"
  },
- "じょ": {
-  "kind": "kana",
-  "reading": "じょ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ちょっちょっちょっ"
+ "のり": {
+  "kind": "word",
+  "reading": "のり",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ノリー"
  },
- "びゃ": {
-  "kind": "kana",
-  "reading": "びゃ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ぱっ、ぱっ、ぱっ。"
+ "はな": {
+  "kind": "word",
+  "reading": "はな",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "はな"
  },
- "びゅ": {
-  "kind": "kana",
-  "reading": "びゅ",
-  "voice": "openjtalk mei",
-  "whisper_heard": "ギッギッギッ"
+ "ひと": {
+  "kind": "word",
+  "reading": "ひと",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ひと"
+ },
+ "ふね": {
+  "kind": "word",
+  "reading": "ふね",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "船"
+ },
+ "へや": {
+  "kind": "word",
+  "reading": "へや",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "部屋"
+ },
+ "ほし": {
+  "kind": "word",
+  "reading": "ほし",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "欲しい"
+ },
+ "まど": {
+  "kind": "word",
+  "reading": "まど",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "窓"
+ },
+ "みみ": {
+  "kind": "word",
+  "reading": "みみ",
+  "voice": "kokoro jf_gongitsune",
+  "whisper_heard": "ミーミー"
+ },
+ "むし": {
+  "kind": "word",
+  "reading": "むし",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "無視"
+ },
+ "もり": {
+  "kind": "word",
+  "reading": "もり",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "モリー!"
+ },
+ "やま": {
+  "kind": "word",
+  "reading": "やま",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "やま"
+ },
+ "ゆき": {
+  "kind": "word",
+  "reading": "ゆき",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "ゆき"
+ },
+ "よる": {
+  "kind": "word",
+  "reading": "よる",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "夜?"
+ },
+ "らいねん": {
+  "kind": "word",
+  "reading": "らいねん",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "来年"
+ },
+ "りんご": {
+  "kind": "word",
+  "reading": "りんご",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "リンゴ"
+ },
+ "るす": {
+  "kind": "word",
+  "reading": "るす",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ルース"
+ },
+ "れきし": {
+  "kind": "word",
+  "reading": "れきし",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "歴史"
+ },
+ "ろく": {
+  "kind": "word",
+  "reading": "ろく",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "6"
+ },
+ "わたし": {
+  "kind": "word",
+  "reading": "わたし",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "わたし"
+ },
+ "ほんをよむ": {
+  "kind": "word",
+  "reading": "ほんをよむ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "本を読む"
+ },
+ "ほん": {
+  "kind": "word",
+  "reading": "ほん",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "ほーん"
+ },
+ "あいす": {
+  "kind": "word",
+  "reading": "アイス",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "アイス"
+ },
+ "いんく": {
+  "kind": "word",
+  "reading": "インク",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "インク?"
+ },
+ "ういるす": {
+  "kind": "word",
+  "reading": "ウイルス",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "ウイルス"
+ },
+ "えれべーたー": {
+  "kind": "word",
+  "reading": "エレベーター",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "エレベーター"
+ },
+ "おれんじ": {
+  "kind": "word",
+  "reading": "オレンジ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "オレンジ"
+ },
+ "かめら": {
+  "kind": "word",
+  "reading": "カメラ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "カメラ"
+ },
+ "きろ": {
+  "kind": "word",
+  "reading": "キロ",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "キロ"
+ },
+ "くらす": {
+  "kind": "word",
+  "reading": "クラス",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "クラス"
+ },
+ "けーき": {
+  "kind": "word",
+  "reading": "ケーキ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ケーキ"
+ },
+ "こーひー": {
+  "kind": "word",
+  "reading": "コーヒー",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "コーヒー"
+ },
+ "さらだ": {
+  "kind": "word",
+  "reading": "サラダ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "サラダ"
+ },
+ "しゃつ": {
+  "kind": "word",
+  "reading": "シャツ",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "シャツ"
+ },
+ "すーぷ": {
+  "kind": "word",
+  "reading": "スープ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "スープ"
+ },
+ "せーたー": {
+  "kind": "word",
+  "reading": "セーター",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "セーター"
+ },
+ "そふぁ": {
+  "kind": "word",
+  "reading": "ソファ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ソファー"
+ },
+ "たくしー": {
+  "kind": "word",
+  "reading": "タクシー",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "タクシー"
+ },
+ "ちーず": {
+  "kind": "word",
+  "reading": "チーズ",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "チーズ"
+ },
+ "つあー": {
+  "kind": "word",
+  "reading": "ツアー",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "つあ"
+ },
+ "てれび": {
+  "kind": "word",
+  "reading": "テレビ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "テレビ"
+ },
+ "とまと": {
+  "kind": "word",
+  "reading": "トマト",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "トマト"
+ },
+ "ないふ": {
+  "kind": "word",
+  "reading": "ナイフ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ナイフ"
+ },
+ "にゅーす": {
+  "kind": "word",
+  "reading": "ニュース",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ニュース"
+ },
+ "ぬーどる": {
+  "kind": "word",
+  "reading": "ヌードル",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ヌードル"
+ },
+ "ねくたい": {
+  "kind": "word",
+  "reading": "ネクタイ",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "ネクタイ"
+ },
+ "のーと": {
+  "kind": "word",
+  "reading": "ノート",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ノート"
+ },
+ "はんばーがー": {
+  "kind": "word",
+  "reading": "ハンバーガー",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ハンバーガー"
+ },
+ "ひーたー": {
+  "kind": "word",
+  "reading": "ヒーター",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ヒーター"
+ },
+ "ふぉーく": {
+  "kind": "word",
+  "reading": "フォーク",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "フォークリップ"
+ },
+ "へりこぷたー": {
+  "kind": "word",
+  "reading": "ヘリコプター",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ヘリコプター"
+ },
+ "ほてる": {
+  "kind": "word",
+  "reading": "ホテル",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ホテル"
+ },
+ "ますく": {
+  "kind": "word",
+  "reading": "マスク",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "マスク"
+ },
+ "みるく": {
+  "kind": "word",
+  "reading": "ミルク",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "ミルク"
+ },
+ "むーど": {
+  "kind": "word",
+  "reading": "ムード",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ムード"
+ },
+ "めーる": {
+  "kind": "word",
+  "reading": "メール",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "メール"
+ },
+ "もでる": {
+  "kind": "word",
+  "reading": "モデル",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "モデルー"
+ },
+ "やーど": {
+  "kind": "word",
+  "reading": "ヤード",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "やあどう"
+ },
+ "ゆーもあ": {
+  "kind": "word",
+  "reading": "ユーモア",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ユーモア"
+ },
+ "よーぐると": {
+  "kind": "word",
+  "reading": "ヨーグルト",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ヨーグルト"
+ },
+ "らじお": {
+  "kind": "word",
+  "reading": "ラジオ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ラジオ"
+ },
+ "りぼん": {
+  "kind": "word",
+  "reading": "リボン",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "リボン"
+ },
+ "るーる": {
+  "kind": "word",
+  "reading": "ルール",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "ルール"
+ },
+ "れもん": {
+  "kind": "word",
+  "reading": "レモン",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "レモン"
+ },
+ "ろぼっと": {
+  "kind": "word",
+  "reading": "ロボット",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ロボット"
+ },
+ "わいん": {
+  "kind": "word",
+  "reading": "ワイン",
+  "voice": "kokoro jf_nezumi",
+  "whisper_heard": "ワイン"
+ },
+ "ぱん": {
+  "kind": "word",
+  "reading": "パン",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "はい"
+ },
+ "ざっし": {
+  "kind": "word",
+  "reading": "ざっし",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "雑誌"
+ },
+ "よく": {
+  "kind": "word",
+  "reading": "よく",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "よく"
+ },
+ "よみます": {
+  "kind": "word",
+  "reading": "よみます",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "読みます。"
+ },
+ "ときどき": {
+  "kind": "word",
+  "reading": "ときどき",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "ドキドキ"
+ },
+ "みます": {
+  "kind": "word",
+  "reading": "みます",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "見ます"
+ },
+ "やきゅう": {
+  "kind": "word",
+  "reading": "やきゅう",
+  "voice": "kokoro jf_tebukuro from kanji",
+  "whisper_heard": "野球"
+ },
+ "あにめ": {
+  "kind": "word",
+  "reading": "アニメ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "アニメー"
+ },
+ "まんが": {
+  "kind": "word",
+  "reading": "まんが",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "漫画"
+ },
+ "ろっく": {
+  "kind": "word",
+  "reading": "ロック",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "ロック"
+ },
+ "ききます": {
+  "kind": "word",
+  "reading": "ききます",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "聞きます"
+ },
+ "じゃず": {
+  "kind": "word",
+  "reading": "ジャズ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ジャズ"
+ },
+ "ばすけっとぼーる": {
+  "kind": "word",
+  "reading": "バスケットボール",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "バスケットボール"
+ },
+ "えいが": {
+  "kind": "word",
+  "reading": "えいが",
+  "voice": "kokoro jf_tebukuro from kanji",
+  "whisper_heard": "映画?"
+ },
+ "おなまえは": {
+  "kind": "word",
+  "reading": "おなまえは",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "お名前は"
+ },
+ "とし": {
+  "kind": "word",
+  "reading": "とし",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "とし"
+ },
+ "しずか": {
+  "kind": "word",
+  "reading": "しずか",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "静か"
+ },
+ "にすんでいます": {
+  "kind": "word",
+  "reading": "にすんでいます",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "に住んでいます"
+ },
+ "まち": {
+  "kind": "word",
+  "reading": "まち",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "待ち"
+ },
+ "とても": {
+  "kind": "word",
+  "reading": "とても",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "とても"
+ },
+ "にぎやか": {
+  "kind": "word",
+  "reading": "にぎやか",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "にぎやか"
+ },
+ "しゅっしん": {
+  "kind": "word",
+  "reading": "しゅっしん",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "すちん"
+ },
+ "わたしも": {
+  "kind": "word",
+  "reading": "わたしも",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "私も"
+ },
+ "きれい": {
+  "kind": "word",
+  "reading": "きれい",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "キレイ"
+ },
+ "ともだち": {
+  "kind": "word",
+  "reading": "ともだち",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "友達"
+ },
+ "あかるい": {
+  "kind": "word",
+  "reading": "あかるい",
+  "voice": "kokoro jf_tebukuro from kanji",
+  "whisper_heard": "明るい"
+ },
+ "おもしろい": {
+  "kind": "word",
+  "reading": "おもしろい",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "面白い"
+ },
+ "こーと": {
+  "kind": "word",
+  "reading": "コート",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "コート"
+ },
+ "あかい": {
+  "kind": "word",
+  "reading": "あかい",
+  "voice": "kokoro jf_tebukuro from kanji",
+  "whisper_heard": "赤い"
+ },
+ "かばん": {
+  "kind": "word",
+  "reading": "かばん",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "カバン"
+ },
+ "くつ": {
+  "kind": "word",
+  "reading": "くつ",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "クチッ"
+ },
+ "てぶくろ": {
+  "kind": "word",
+  "reading": "てぶくろ",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "手袋を"
+ },
+ "べとなむじん": {
+  "kind": "word",
+  "reading": "べとなむじん",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "ベトナム人"
+ },
+ "わたしの": {
+  "kind": "word",
+  "reading": "わたしの",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "私の"
+ },
+ "しろい": {
+  "kind": "word",
+  "reading": "しろい",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "白い"
+ },
+ "わたしのくつはあかいです": {
+  "kind": "word",
+  "reading": "わたしのくつはあかいです",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "私の靴は赤いです"
+ },
+ "じゃあ": {
+  "kind": "word",
+  "reading": "じゃあ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "じゃあ"
+ },
+ "どこ": {
+  "kind": "word",
+  "reading": "どこ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "どこ?"
+ },
+ "ここ": {
+  "kind": "word",
+  "reading": "ここ",
+  "voice": "kokoro jf_gongitsune",
+  "whisper_heard": "ここ?"
+ },
+ "でぱーと": {
+  "kind": "word",
+  "reading": "デパート",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "デパート"
+ },
+ "ばすてい": {
+  "kind": "word",
+  "reading": "ばすてい",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "バス停"
+ },
+ "こんびに": {
+  "kind": "word",
+  "reading": "コンビニ",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "コンビニ"
+ },
+ "だいがく": {
+  "kind": "word",
+  "reading": "だいがく",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "大学"
+ },
+ "そこ": {
+  "kind": "word",
+  "reading": "そこ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "そこ"
+ },
+ "いち": {
+  "kind": "word",
+  "reading": "いち",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "1"
+ },
+ "にじ": {
+  "kind": "word",
+  "reading": "にじ",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "虹"
+ },
+ "さん": {
+  "kind": "word",
+  "reading": "さん",
+  "voice": "kokoro jf_tebukuro from kanji",
+  "whisper_heard": "サン"
+ },
+ "いちじはん": {
+  "kind": "word",
+  "reading": "いちじはん",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "一時半"
+ },
+ "いま": {
+  "kind": "word",
+  "reading": "いま",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "いまー"
+ },
+ "ちいさい": {
+  "kind": "word",
+  "reading": "ちいさい",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "小さい"
+ },
+ "にほん": {
+  "kind": "word",
+  "reading": "にほん",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "日本"
+ },
+ "かなだ": {
+  "kind": "word",
+  "reading": "カナダ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "カナダ"
+ },
+ "かなだじん": {
+  "kind": "word",
+  "reading": "かなだじん",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "カナダ人"
+ },
+ "おおきい": {
+  "kind": "word",
+  "reading": "おおきい",
+  "voice": "kokoro jf_tebukuro from kanji",
+  "whisper_heard": "大きい"
+ },
+ "ぶらじるじん": {
+  "kind": "word",
+  "reading": "ぶらじるじん",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "ブラジル人"
+ },
+ "ぶらじる": {
+  "kind": "word",
+  "reading": "ブラジル",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "ブラジル"
+ },
+ "いぎりすじん": {
+  "kind": "word",
+  "reading": "いぎりすじん",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "イギリス人"
+ },
+ "いぎりす": {
+  "kind": "word",
+  "reading": "イギリス",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "イギリス"
+ },
+ "ちかてつ": {
+  "kind": "word",
+  "reading": "ちかてつ",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "地下鉄"
+ },
+ "くうこう": {
+  "kind": "word",
+  "reading": "くうこう",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "空港"
+ },
+ "あそこ": {
+  "kind": "word",
+  "reading": "あそこ",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "あそこ"
+ },
+ "きっぷ": {
+  "kind": "word",
+  "reading": "きっぷ",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "キープ"
+ },
+ "らーめん": {
+  "kind": "word",
+  "reading": "ラーメン",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "ラーメン"
+ },
+ "かれー": {
+  "kind": "word",
+  "reading": "カレー",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "カレー"
+ },
+ "これは": {
+  "kind": "word",
+  "reading": "これは",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "これは"
+ },
+ "おいしい": {
+  "kind": "word",
+  "reading": "おいしい",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "おいしい"
+ },
+ "ぴざ": {
+  "kind": "word",
+  "reading": "ピザ",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "ピザ"
+ },
+ "それ": {
+  "kind": "word",
+  "reading": "それ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "それ"
+ },
+ "これとそれ": {
+  "kind": "word",
+  "reading": "これとそれ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "これとそれ"
+ },
+ "いいえ": {
+  "kind": "word",
+  "reading": "いいえ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "イエー"
+ },
+ "すき": {
+  "kind": "word",
+  "reading": "すき",
+  "voice": "kokoro jf_tebukuro from kanji",
+  "whisper_heard": "好き"
+ },
+ "こんにちは": {
+  "kind": "word",
+  "reading": "こんにちは",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "こんにちは"
+ },
+ "どうぞよろしく": {
+  "kind": "word",
+  "reading": "どうぞよろしく",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "どうぞよろしく"
+ },
+ "こんばんは": {
+  "kind": "word",
+  "reading": "こんばんは",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "こんばんは"
+ },
+ "じゃあね": {
+  "kind": "word",
+  "reading": "じゃあね",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "じゃあね"
+ },
+ "またあした": {
+  "kind": "word",
+  "reading": "またあした",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "また明日"
+ },
+ "この": {
+  "kind": "word",
+  "reading": "この",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "この"
+ },
+ "すまほ": {
+  "kind": "word",
+  "reading": "スマホ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "スマホ"
+ },
+ "ぱそこん": {
+  "kind": "word",
+  "reading": "パソコン",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "パソコン"
+ },
+ "はい": {
+  "kind": "word",
+  "reading": "はい",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "はい"
+ },
+ "どうぞ": {
+  "kind": "word",
+  "reading": "どうぞ",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "どうぞ"
+ },
+ "すみません": {
+  "kind": "word",
+  "reading": "すみません",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "すみません"
+ },
+ "ぼうし": {
+  "kind": "word",
+  "reading": "ぼうし",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "帽子"
+ },
+ "ぱすぽーと": {
+  "kind": "word",
+  "reading": "パスポート",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "パスポート"
+ },
+ "いしゃ": {
+  "kind": "word",
+  "reading": "いしゃ",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "医者"
+ },
+ "ごはん": {
+  "kind": "word",
+  "reading": "ごはん",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "ごはん"
+ },
+ "やさしい": {
+  "kind": "word",
+  "reading": "やさしい",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "優しい"
+ },
+ "がくせい": {
+  "kind": "word",
+  "reading": "がくせい",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "学生"
+ },
+ "べんごし": {
+  "kind": "word",
+  "reading": "べんごし",
+  "voice": "kokoro jf_alpha from kanji",
+  "whisper_heard": "弁護士"
+ },
+ "かっこいい": {
+  "kind": "word",
+  "reading": "かっこいい",
+  "voice": "kokoro jf_tebukuro",
+  "whisper_heard": "かっこいい"
+ },
+ "です": {
+  "kind": "word",
+  "reading": "です",
+  "voice": "kokoro jf_alpha",
+  "whisper_heard": "です"
+ },
+ "みず": {
+  "kind": "word",
+  "reading": "みず",
+  "voice": "openjtalk mei (fallback)",
+  "whisper_heard": "水"
  }
 }

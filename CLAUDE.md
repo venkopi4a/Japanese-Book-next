@@ -10,7 +10,7 @@ GitHub-website steps. He is direct and wants blunt, structured answers: state th
 You (Claude Code) work on branches and open PRs; he merges them in the browser.
 
 ## Commands
-- `npm ci` install · `npm run typecheck` · `npm test` (116 unit tests) · `npm run build`
+- `npm ci` install · `npm run typecheck` · `npm test` (120 unit tests) · `npm run build`
 - `VITE_BASE=/Japanese-Book-next/ npm run build` builds for the live address
 - `npm run e2e` builds, then runs five real-browser suites (headless Chromium, 390x844): main flows, kana course + profiles + progress, photo import, recognition failure, offline/update.
   Screenshots go to `e2e/out/` (git-ignored). First run needs no extra setup (`@sparticuz/chromium` is a dev dependency).
