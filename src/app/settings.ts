@@ -10,12 +10,14 @@ export interface Settings {
   voiceURI: string;
   /** The chosen voice's name, so it is found again when iPhone reports a different id after a restart. */
   voiceName: string;
+  /** 'recorded': the app's own natural recordings (kana and built-in words), phone voice for everything else. 'device': always the phone voice. */
+  voiceMode: 'recorded' | 'device';
   /** New kana per day in the kana course. */
   kanaLimit: number;
   /** true: this person already reads hiragana, so vocabulary is open without finishing the kana course. */
   kanaSkip: boolean;
 }
-export const DEFAULTS: Settings = { theme: 'auto', newLimit: 10, readingMode: 'choice', speechRate: 0.9, autoPlay: true, voiceURI: '', voiceName: '', kanaLimit: 15, kanaSkip: false };
+export const DEFAULTS: Settings = { theme: 'auto', newLimit: 10, readingMode: 'choice', speechRate: 0.9, autoPlay: true, voiceURI: '', voiceName: '', voiceMode: 'recorded', kanaLimit: 15, kanaSkip: false };
 
 export function loadSettings(profileId = 'local'): Settings {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(settingsKey(profileId)) ?? '{}') }; } catch { return DEFAULTS; }

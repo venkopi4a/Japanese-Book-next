@@ -1,3 +1,19 @@
+import recordings from '../data/audio.json';
+import { audioKey } from './audioKey';
+
+const RECORDINGS = recordings as Record<string, string>;
+/** The URL of the app's own recording of this text, or null when there is none (then the phone voice is used). */
+export function recordingUrl(text: string): string | null {
+  const file = RECORDINGS[audioKey(text)];
+  return file ? `${import.meta.env.BASE_URL}audio/${file}` : null;
+}
+
+let player: HTMLAudioElement | null = null;
+const getPlayer = () => (player ??= typeof Audio !== 'undefined' ? new Audio() : null);
+
+let mode: 'recorded' | 'device' = 'recorded';
+export const setVoiceMode = (m: 'recorded' | 'device') => { mode = m; };
+
 export const speechSupported = () => typeof speechSynthesis !== 'undefined' && typeof SpeechSynthesisUtterance !== 'undefined';
 
 export interface VoiceLike { name: string; lang: string; voiceURI: string; localService?: boolean }
@@ -5,7 +21,15 @@ export interface VoiceLike { name: string; lang: string; voiceURI: string; local
 const isJapanese = (v: VoiceLike) => v.lang.replace('_', '-').toLowerCase().startsWith('ja');
 
 /** Higher is more natural: Premium and Enhanced voices (free downloads on iPhone) beat the compact default. */
+/**
+ * Apple's Eloquence screen-reader voices (Eddy, Flo, Grandma …) are offered for Japanese on iPhone too, and are the
+ * most robotic of all. They rank last, so "Best available" is Kyoko rather than Eddy.
+ */
+const ELOQUENCE = /^(eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)\b/i;
+export const isRobotic = (v: VoiceLike) => ELOQUENCE.test(v.name) || /eloquence/i.test(v.voiceURI);
+
 export function voiceQuality(v: VoiceLike): number {
+  if (isRobotic(v)) return -1;
   const s = `${v.name} ${v.voiceURI}`.toLowerCase();
   if (s.includes('premium')) return 3;
   if (s.includes('enhanced') || s.includes('natural') || s.includes('neural')) return 2;
@@ -82,15 +106,41 @@ let preferred = { uri: '', name: '' };
 export const setPreferredVoice = (uri: string, name = '') => { preferred = { uri, name }; };
 
 let unlocked = false;
-/** iPhones only allow speech that starts from a tap: the first tap speaks an empty sentence, which unlocks it. */
+/**
+ * iPhones only allow sound that starts from a tap. The first tap plays a silent sound on the shared player and an
+ * empty utterance, after which the app may play by itself (e.g. right after an answer).
+ */
 export function unlockAudio() {
-  if (unlocked || !speechSupported()) return;
+  if (unlocked) return;
   unlocked = true;
-  try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); allVoices(); } catch { unlocked = false; }
+  const p = getPlayer();
+  if (p) {
+    p.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+    p.play().then(() => p.pause()).catch(() => { unlocked = false; });
+  }
+  if (speechSupported()) { try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); allVoices(); } catch { /* not allowed yet */ } }
 }
 
+/** Speaks Japanese: the app's natural recording when it has one (and the setting allows), otherwise the phone voice. */
 export function speak(text: string, rate = 0.9, uri = preferred.uri, name = preferred.name) {
+  if (!text) return;
+  const url = mode === 'recorded' ? recordingUrl(text) : null;
+  const p = getPlayer();
+  if (url && p) {
+    if (speechSupported()) speechSynthesis.cancel();
+    p.pause();
+    p.src = url;
+    p.playbackRate = rate / 0.9; // the speed setting: 0.9 is normal
+    p.play().catch(() => speakWithPhone(text, rate, uri, name)); // if the phone refuses, still say something
+    return;
+  }
+  speakWithPhone(text, rate, uri, name);
+}
+
+/** Always the phone's own voice (for words the app has no recording of, or when "Phone voice" is chosen). */
+export function speakWithPhone(text: string, rate = 0.9, uri = preferred.uri, name = preferred.name) {
   if (!speechSupported() || !text) return;
+  player?.pause();
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.rate = rate;

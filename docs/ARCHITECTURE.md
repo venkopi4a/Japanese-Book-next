@@ -39,8 +39,8 @@ Signing out wipes that account's local data. Two accounts never share a local da
 - The Kana tab shows the course as a path (done with 1-3 blossoms of strength, current, locked), with the chart one tap away. Finished lessons can be practised; practice only moves the schedule for kana that are due.
 - The daily goal is kanaLimit / 5 lessons. It is shown as blossoms and never locks the next lesson. Reviews run 10 at a time.
 
-## v0.7: phone voices that stay chosen
-Bundled recordings were tried and removed (extra data). The app uses the phone's Japanese voices: the choice is saved by id and name and matched by name after a restart, the voice list is polled for 10 seconds because iOS hands over Enhanced voices late, voices seen once in a visit are remembered, and the first tap unlocks speech on iPhone.
+## v0.7: voice
+The app's own recordings are played first (see `docs/AUDIO.md`). They were removed once and brought back after Venko's iPhone showed that iOS offers web apps only Kyoko and the robotic Eloquence voices, never Enhanced ones. For words without a recording the phone voice is used: the choice is saved by id and name and matched by name after a restart, Eloquence voices (Eddy, Flo, Grandma …) rank last so "Best available" is Kyoko, the voice list is polled for 10 seconds, voices seen once in a visit are remembered, and the first tap unlocks speech on iPhone.
 
 ## Planned for later stages
 Interface and design system (Stage 2), Supabase accounts, Row Level Security and sync (Stage 3),

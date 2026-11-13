@@ -115,6 +115,11 @@ describe('voices', () => {
     expect(chooseVoice(all, 'deleted-voice')?.name).toBe('O-Ren (Premium)');
     expect(chooseVoice([v('Samantha', 'a', 'en-US')], '')).toBeUndefined();
   });
+  it('ranks the robotic Eloquence voices last, so "Best available" is Kyoko, not Eddy (as offered on iPhone)', () => {
+    const iphone = ['Eddy', 'Flo', 'Grandma', 'Grandpa', 'Reed', 'Rocko', 'Sandy', 'Shelley', 'Kyoko'].map((n) => v(n, `com.apple.eloquence.ja-JP.${n}`.replace('eloquence.ja-JP.Kyoko', 'voice.compact.ja-JP.Kyoko')));
+    expect(chooseVoice(iphone, '')?.name).toBe('Kyoko');
+    expect(rankVoices(iphone).at(-1)?.name).not.toBe('Kyoko');
+  });
   it('finds the saved voice by name when iPhone reports a different id after a restart', () => {
     const after = [v('Kyoko', 'k2'), v('O-ren (Enhanced)', 'new-id-after-restart')];
     expect(chooseVoice(after, 'com.apple.voice.enhanced.ja-JP.O-ren', 'O-ren (Enhanced)')?.voiceURI).toBe('new-id-after-restart');
