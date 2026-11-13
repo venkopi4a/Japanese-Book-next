@@ -6,7 +6,7 @@ import type { ReviewItem } from '../import/review';
 import type { ImportDraft, JBDb, OutboxEntry, PhotoRecord, SessionRecord } from './db';
 import type { LibraryWord } from './library';
 
-export const APP_VERSION = '0.6.0';
+export const APP_VERSION = '0.7.0';
 const uuid = () => globalThis.crypto.randomUUID();
 
 export type NewWord = Partial<Word> & Pick<Word, 'text' | 'reading' | 'meaning'>;

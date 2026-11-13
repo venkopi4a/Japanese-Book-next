@@ -3,7 +3,7 @@ import { useApp } from '../app/state';
 import { APP_VERSION } from '../data/repo';
 import { dbName } from '../data/db';
 import { loadProfiles, removeProfile } from '../app/profiles';
-import { chooseVoice, japaneseVoices, loadVoices, onVoicesChanged, speak, speechSupported, voiceQuality, type VoiceLike } from '../app/speech';
+import { chooseVoice, japaneseVoices, loadVoices, onVoicesChanged, speak, speakWithPhone, speechSupported, voiceQuality, type VoiceLike } from '../app/speech';
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { settings, setSettings, repo, profile, switchProfile, hiraganaDone } = useApp();
@@ -40,9 +40,21 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
 
         <label class="field"><span>Theme</span><select class="select" value={settings.theme} onChange={(e) => sel('theme', (e.target as HTMLSelectElement).value)}><option value="auto">Match my phone</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
 
-        {speechSupported() && <>
-          <div class="section" style="margin-top:22px"><h2>Voice</h2></div>
-          <label class="field" style="margin-top:4px"><span>Japanese voice</span>
+        <div class="section" style="margin-top:22px"><h2>Voice</h2></div>
+        <div class="seg-toggle" role="group" aria-label="Voice" style="margin-top:6px">
+          <button aria-pressed={settings.voiceMode === 'recorded'} onClick={() => setSettings({ voiceMode: 'recorded' })}>Natural voice</button>
+          <button aria-pressed={settings.voiceMode === 'device'} onClick={() => setSettings({ voiceMode: 'device' })}>Phone voice</button>
+        </div>
+        {settings.voiceMode === 'recorded'
+          ? <p class="m voice-info">A natural Japanese voice recorded into the app. It sounds the same on every phone, works offline and needs nothing downloaded. It covers every kana and all built-in words. Words you add yourself use the phone voice below.</p>
+          : <p class="m voice-info">Everything is spoken by this phone's own voice. On iPhone this is often the robotic one.</p>}
+        <button class="btn" style="width:100%;margin-top:10px" onClick={() => speak('こんにちは', settings.speechRate)}>Try it</button>
+        <label class="field"><span>Speaking speed</span><select class="select" value={settings.speechRate} onChange={(e) => sel('speechRate', (e.target as HTMLSelectElement).value)}><option value={0.7}>Slow</option><option value={0.9}>Normal</option><option value={1.1}>Fast</option></select></label>
+        <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px"><span style="margin:0;color:var(--ink);font-size:16px">Play audio automatically</span><input type="checkbox" checked={settings.autoPlay} onChange={(e) => setSettings({ autoPlay: (e.target as HTMLInputElement).checked })} style="width:24px;height:24px" /></label>
+
+        {speechSupported() && <details class="phone-voice" style="margin-top:14px">
+          <summary>Phone voice {settings.voiceMode === 'recorded' ? '(for words you add)' : ''}</summary>
+          <label class="field" style="margin-top:4px"><span>Japanese voice on this phone</span>
             <select class="select" name="voice" value={settings.voiceURI} onChange={(e) => sel('voiceURI', (e.target as HTMLSelectElement).value)}>
               <option value="">Best available{voices[0] ? ` (${voices[0].name})` : ''}</option>
               {voices.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{label(v)}</option>)}
@@ -54,26 +66,21 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
             {settings.voiceURI && !chosen && !loading && <div style="color:var(--warn);margin-top:4px">Your chosen voice is not available right now, so {using?.name ?? 'the default voice'} is used.</div>}
           </div>
           <div style="display:flex;gap:10px;margin-top:10px">
-            <button class="btn" style="flex:2" onClick={() => speak('こんにちは。日本語を勉強しましょう。', settings.speechRate, settings.voiceURI)}>Try this voice</button>
+            <button class="btn" style="flex:2" onClick={() => speakWithPhone('こんにちは。日本語を勉強しましょう。', settings.speechRate, settings.voiceURI)}>Try phone voice</button>
             <button class="btn" style="flex:1" disabled={loading} onClick={refresh}>Refresh list</button>
           </div>
-          <button class="link" style="margin-top:8px" onClick={() => setVoiceHelp(!voiceHelp)}>{voiceHelp ? 'Hide' : 'Want a more natural voice?'}</button>
+          <button class="link" style="margin-top:8px" onClick={() => setVoiceHelp(!voiceHelp)}>{voiceHelp ? 'Hide' : 'Better phone voices on iPhone'}</button>
           {voiceHelp && (
             <div class="card" style="margin-top:8px;font-size:15px">
-              <b>Free natural voices on iPhone</b>
-              <ol style="margin:8px 0 0;padding-left:20px;line-height:1.6">
-                <li>Open the iPhone <b>Settings</b> app.</li>
-                <li>Tap <b>Accessibility</b>, then <b>Spoken Content</b>, then <b>Voices</b>.</li>
-                <li>Tap <b>Japanese</b>.</li>
-                <li>Tap a voice and download the <b>Enhanced</b> or <b>Premium</b> version (about 100–400 MB, Wi-Fi recommended).</li>
-                <li>Close this app fully (swipe it away) and open it again, then tap <b>Refresh list</b> here.</li>
+              <ol style="margin:0;padding-left:20px;line-height:1.6">
+                <li>iPhone <b>Settings</b> → <b>Accessibility</b> → <b>Spoken Content</b> → <b>Voices</b> → <b>Japanese</b>.</li>
+                <li>Download an <b>Enhanced</b> or <b>Premium</b> voice.</li>
+                <li>Close this app fully, open it again, tap <b>Refresh list</b>.</li>
               </ol>
-              <p class="m" style="margin:8px 0 0"><b>If the new voice still is not in the list,</b> your iPhone is not sharing it with web apps. Apple decides this, and some iOS versions only share the basic voices. Siri voices are never shared. The app cannot unlock them.</p>
+              <p class="m" style="margin:8px 0 0">If it still is not listed, your iPhone does not share it with web apps. Apple decides this; the app cannot unlock it. The natural voice above does not depend on it.</p>
             </div>
           )}
-          <label class="field"><span>Speaking speed</span><select class="select" value={settings.speechRate} onChange={(e) => sel('speechRate', (e.target as HTMLSelectElement).value)}><option value={0.7}>Slow</option><option value={0.9}>Normal</option><option value={1.1}>Fast</option></select></label>
-          <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px"><span style="margin:0;color:var(--ink);font-size:16px">Play audio automatically</span><input type="checkbox" checked={settings.autoPlay} onChange={(e) => setSettings({ autoPlay: (e.target as HTMLInputElement).checked })} style="width:24px;height:24px" /></label>
-        </>}
+        </details>}
 
         <div class="section" style="margin-top:22px"><h2>Kana</h2></div>
         <label class="field" style="margin-top:4px"><span>New kana per day</span><select class="select" value={settings.kanaLimit} onChange={(e) => sel('kanaLimit', (e.target as HTMLSelectElement).value)}>{[5, 10, 15, 20, 25].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
@@ -90,6 +97,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
         <div class="section"><h2>This device</h2><p class="m" style="margin:0 0 10px">{profile.name}'s words and answers are stored only on this device. There is no backup yet: deleting the app or clearing Safari's website data removes them.</p>
           <button class="btn danger" style="width:100%" onClick={reset}>Delete {profile.name}'s data on this device</button></div>
         <p class="m" style="margin-top:16px">THE JAPANESE BOOK · version {APP_VERSION}</p>
+        <p class="m" style="margin-top:4px;font-size:11px">Voices: Kokoro (Apache 2.0) for words; Open JTalk with the Mei voice, © Nagoya Institute of Technology (CC BY 3.0), for single kana.</p>
       </div>
     </div>
   );

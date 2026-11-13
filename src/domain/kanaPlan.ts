@@ -72,8 +72,10 @@ export function planKana(states: SkillState[], opts: { now: number; newLimit?: n
   const rec = recState(states);
   const reviews: KanaItem[] = [];
   for (const s of states) {
-    if (!isKanaId(s.wordId) || !KANA_SKILLS.includes(s.skill) || !isDue(s, now) || s.lastAt === null) continue;
-    reviews.push({ kanaId: s.wordId, skill: s.skill, reason: reasonFor(s, now), promote: true });
+    if (!isKanaId(s.wordId) || !KANA_SKILLS.includes(s.skill) || !isDue(s, now)) continue;
+    // never review a kana that was only shown on a card; its listening skill starts once its sight question was answered
+    if (s.lastAt === null && (s.skill === 'recognition' || !answered(rec.get(s.wordId)))) continue;
+    reviews.push({ kanaId: s.wordId, skill: s.skill, reason: s.lastAt === null ? 'First time by ear' : reasonFor(s, now), promote: true });
   }
   const order = new Map(KANA.map((k, i) => [k.id, i]));
   reviews.sort((a, b) => order.get(a.kanaId)! - order.get(b.kanaId)! || a.skill.localeCompare(b.skill));
@@ -119,12 +121,11 @@ export type LessonStep =
 
 /**
  * The steps of one lesson. Each new kana is taught and checked straight away (learn → check, learn → check …),
- * then the row is heard once each, then a quick matching game. Kana already answered in an interrupted lesson are
+ * then a quick matching game: 11 steps, about 2 minutes. Listening starts the next day, in reviews. Kana already answered in an interrupted lesson are
  * skipped, so leaving halfway never repeats work. A finished row becomes a practice round.
  */
 export function lessonSteps(row: KanaRow, states: SkillState[], opts: { canHear: boolean; now: number; rng: Rng }): LessonStep[] {
   const rec = recState(states);
-  const heard = new Set(states.filter((s) => s.skill === 'listening' && isKanaId(s.wordId)).map((s) => s.wordId));
   const todo = row.chars.filter((c) => !answered(rec.get(c.id)));
   const steps: LessonStep[] = [];
   for (const k of todo) {
@@ -137,9 +138,6 @@ export function lessonSteps(row: KanaRow, states: SkillState[], opts: { canHear:
       const s = rec.get(k.id);
       if (answered(s) && s!.lastCorrect === false) steps.push({ kind: 'quiz', kana: k, skill: 'recognition', lesson: false, promote: true, reason: 'Missed earlier' });
     }
-  }
-  if (opts.canHear) {
-    for (const k of shuffle(row.chars.filter((c) => !heard.has(c.id)), opts.rng)) steps.push({ kind: 'quiz', kana: k, skill: 'listening', lesson: true, promote: true, reason: 'Listen' });
   }
   if (!steps.length) { // a finished lesson: practise it (it only moves the schedule for kana that are due)
     const byId = (id: string, skill: Skill) => states.find((s) => s.wordId === id && s.skill === skill);

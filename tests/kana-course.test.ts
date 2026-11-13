@@ -43,6 +43,13 @@ describe('kana plan: short lessons that resume', () => {
     expect(p.goal).toBe(3);
     expect(p.reviews).toHaveLength(0);
   });
+  it('listening for a kana starts in reviews once its sight question was answered', () => {
+    const k = hira[0]!.id;
+    const shownOnly = [st(k, { dueAt: NOW - 1 }), st(k, { dueAt: NOW - 1 }, 'listening')];
+    expect(planKana(shownOnly, { now: NOW }).reviews).toHaveLength(0);
+    const answeredSight = [ans(k), st(k, { dueAt: NOW - 1 }, 'listening')];
+    expect(planKana(answeredSight, { now: NOW }).reviews).toEqual([{ kanaId: k, skill: 'listening', reason: 'First time by ear', promote: true }]);
+  });
   it('a lesson left halfway is continued, and kana only seen on a card are not reviews yet', () => {
     const states = [ans(hira[0]!.id), ans(hira[1]!.id), st(hira[2]!.id, { dueAt: NOW - 1 })]; // う was shown but never answered
     const p = planKana(states, { now: NOW });
@@ -88,21 +95,16 @@ describe('kana plan: short lessons that resume', () => {
 describe('lesson steps', () => {
   const row = KANA_ROWS[1]!; // か き く け こ
   const opts = (canHear = true) => ({ canHear, now: NOW, rng: mulberry32(7) });
-  it('teaches each kana then checks it straight away, then listening, then a matching game', () => {
+  it('teaches each kana then checks it straight away, then a matching game: 11 steps', () => {
     const s = lessonSteps(row, [], opts());
-    expect(s.map((x) => x.kind).slice(0, 10)).toEqual(['learn', 'quiz', 'learn', 'quiz', 'learn', 'quiz', 'learn', 'quiz', 'learn', 'quiz']);
-    expect(s.slice(10, 15).every((x) => x.kind === 'quiz' && x.skill === 'listening')).toBe(true);
-    expect(s[15]?.kind).toBe('match');
-    expect(s).toHaveLength(16); // short: 5 cards, 10 questions, 1 game
-  });
-  it('without speech there are no listening questions', () => {
-    expect(lessonSteps(row, [], opts(false)).some((x) => x.kind === 'quiz' && x.skill === 'listening')).toBe(false);
+    expect(s.map((x) => x.kind)).toEqual(['learn', 'quiz', 'learn', 'quiz', 'learn', 'quiz', 'learn', 'quiz', 'learn', 'quiz', 'match']);
+    expect(s.some((x) => x.kind === 'quiz' && x.skill === 'listening')).toBe(false); // listening starts in tomorrow's review
   });
   it('resuming skips kana already answered, so nothing is repeated', () => {
     const states = row.chars.slice(0, 3).flatMap((k) => [st(k.id, { lastAt: NOW, box: 1 }), st(k.id, { lastAt: NOW, box: 1 }, 'listening')]);
     const s = lessonSteps(row, states, opts());
     expect(s.filter((x) => x.kind === 'learn').map((x) => (x as { kana: { char: string } }).kana.char)).toEqual(['け', 'こ']);
-    expect(s.filter((x) => x.kind === 'quiz' && x.skill === 'listening')).toHaveLength(2);
+    expect(s.filter((x) => x.kind === 'quiz')).toHaveLength(2);
   });
   it('continuing a lesson retries the kana of that row that were missed before leaving', () => {
     const states = [st(row.chars[0]!.id, { lastAt: NOW, box: 0, lastCorrect: false })];

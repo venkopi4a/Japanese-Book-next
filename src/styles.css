@@ -295,3 +295,7 @@ textarea.input { padding: 12px 14px; min-height: 84px; resize: vertical; }
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ac) 20%, transparent); } 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--ac) 8%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .kana-disc, .stars > span.on, .lesson-row span, .stop.current .node, .bar > i.grow, .shake, .mcell.bad { animation: none; } }
 .voice-info { margin-top: 8px; padding: 10px 12px; background: var(--sf2); border-radius: 12px; font-size: 13px; line-height: 1.45; }
+.phone-voice summary { cursor: pointer; font-weight: 700; padding: 10px 0; color: var(--ind); }
+.step-line { margin-top: 8px; font-size: 12px; display: flex; gap: 8px; align-items: center; }
+.step-line > span:first-child { flex: 1; }
+.step-count { color: var(--ink); font-size: 13px; font-weight: 700; background: var(--sf2); padding: 2px 8px; border-radius: 10px; }

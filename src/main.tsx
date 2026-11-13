@@ -4,6 +4,7 @@ import './styles.css';
 import { App } from './App';
 import { autoProfile, loadProfiles, rememberProfile, type Profile } from './app/profiles';
 import { AppProvider } from './app/state';
+import { unlockAudio } from './app/speech';
 import { ProfilePicker } from './ui/ProfilePicker';
 
 function Root() {
@@ -15,6 +16,9 @@ function Root() {
 }
 
 render(<Root />, document.getElementById('app')!);
+
+// iPhones only allow sound that starts from a tap: the first tap unlocks it for the rest of the visit
+for (const ev of ['touchend', 'click'] as const) document.addEventListener(ev, unlockAudio, { capture: true, passive: true });
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).then((reg) => {

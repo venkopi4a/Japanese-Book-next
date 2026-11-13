@@ -1,3 +1,34 @@
+import recordings from '../data/audio.json';
+import { audioKey } from './audioKey';
+
+const RECORDINGS = recordings as Record<string, string>;
+/** The URL of the app's own recording of this text, or null when there is none (then the phone voice is used). */
+export function recordingUrl(text: string): string | null {
+  const file = RECORDINGS[audioKey(text)];
+  return file ? `${import.meta.env.BASE_URL}audio/${file}` : null;
+}
+
+let player: HTMLAudioElement | null = null;
+const getPlayer = () => (player ??= typeof Audio !== 'undefined' ? new Audio() : null);
+let unlocked = false;
+/**
+ * iPhones only let a page play sound that starts from a tap. The first tap anywhere plays a silent sound on the
+ * shared player (and an empty utterance), after which the app may play recordings by itself, e.g. after an answer.
+ */
+export function unlockAudio() {
+  if (unlocked) return;
+  unlocked = true;
+  const p = getPlayer();
+  if (p) {
+    p.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+    p.play().then(() => p.pause()).catch(() => { unlocked = false; });
+  }
+  if (speechSupported()) { try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); } catch { /* not allowed yet */ } }
+}
+
+let mode: 'recorded' | 'device' = 'recorded';
+export const setVoiceMode = (m: 'recorded' | 'device') => { mode = m; };
+
 export const speechSupported = () => typeof speechSynthesis !== 'undefined' && typeof SpeechSynthesisUtterance !== 'undefined';
 
 export interface VoiceLike { name: string; lang: string; voiceURI: string; localService?: boolean }
@@ -63,8 +94,26 @@ export function onVoicesChanged(cb: () => void): () => void {
 let preferred = '';
 export const setPreferredVoice = (uri: string) => { preferred = uri; };
 
+/** Speaks Japanese: the app's natural recording when it has one, otherwise the phone's voice. */
 export function speak(text: string, rate = 0.9, voiceURI = preferred) {
+  if (!text) return;
+  const url = mode === 'recorded' ? recordingUrl(text) : null;
+  const p = getPlayer();
+  if (url && p) {
+    if (speechSupported()) speechSynthesis.cancel();
+    p.pause();
+    p.src = url;
+    p.playbackRate = rate / 0.9; // the speed setting: 0.9 is normal
+    p.play().catch(() => speakWithPhone(text, rate, voiceURI)); // if the phone refuses, still say something
+    return;
+  }
+  speakWithPhone(text, rate, voiceURI);
+}
+
+/** Always the phone's own voice (used for words the app has no recording of). */
+export function speakWithPhone(text: string, rate = 0.9, voiceURI = preferred) {
   if (!speechSupported() || !text) return;
+  player?.pause();
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.rate = rate;
