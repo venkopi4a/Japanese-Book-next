@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { buildExercise, readingHelp, type Known } from '../src/app/exercise';
 import { DEFAULTS } from '../src/app/settings';
-import { chooseVoice, loadVoices, rankVoices } from '../src/app/speech';
+import { chooseVoice, hasVoice, loadVoices, rankVoices } from '../src/app/speech';
 import { autoProfile, settingsKey } from '../src/app/profiles';
 import { dbName, openUserDb } from '../src/data/db';
 import { Repo, blankWord } from '../src/data/repo';
@@ -97,20 +97,33 @@ describe('voices', () => {
   it('lists only Japanese voices, most natural first', () => {
     expect(rankVoices(all).map((x) => x.name)).toEqual(['O-Ren (Premium)', 'Kyoko (Enhanced)', 'Hattori', 'Kyoko']);
   });
-  it('waits for a voice list that arrives late and in pieces (as on iPhone)', async () => {
+  it('keeps looking until the timeout, because Enhanced voices arrive seconds after the basic ones (iPhone restart)', async () => {
     let calls = 0;
-    const late = () => { calls++; return calls < 3 ? [] : calls < 5 ? all.slice(0, 2) : all; };
-    const got = await loadVoices(late, 1000, 1);
-    expect(got.map((x) => x.name)).toEqual(['O-Ren (Premium)', 'Kyoko (Enhanced)', 'Hattori', 'Kyoko']);
+    // the basic voices stay "stable" for a long while, then O-Ren (Enhanced) appears
+    const late = () => { calls++; return calls < 3 ? [] : calls < 30 ? all.slice(0, 3) : all; };
+    const updates: number[] = [];
+    const got = await loadVoices(late, (l) => updates.push(l.length), 60, 1);
+    expect(got.map((x) => x.name)).toContain('O-Ren (Premium)');
+    expect(updates).toEqual([0, 2, 4]);
   });
   it('gives up after the timeout when the phone shares no voices', async () => {
-    expect(await loadVoices(() => [], 5, 1)).toEqual([]);
+    expect(await loadVoices(() => [], undefined, 5, 1)).toEqual([]);
   });
   it('uses the chosen voice, or the most natural one if the choice is gone', () => {
     expect(chooseVoice(all, 'h')?.name).toBe('Hattori');
     expect(chooseVoice(all, '')?.name).toBe('O-Ren (Premium)');
     expect(chooseVoice(all, 'deleted-voice')?.name).toBe('O-Ren (Premium)');
     expect(chooseVoice([v('Samantha', 'a', 'en-US')], '')).toBeUndefined();
+  });
+  it('finds the saved voice by name when iPhone reports a different id after a restart', () => {
+    const after = [v('Kyoko', 'k2'), v('O-ren (Enhanced)', 'new-id-after-restart')];
+    expect(chooseVoice(after, 'com.apple.voice.enhanced.ja-JP.O-ren', 'O-ren (Enhanced)')?.voiceURI).toBe('new-id-after-restart');
+    expect(hasVoice(after, 'com.apple.voice.enhanced.ja-JP.O-ren', 'O-ren (Enhanced)')).toBe(true);
+    // same voice in another quality counts as that voice too
+    expect(chooseVoice([v('Kyoko', 'k'), v('O-ren', 'o')], 'gone', 'O-ren (Enhanced)')?.name).toBe('O-ren');
+    // not offered at all: say so, and use the most natural available
+    expect(hasVoice([v('Kyoko', 'k')], 'gone', 'O-ren (Enhanced)')).toBe(false);
+    expect(chooseVoice([v('Kyoko', 'k')], 'gone', 'O-ren (Enhanced)')?.name).toBe('Kyoko');
   });
 });
 

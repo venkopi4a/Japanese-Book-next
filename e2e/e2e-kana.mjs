@@ -15,9 +15,6 @@ const errs = []; page.on('pageerror', (e) => errs.push('pageerror ' + e.message)
 // remember what the app says out loud, so listening questions can be answered
 await page.evaluateOnNewDocument(() => {
   window.__said = [];
-  window.__played = [];
-  const play = HTMLMediaElement.prototype.play;
-  HTMLMediaElement.prototype.play = function () { window.__played.push(this.src); return play.call(this); };
   if (window.speechSynthesis) { const orig = speechSynthesis.speak.bind(speechSynthesis); speechSynthesis.speak = (u) => { window.__said.push(u.text); try { orig(u); } catch { /* headless */ } }; }
 });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -107,10 +104,8 @@ await step('lesson', async () => {
   const t = await txt();
   ok('a lesson starts with a learn card: character, sound, memory hint and an example word', !!(await page.$('.learn')) && /あ/.test(t) && /apple/.test(t) && /あめ/.test(t) && /rain/.test(t) && /Lesson 1/.test(t));
   await page.click('.example'); await sleep(300);
-  const played = await page.evaluate(() => window.__played.filter((u) => /\/audio\/[0-9a-f]{10}\.m4a$/.test(u)));
-  ok('kana and example words play the app\'s own recordings, not the phone voice', played.length >= 2, played.slice(-2).join(' '));
-  const reach = await page.evaluate(async (u) => (await fetch(u)).status, played[0]);
-  ok('the recording files are published', reach === 200, String(reach));
+  const said = await page.evaluate(() => window.__said.slice(-3));
+  ok('kana and example words are spoken by the phone voice (no bundled recordings)', said.includes('あめ'), said.join(' '));
   ok('the lesson always shows how much is left (step 1 of 11)', /1 of 11/.test(t) && /New kana/.test(t), (t.match(/\d+ of \d+/) || [''])[0]);
   await shot('k04-learn-card');
   // learn two kana, then leave
@@ -194,14 +189,12 @@ await step('progress', async () => {
 await step('voice', async () => {
   await page.click('button[aria-label="Settings"]'); await sleep(300);
   const t = await txt();
-  ok('settings offers the natural recorded voice, chosen by default', /Natural voice/.test(t) && /Phone voice/.test(t) && await page.evaluate(() => [...document.querySelectorAll('.seg-toggle button')].find((b) => b.textContent === 'Natural voice')?.getAttribute('aria-pressed') === 'true'));
-  await page.evaluate(() => document.querySelector('details.phone-voice')?.setAttribute('open', ''));
-  ok('the phone voice picker is still there, for words without a recording', !!(await page.$('select[name=voice]')));
+  ok('settings has one voice picker, with a try button', !!(await page.$('select[name=voice]')) && /Try this voice/.test(t) && !/Natural voice/.test(t));
   ok('settings says which voices the phone shares, with a refresh button', /Looking for voices|shares \d+ Japanese|not sharing any Japanese voice/.test(await txt()) && /Refresh list/.test(await txt()));
-  await sleep(4300);
+  await sleep(10500); // the app keeps looking for late Enhanced voices for 10 seconds
   ok('after looking, settings reports the result (headless Chromium has no Japanese voice)', /not sharing any Japanese voice|shares \d+ Japanese/.test(await txt()));
-  await click('Better phone voices on iPhone'); await sleep(150);
-  ok('settings explains how to get better phone voices on iPhone', /Spoken Content/.test(await txt()) && /Enhanced/.test(await txt()));
+  await click('Get a natural voice'); await sleep(150);
+  ok('settings explains how to get O-Ren (Enhanced) on iPhone', /Spoken Content/.test(await txt()) && /O-Ren \(Enhanced\)/.test(await txt()));
   await shot('k13-settings-voice');
 });
 

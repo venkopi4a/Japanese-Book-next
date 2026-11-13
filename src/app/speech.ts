@@ -1,34 +1,3 @@
-import recordings from '../data/audio.json';
-import { audioKey } from './audioKey';
-
-const RECORDINGS = recordings as Record<string, string>;
-/** The URL of the app's own recording of this text, or null when there is none (then the phone voice is used). */
-export function recordingUrl(text: string): string | null {
-  const file = RECORDINGS[audioKey(text)];
-  return file ? `${import.meta.env.BASE_URL}audio/${file}` : null;
-}
-
-let player: HTMLAudioElement | null = null;
-const getPlayer = () => (player ??= typeof Audio !== 'undefined' ? new Audio() : null);
-let unlocked = false;
-/**
- * iPhones only let a page play sound that starts from a tap. The first tap anywhere plays a silent sound on the
- * shared player (and an empty utterance), after which the app may play recordings by itself, e.g. after an answer.
- */
-export function unlockAudio() {
-  if (unlocked) return;
-  unlocked = true;
-  const p = getPlayer();
-  if (p) {
-    p.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
-    p.play().then(() => p.pause()).catch(() => { unlocked = false; });
-  }
-  if (speechSupported()) { try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); } catch { /* not allowed yet */ } }
-}
-
-let mode: 'recorded' | 'device' = 'recorded';
-export const setVoiceMode = (m: 'recorded' | 'device') => { mode = m; };
-
 export const speechSupported = () => typeof speechSynthesis !== 'undefined' && typeof SpeechSynthesisUtterance !== 'undefined';
 
 export interface VoiceLike { name: string; lang: string; voiceURI: string; localService?: boolean }
@@ -50,34 +19,52 @@ export function rankVoices<T extends VoiceLike>(all: T[]): T[] {
   return all.filter(isJapanese).sort((a, b) => voiceQuality(b) - voiceQuality(a) || a.name.localeCompare(b.name));
 }
 
-/** The chosen voice if this device still has it, otherwise the most natural Japanese voice. */
-export function chooseVoice<T extends VoiceLike>(all: T[], preferred: string): T | undefined {
+/** "O-Ren (Enhanced)" → "o-ren": the same voice in any quality. */
+const baseName = (name: string) => name.toLowerCase().replace(/\s*\((enhanced|premium|compact|拡張|高品質)\)\s*/g, '').trim();
+
+/**
+ * The chosen voice, found even if iOS reports it differently after a restart:
+ * by its id, else by its exact name, else the best quality of a voice with the same name.
+ * Without a match: the most natural Japanese voice available.
+ */
+export function chooseVoice<T extends VoiceLike>(all: T[], uri: string, name = ''): T | undefined {
   const ranked = rankVoices(all);
-  return ranked.find((v) => v.voiceURI === preferred) ?? ranked[0];
+  if (uri || name) {
+    const hit = ranked.find((v) => uri && v.voiceURI === uri)
+      ?? ranked.find((v) => name && v.name === name)
+      ?? ranked.find((v) => name && baseName(v.name) === baseName(name));
+    if (hit) return hit;
+  }
+  return ranked[0];
 }
 
-/** The last non-empty voice list seen: iPhones sometimes return an empty list at the very moment the app speaks. */
-let cache: SpeechSynthesisVoice[] = [];
+/** Whether the chosen voice is in this list (otherwise iOS has not handed it over yet). */
+export const hasVoice = (all: VoiceLike[], uri: string, name = '') =>
+  !!rankVoices(all).find((v) => (uri && v.voiceURI === uri) || (name && (v.name === name || baseName(v.name) === baseName(name))));
+
+/**
+ * Every voice seen during this visit. After a restart iPhones often return the basic voices first and the Enhanced
+ * ones seconds later, and sometimes a shorter list in between; remembering what was seen keeps the choice usable.
+ */
+const seen = new Map<string, SpeechSynthesisVoice>();
 const allVoices = (): SpeechSynthesisVoice[] => {
   if (!speechSupported()) return [];
-  const now = speechSynthesis.getVoices();
-  if (now.length) cache = now;
-  return now.length ? now : cache;
+  for (const v of speechSynthesis.getVoices()) seen.set(v.voiceURI || v.name, v);
+  return [...seen.values()];
 };
 export const japaneseVoices = (): SpeechSynthesisVoice[] => rankVoices(allVoices());
 
 /**
- * Waits for the voice list. iPhones often return an empty or partial list at first and do not always send
- * "voiceschanged", so the list is checked again every 250 ms until it stops growing (or 4 seconds pass).
+ * Keeps asking the phone for its voices for `timeoutMs` (10 s), because Enhanced voices can arrive late,
+ * and reports every time the list grows. It does not stop early when the list looks stable.
  */
-export function loadVoices(getAll: () => VoiceLike[] = allVoices, timeoutMs = 4000, everyMs = 250): Promise<VoiceLike[]> {
+export function loadVoices(getAll: () => VoiceLike[] = allVoices, onUpdate?: (v: VoiceLike[]) => void, timeoutMs = 10000, everyMs = 300): Promise<VoiceLike[]> {
   return new Promise((resolve) => {
-    let last = -1, stable = 0, waited = 0;
+    let last = -1, waited = 0;
     const tick = () => {
-      const all = getAll();
-      stable = all.length === last && all.length > 0 ? stable + 1 : 0;
-      last = all.length;
-      if (stable >= 3 || waited >= timeoutMs) { resolve(rankVoices(all)); return; }
+      const all = rankVoices(getAll());
+      if (all.length !== last) { last = all.length; onUpdate?.(all); }
+      if (waited >= timeoutMs) { resolve(all); return; }
       waited += everyMs; setTimeout(tick, everyMs);
     };
     tick();
@@ -91,33 +78,23 @@ export function onVoicesChanged(cb: () => void): () => void {
   return () => speechSynthesis.removeEventListener('voiceschanged', cb);
 }
 
-let preferred = '';
-export const setPreferredVoice = (uri: string) => { preferred = uri; };
+let preferred = { uri: '', name: '' };
+export const setPreferredVoice = (uri: string, name = '') => { preferred = { uri, name }; };
 
-/** Speaks Japanese: the app's natural recording when it has one, otherwise the phone's voice. */
-export function speak(text: string, rate = 0.9, voiceURI = preferred) {
-  if (!text) return;
-  const url = mode === 'recorded' ? recordingUrl(text) : null;
-  const p = getPlayer();
-  if (url && p) {
-    if (speechSupported()) speechSynthesis.cancel();
-    p.pause();
-    p.src = url;
-    p.playbackRate = rate / 0.9; // the speed setting: 0.9 is normal
-    p.play().catch(() => speakWithPhone(text, rate, voiceURI)); // if the phone refuses, still say something
-    return;
-  }
-  speakWithPhone(text, rate, voiceURI);
+let unlocked = false;
+/** iPhones only allow speech that starts from a tap: the first tap speaks an empty sentence, which unlocks it. */
+export function unlockAudio() {
+  if (unlocked || !speechSupported()) return;
+  unlocked = true;
+  try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); allVoices(); } catch { unlocked = false; }
 }
 
-/** Always the phone's own voice (used for words the app has no recording of). */
-export function speakWithPhone(text: string, rate = 0.9, voiceURI = preferred) {
+export function speak(text: string, rate = 0.9, uri = preferred.uri, name = preferred.name) {
   if (!speechSupported() || !text) return;
-  player?.pause();
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.rate = rate;
-  const v = chooseVoice(allVoices(), voiceURI);
+  const v = chooseVoice(allVoices(), uri, name);
   // iOS can ignore the chosen voice unless the language matches that voice exactly (ja-JP vs ja_JP)
   u.lang = v?.lang ?? 'ja-JP';
   if (v) u.voice = v;
