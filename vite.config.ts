@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 import preact from '@preact/preset-vite';
 import type { Plugin } from 'vite';
@@ -12,9 +11,7 @@ function offlineWorker(): Plugin {
     apply: 'build',
     configResolved(c) { base = c.base; },
     generateBundle(_o, bundle) {
-      const files = ['./', 'index.html', ...Object.keys(bundle).filter((f) => f !== 'index.html'), 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'favicon-32.png', 'art-banner.jpg',
-        // the app's own voice recordings, so pronunciation works offline too
-        ...(existsSync('public/audio') ? readdirSync('public/audio').filter((f) => f.endsWith('.m4a')).sort().map((f) => `audio/${f}`) : [])];
+      const files = ['./', 'index.html', ...Object.keys(bundle).filter((f) => f !== 'index.html'), 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'favicon-32.png', 'art-banner.jpg'];
       const version = createHash('sha1').update(files.join('|')).digest('hex').slice(0, 10);
       // Caches are shared by every site on the same address, so this worker only ever touches caches that start with its own prefix.
       // At the final switch-over, VITE_LEGACY_CACHES (comma-separated prefixes) lets the live build retire the old app's cache on purpose.

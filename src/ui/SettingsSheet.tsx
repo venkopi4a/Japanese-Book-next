@@ -3,19 +3,20 @@ import { useApp } from '../app/state';
 import { APP_VERSION } from '../data/repo';
 import { dbName } from '../data/db';
 import { loadProfiles, removeProfile } from '../app/profiles';
-import { chooseVoice, japaneseVoices, loadVoices, onVoicesChanged, speak, speakWithPhone, speechSupported, voiceQuality, type VoiceLike } from '../app/speech';
+import { chooseVoice, hasVoice, japaneseVoices, loadVoices, onVoicesChanged, speak, speechSupported, voiceQuality, type VoiceLike } from '../app/speech';
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { settings, setSettings, repo, profile, switchProfile, hiraganaDone } = useApp();
   const [voices, setVoices] = useState<VoiceLike[]>(japaneseVoices);
   const [loading, setLoading] = useState(true);
   const [voiceHelp, setVoiceHelp] = useState(false);
-  // iPhones hand over the voice list late and do not always announce it, so keep checking for a few seconds
-  const refresh = () => { setLoading(true); void loadVoices().then((v) => { setVoices(v); setLoading(false); }); };
+  // iPhones hand over Enhanced voices late and do not always announce it, so keep looking for 10 seconds
+  const refresh = () => { setLoading(true); void loadVoices(undefined, (v) => setVoices(v)).then((v) => { setVoices(v); setLoading(false); }); };
   useEffect(() => { refresh(); return onVoicesChanged(() => setVoices(japaneseVoices())); }, []);
-  const chosen = settings.voiceURI ? voices.find((v) => v.voiceURI === settings.voiceURI) : undefined;
-  const using = chooseVoice(voices, settings.voiceURI);
-  const natural = voices.filter((v) => voiceQuality(v) >= 2);
+  const present = hasVoice(voices, settings.voiceURI, settings.voiceName);
+  const using = chooseVoice(voices, settings.voiceURI, settings.voiceName);
+  // save the name too: iPhone sometimes reports a different id after a restart, the name stays the same
+  const pick = (uri: string) => setSettings({ voiceURI: uri, voiceName: voices.find((v) => v.voiceURI === uri)?.name ?? '' });
   const sel = <K extends keyof typeof settings>(k: K, v: string) => setSettings({ [k]: typeof settings[k] === 'number' ? Number(v) : v } as any);
   const others = loadProfiles().length > 1;
 
@@ -40,47 +41,39 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
 
         <label class="field"><span>Theme</span><select class="select" value={settings.theme} onChange={(e) => sel('theme', (e.target as HTMLSelectElement).value)}><option value="auto">Match my phone</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
 
-        <div class="section" style="margin-top:22px"><h2>Voice</h2></div>
-        <div class="seg-toggle" role="group" aria-label="Voice" style="margin-top:6px">
-          <button aria-pressed={settings.voiceMode === 'recorded'} onClick={() => setSettings({ voiceMode: 'recorded' })}>Natural voice</button>
-          <button aria-pressed={settings.voiceMode === 'device'} onClick={() => setSettings({ voiceMode: 'device' })}>Phone voice</button>
-        </div>
-        {settings.voiceMode === 'recorded'
-          ? <p class="m voice-info">A natural Japanese voice recorded into the app. It sounds the same on every phone, works offline and needs nothing downloaded. It covers every kana and all built-in words. Words you add yourself use the phone voice below.</p>
-          : <p class="m voice-info">Everything is spoken by this phone's own voice. On iPhone this is often the robotic one.</p>}
-        <button class="btn" style="width:100%;margin-top:10px" onClick={() => speak('こんにちは', settings.speechRate)}>Try it</button>
-        <label class="field"><span>Speaking speed</span><select class="select" value={settings.speechRate} onChange={(e) => sel('speechRate', (e.target as HTMLSelectElement).value)}><option value={0.7}>Slow</option><option value={0.9}>Normal</option><option value={1.1}>Fast</option></select></label>
-        <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px"><span style="margin:0;color:var(--ink);font-size:16px">Play audio automatically</span><input type="checkbox" checked={settings.autoPlay} onChange={(e) => setSettings({ autoPlay: (e.target as HTMLInputElement).checked })} style="width:24px;height:24px" /></label>
-
-        {speechSupported() && <details class="phone-voice" style="margin-top:14px">
-          <summary>Phone voice {settings.voiceMode === 'recorded' ? '(for words you add)' : ''}</summary>
-          <label class="field" style="margin-top:4px"><span>Japanese voice on this phone</span>
-            <select class="select" name="voice" value={settings.voiceURI} onChange={(e) => sel('voiceURI', (e.target as HTMLSelectElement).value)}>
+        {speechSupported() && <>
+          <div class="section" style="margin-top:22px"><h2>Voice</h2></div>
+          <label class="field" style="margin-top:4px"><span>Japanese voice</span>
+            <select class="select" name="voice" value={settings.voiceURI} onChange={(e) => pick((e.target as HTMLSelectElement).value)}>
               <option value="">Best available{voices[0] ? ` (${voices[0].name})` : ''}</option>
-              {voices.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{label(v)}</option>)}
+              {voices.map((v) => <option key={v.voiceURI || v.name} value={v.voiceURI}>{label(v)}</option>)}
+              {/* keep showing the saved choice while iOS has not handed it over yet, instead of jumping to "Best available" */}
+              {settings.voiceURI && !present && <option value={settings.voiceURI}>{settings.voiceName || 'Your voice'} (waiting for iPhone)</option>}
             </select></label>
           <div class="voice-info m" role="status">
-            {loading ? 'Looking for voices on this phone…'
+            {loading && voices.length === 0 ? 'Looking for voices on this phone…'
               : voices.length === 0 ? 'This phone is not sharing any Japanese voice with the app yet.'
-              : <>This phone shares {voices.length} Japanese {voices.length === 1 ? 'voice' : 'voices'} with the app: {voices.map((v) => v.name).join(', ')}.{natural.length === 0 && ' None of them is an Enhanced or Premium voice.'}</>}
-            {settings.voiceURI && !chosen && !loading && <div style="color:var(--warn);margin-top:4px">Your chosen voice is not available right now, so {using?.name ?? 'the default voice'} is used.</div>}
+              : <>This phone shares {voices.length} Japanese {voices.length === 1 ? 'voice' : 'voices'} with the app: {voices.map((v) => v.name).join(', ')}.{loading && ' Still looking…'}</>}
+            {settings.voiceURI && !present && !loading && <div style="color:var(--warn);margin-top:4px">Your voice ({settings.voiceName || 'saved choice'}) is saved, but iPhone is not offering it right now, so {using?.name ?? 'the default voice'} speaks. It is used again as soon as iPhone offers it. Tap Refresh list in a moment.</div>}
           </div>
           <div style="display:flex;gap:10px;margin-top:10px">
-            <button class="btn" style="flex:2" onClick={() => speakWithPhone('こんにちは。日本語を勉強しましょう。', settings.speechRate, settings.voiceURI)}>Try phone voice</button>
+            <button class="btn" style="flex:2" onClick={() => speak('こんにちは。日本語を勉強しましょう。', settings.speechRate)}>Try this voice</button>
             <button class="btn" style="flex:1" disabled={loading} onClick={refresh}>Refresh list</button>
           </div>
-          <button class="link" style="margin-top:8px" onClick={() => setVoiceHelp(!voiceHelp)}>{voiceHelp ? 'Hide' : 'Better phone voices on iPhone'}</button>
+          <label class="field"><span>Speaking speed</span><select class="select" value={settings.speechRate} onChange={(e) => sel('speechRate', (e.target as HTMLSelectElement).value)}><option value={0.7}>Slow</option><option value={0.9}>Normal</option><option value={1.1}>Fast</option></select></label>
+          <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px"><span style="margin:0;color:var(--ink);font-size:16px">Play audio automatically</span><input type="checkbox" checked={settings.autoPlay} onChange={(e) => setSettings({ autoPlay: (e.target as HTMLInputElement).checked })} style="width:24px;height:24px" /></label>
+          <button class="link" style="margin-top:8px" onClick={() => setVoiceHelp(!voiceHelp)}>{voiceHelp ? 'Hide' : 'Get a natural voice (O-Ren Enhanced)'}</button>
           {voiceHelp && (
             <div class="card" style="margin-top:8px;font-size:15px">
               <ol style="margin:0;padding-left:20px;line-height:1.6">
                 <li>iPhone <b>Settings</b> → <b>Accessibility</b> → <b>Spoken Content</b> → <b>Voices</b> → <b>Japanese</b>.</li>
-                <li>Download an <b>Enhanced</b> or <b>Premium</b> voice.</li>
-                <li>Close this app fully, open it again, tap <b>Refresh list</b>.</li>
+                <li>Download <b>O-Ren (Enhanced)</b> or another Enhanced or Premium voice.</li>
+                <li>Close this app fully, open it again, wait a few seconds and tap <b>Refresh list</b>. Pick the voice.</li>
               </ol>
-              <p class="m" style="margin:8px 0 0">If it still is not listed, your iPhone does not share it with web apps. Apple decides this; the app cannot unlock it. The natural voice above does not depend on it.</p>
+              <p class="m" style="margin:8px 0 0">The app remembers your choice by name, so it is used again after every restart as soon as iPhone offers it.</p>
             </div>
           )}
-        </details>}
+        </>}
 
         <div class="section" style="margin-top:22px"><h2>Kana</h2></div>
         <label class="field" style="margin-top:4px"><span>New kana per day</span><select class="select" value={settings.kanaLimit} onChange={(e) => sel('kanaLimit', (e.target as HTMLSelectElement).value)}>{[5, 10, 15, 20, 25].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
@@ -97,7 +90,6 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
         <div class="section"><h2>This device</h2><p class="m" style="margin:0 0 10px">{profile.name}'s words and answers are stored only on this device. There is no backup yet: deleting the app or clearing Safari's website data removes them.</p>
           <button class="btn danger" style="width:100%" onClick={reset}>Delete {profile.name}'s data on this device</button></div>
         <p class="m" style="margin-top:16px">THE JAPANESE BOOK · version {APP_VERSION}</p>
-        <p class="m" style="margin-top:4px;font-size:11px">Voices: Kokoro (Apache 2.0) for words; Open JTalk with the Mei voice, © Nagoya Institute of Technology (CC BY 3.0), for single kana.</p>
       </div>
     </div>
   );
