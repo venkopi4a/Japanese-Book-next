@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useApp } from '../app/state';
+import { DEFAULTS } from '../app/settings';
 import { APP_VERSION } from '../data/repo';
 import { dbName } from '../data/db';
+import { BackupError, buildBackup, parseBackup, saveBackupFile, type BackupSummary } from '../data/backup';
 import { loadProfiles, removeProfile } from '../app/profiles';
 import { chooseVoice, hasVoice, isRobotic, japaneseVoices, loadVoices, onVoicesChanged, speak, speakWithPhone, speechSupported, voiceQuality, type VoiceLike } from '../app/speech';
 
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
-  const { settings, setSettings, repo, profile, switchProfile, hiraganaDone } = useApp();
+  const { settings, setSettings, repo, profile, switchProfile, hiraganaDone, reload, toast } = useApp();
   const [voices, setVoices] = useState<VoiceLike[]>(japaneseVoices);
   const [loading, setLoading] = useState(true);
   const [voiceHelp, setVoiceHelp] = useState(false);
@@ -19,6 +21,44 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
   const pick = (uri: string) => setSettings({ voiceURI: uri, voiceName: voices.find((v) => v.voiceURI === uri)?.name ?? '' });
   const sel = <K extends keyof typeof settings>(k: K, v: string) => setSettings({ [k]: typeof settings[k] === 'number' ? Number(v) : v } as any);
   const others = loadProfiles().length > 1;
+
+  // ---- backup ----
+  const [last, setLast] = useState<number | null>(null);
+  const [ready, setReady] = useState<{ text: string; name: string; summary: BackupSummary } | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { void repo.lastBackupAt().then(setLast); }, [repo]);
+  const makeBackup = async () => {
+    setBusy(true);
+    try { setReady(await buildBackup(repo, profile, settings as unknown as Record<string, unknown>)); }
+    catch { toast('Could not make the backup. Nothing was changed.'); }
+    finally { setBusy(false); }
+  };
+  const saveFile = async () => {
+    if (!ready) return;
+    const how = await saveBackupFile(ready.text, ready.name);
+    if (how === 'cancelled') return;
+    await repo.markBackedUp(); setLast(Date.now()); setReady(null);
+    toast(how === 'shared' ? 'Backup saved. Keep the file somewhere safe (iCloud Drive, email).' : 'Backup downloaded. Keep the file somewhere safe.');
+  };
+  const restore = async (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const f = input.files?.[0]; input.value = '';
+    if (!f) return;
+    setBusy(true);
+    try {
+      const { file, snapshot, summary } = parseBackup(await f.text());
+      const when = new Date(file.exportedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+      const ok = window.confirm(`Restore the backup of ${file.profile.name} from ${when} into ${profile.name}?\n\n${summary.words} words, ${summary.attempts} answers, ${summary.photos} photos.\n\nNothing is deleted. Missing items are added, and a word or skill is replaced only by a more recent copy. The backup's settings replace the current ones.`);
+      if (!ok) return;
+      const r = await repo.mergeSnapshot(snapshot);
+      const known = Object.fromEntries(Object.entries(file.settings ?? {}).filter(([k, v]) => k in DEFAULTS && typeof v === typeof (DEFAULTS as any)[k]));
+      setSettings(known as any);
+      await reload();
+      toast(`Restored: ${r.words} words, ${r.attempts} answers, ${r.photos} photos added or updated.`);
+    } catch (err) {
+      toast(err instanceof BackupError ? err.message : 'Could not restore that file. Nothing was changed.');
+    } finally { setBusy(false); }
+  };
 
   const reset = async () => {
     if (!window.confirm(`Delete every word, answer and setting ${profile.name} has on this device? This cannot be undone.`)) return;
@@ -90,7 +130,19 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
         <label class="field"><span>Reading practice</span><select class="select" value={settings.readingMode} onChange={(e) => sel('readingMode', (e.target as HTMLSelectElement).value)}><option value="choice">Multiple choice</option><option value="kana">Type the reading in kana</option><option value="romaji">Beginner: type the reading in romaji</option></select></label>
         <p class="m" style="margin:6px 0 0">Romaji is only used for reading practice. Spelling practice always needs real Japanese.</p>
 
-        <div class="section"><h2>This device</h2><p class="m" style="margin:0 0 10px">{profile.name}'s words and answers are stored only on this device. There is no backup yet: deleting the app or clearing Safari's website data removes them.</p>
+        <div class="section" style="margin-top:22px"><h2>Backup</h2>
+          <p class="m" style="margin:0 0 10px">{profile.name}'s words and answers live only on this device. Deleting the app or clearing Safari's website data removes them, so keep a backup file. Last backup: <b>{last ? new Date(last).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : 'never'}</b>.</p>
+          {ready ? <>
+            <p class="m" role="status" style="margin:0 0 10px">Ready: {ready.summary.words} words, {ready.summary.attempts} {ready.summary.attempts === 1 ? 'answer' : 'answers'}, {ready.summary.photos} {ready.summary.photos === 1 ? 'photo' : 'photos'} ({ready.text.length < 1048576 ? `${Math.max(1, Math.round(ready.text.length / 1024))} KB` : `${(ready.text.length / 1048576).toFixed(1)} MB`}).</p>
+            <button class="btn primary" style="width:100%" name="save-backup" onClick={saveFile}>Save backup file</button>
+          </> : <button class="btn" style="width:100%" name="make-backup" disabled={busy} onClick={makeBackup}>{busy ? 'Working…' : 'Make a backup file'}</button>}
+          <label class="btn" style="width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:48px">Restore from a backup file
+            <input type="file" name="restore" accept=".json,application/json" disabled={busy} onChange={restore} style="display:none" />
+          </label>
+          <p class="m" style="margin:6px 0 0">Restoring adds what is missing and never deletes anything. It also works on a new phone: open the app, add yourself, then restore.</p>
+        </div>
+
+        <div class="section"><h2>This device</h2>
           <button class="btn danger" style="width:100%" onClick={reset}>Delete {profile.name}'s data on this device</button></div>
         <p class="m" style="margin-top:16px">THE JAPANESE BOOK · version {APP_VERSION}</p>
         <p class="m" style="font-size:12px">Stroke order drawings: KanjiVG © Ulrich Apel, CC BY-SA 3.0 (kanjivg.tagaini.net).</p>

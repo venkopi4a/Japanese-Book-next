@@ -42,6 +42,10 @@ Signing out wipes that account's local data. Two accounts never share a local da
 ## v0.7: voice
 The app's own recordings are played first (see `docs/AUDIO.md`). They were removed once and brought back after Venko's iPhone showed that iOS offers web apps only Kyoko and the robotic Eloquence voices, never Enhanced ones. For words without a recording the phone voice is used: the choice is saved by id and name and matched by name after a restart, Eloquence voices (Eddy, Flo, Grandma …) rank last so "Best available" is Kyoko, the voice list is polled for 10 seconds, voices seen once in a visit are remembered, and the first tap unlocks speech on iPhone.
 
+## v0.10: backup
+Settings > Backup writes one JSON file (`japanese-book-<name>-<date>.json`): words, skill states, attempts, sessions, kept photos (base64) and settings. It goes to the phone's share sheet (Save to Files, AirDrop, Mail), or downloads. Restore merges into the current person and never deletes: attempts, sessions and photos are added when their id is missing; a word or skill is replaced only by a more recent copy; built-in words are matched by library id (every device seeds its own copies with random ids) and their answers are attached to this device's copy. It is one transaction. Files from a newer app version, or damaged files, are refused before anything is written.
+Accounts and sync (Stage 3) were considered and dropped on 2026-11-16: two people, one phone each, nothing to sync.
+
 ## Planned for later stages
 Interface and design system (Stage 2), Supabase accounts, Row Level Security and sync (Stage 3),
 photo import through a secure server-side function (Stage 4), progress screens (Stage 5).

@@ -29,3 +29,8 @@ the unit tests still cover the rules behind them. Re-adding browser checks for t
 - Not tested: drawing with a finger (tracing practice does not exist yet), and how the animation looks in motion on a real iPhone.
 - Tracing (`tests/trace.test.ts`, `tests/traceAll.test.ts`): the stroke judge accepts a shaky offset copy of every stroke of every course kana, refuses backwards or far-off strokes and shortcuts. Browser suite: real mouse drags along the strokes of あ (refused from the wrong place, backwards, as a straight shortcut; accepted with a wobble; well done; from memory; nothing written to the history).
 - Not tested: tracing with a real finger on a real iPhone (touch-action, palm, scroll conflicts).
+
+## Backup and restore (v0.10.0)
+- Unit tests (`tests/backup.test.ts`): a full round trip onto a brand new phone (its own freshly seeded built-in words are matched by library id, so there are no duplicates and progress attaches to them; a deleted built-in word stays deleted; photos survive byte for byte); restoring twice changes nothing and never overwrites newer local work or touches existing attempts; two phones merge; wrong, newer, incomplete and damaged files are refused with a plain message and nothing is written.
+- Browser suite `e2e/e2e-backup.mjs`: make a backup in Settings (the file name and counts are shown), delete the person's data, add them again, restore (everything is back, 104 words, no duplicates), restore again (nothing changes), a wrong file is refused.
+- Not tested: the iPhone share sheet (Save to Files, AirDrop), reading a file from the Files app, and a backup with many large photos on a real phone. Without a share sheet the app downloads the file instead.

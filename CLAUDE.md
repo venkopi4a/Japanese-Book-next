@@ -10,9 +10,9 @@ GitHub-website steps. He is direct and wants blunt, structured answers: state th
 You (Claude Code) work on branches and open PRs; he merges them in the browser.
 
 ## Commands
-- `npm ci` install · `npm run typecheck` · `npm test` (139 unit tests) · `npm run build`
+- `npm ci` install · `npm run typecheck` · `npm test` (143 unit tests) · `npm run build`
 - `VITE_BASE=/Japanese-Book-next/ npm run build` builds for the live address
-- `npm run e2e` builds, then runs six real-browser suites (headless Chromium, 390x844): main flows, kana course + profiles + progress, writing help, photo import, recognition failure, offline/update.
+- `npm run e2e` builds, then runs seven real-browser suites (headless Chromium, 390x844): main flows, kana course + profiles + progress, writing help, backup and restore, photo import, recognition failure, offline/update.
   Screenshots go to `e2e/out/` (git-ignored). First run needs no extra setup (`@sparticuz/chromium` is a dev dependency).
 - Before saying anything is done: typecheck + `npm test` + `npm run e2e` must all pass. Look at screenshots for visual changes.
 
@@ -44,7 +44,7 @@ Warm, illustrated, matches the app icon (sakura, red sun, Mount Fuji, indigo). M
 ## Publishing
 See `docs/PUBLISHING.md`. A push to `main` runs tests and deploys to GitHub Pages through `.github/workflows/deploy.yml`. Pull requests run `ci.yml`.
 
-## Where we are (v0.9.0) and what is next
-Done: finger-tracing practice, stroke order + origin for every kana, romaji in the Notebook, the app's own natural voice (recordings) with a reliable phone-voice fallback, bite-sized resumable kana lessons with a lesson path, profiles ("Who's studying?"), kana course (hiragana then katakana, chart, lessons), teach-first new words, reading help, voice picker, redesigned Progress (level, milestones, streak calendar), Today/Notebook/Practice/Progress, topic selection, strict answer checking, scheduler, photo-import workflow, offline PWA with update prompt, warm redesign.
+## Where we are (v0.10.0) and what is next
+Done: backup and restore (Settings > Backup: one JSON file with words, answers, skills, sessions, kept photos and settings; restore only merges, never deletes; built-in words are matched by library id so a new phone gets no duplicates; `src/data/backup.ts`, `Repo.snapshot/mergeSnapshot`), finger-tracing practice, stroke order + origin for every kana, romaji in the Notebook, the app's own natural voice (recordings) with a reliable phone-voice fallback, bite-sized resumable kana lessons with a lesson path, profiles ("Who's studying?"), kana course (hiragana then katakana, chart, lessons), teach-first new words, reading help, voice picker, redesigned Progress (level, milestones, streak calendar), Today/Notebook/Practice/Progress, topic selection, strict answer checking, scheduler, photo-import workflow, offline PWA with update prompt, warm redesign.
 Not yet tested on a real iPhone: camera/picker, touch-drag cropping, keyboard, safe areas, audio, animations.
-Next: (1) verify the Pages deploy works, (2) Stage 3: Supabase accounts (email + password), RLS, sync from the outbox, an Edge Function for recognition, (3) compare recognition providers on 3-5 real handwriting photos from Venko, (4) Progress/word-detail polish, (5) cutover of the live app (only with explicit approval). Explain the cost of any paid service before using it. Free tier first.
+Next: (1) verify the Pages deploy works, (2) Stage 3 (Supabase accounts and sync) is DROPPED: Venko decided on 2026-11-16 that the per-phone profiles are enough and chose a backup file instead. The outbox is still written but nothing reads it. Do not propose accounts again unless he does. (3) Handwriting recognition: Venko said skip for now; needs a server-side key if ever done, (4) Progress/word-detail polish, (5) cutover of the live app (only with explicit approval). Explain the cost of any paid service before using it. Free tier first.
