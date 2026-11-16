@@ -22,3 +22,8 @@ the unit tests still cover the rules behind them. Re-adding browser checks for t
   keyboard behaviour, safe areas, install.
 - Animation in motion (falling petals, blossom pop) and spoken audio: screenshots cannot show them and headless Chromium has no Japanese voice.
 - Real handwriting recognition: not connected. The placeholder returns fixed sample words.
+
+## Writing help (v0.8.0)
+- Unit tests (`tests/writing.test.ts`): stroke data exists for every course kana with one number per stroke, stroke counts of known kana (い 2, あ 3, し 1, が = か + 2, ぱ = は + 1), an origin for each of the 46 basic hiragana, romaji spelling.
+- Browser suite `e2e/e2e-writing.mjs`: the lesson card draws あ in 3 numbered strokes and explains 安, Step and Play work, the kana sheet from the chart (い, ふ, が, a combination, katakana), romaji on all 104 Notebook rows and in the word sheet.
+- Not tested: drawing with a finger (tracing practice does not exist yet), and how the animation looks in motion on a real iPhone.

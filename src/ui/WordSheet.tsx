@@ -3,6 +3,7 @@ import { useApp } from '../app/state';
 import { Icon } from '../app/icons';
 import { speak, speechSupported } from '../app/speech';
 import { isKanaOnly } from '../domain/kana';
+import { romajiOf } from '../app/exercise';
 import { DAY, startOfDay } from '../domain/scheduler';
 import { SKILLS, type Skill, type Word, type WordKind } from '../domain/types';
 import { PhotoViewer, useBlobUrl } from './PhotoViewer';
@@ -46,6 +47,7 @@ export function WordSheet({ wordId, onClose }: { wordId: string | null; onClose:
         <div style="font-size:22px;display:flex;align-items:center;gap:4px" lang="ja">{word.reading}
           {speechSupported() && <button class="icon-btn" aria-label="Play audio" onClick={() => speak(word.reading || word.text, settings.speechRate)}><Icon name="speaker" /></button>}
         </div>
+        <div class="roma" style="font-size:19px;margin:-2px 0 8px">{romajiOf(word.reading || word.text)}</div>
         <div class="j" style="font-size:28px;margin:0 0 14px">{word.meaning}</div>
         <Meta k="Type" v={word.kind} /><Meta k="Topic" v={word.topic} /><Meta k="Lesson / unit" v={word.unit} />{word.note && <Meta k="Note" v={word.note} />}
         {photoUrl && <div class="row"><span class="m" style="font-size:15px">From a photo</span><button class="link" onClick={() => setShowPhoto(true)}>View photo</button></div>}

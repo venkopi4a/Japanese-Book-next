@@ -4,6 +4,7 @@ import { useApp } from '../app/state';
 import { topicCounts } from '../app/topics';
 import { Icon } from '../app/icons';
 import { toHiragana } from '../domain/kana';
+import { romajiOf } from '../app/exercise';
 import { masteryOf } from '../domain/scheduler';
 import { planWeak } from '../domain/session';
 import { SKILLS, type Skill, type SkillState, type Word } from '../domain/types';
@@ -60,7 +61,8 @@ export function Notebook({ onOpen, onAdd, onSettings }: { onOpen: (id: string) =
 
   const row = (w: Word) => (
     <button key={w.id} class="row tap" onClick={() => onOpen(w.id)}>
-      <span><span class="j" lang="ja" style="font-size:21px">{w.text}</span>{w.reading !== w.text && <> <span class="m" lang="ja">{w.reading}</span></>}</span>
+      <span style="min-width:0"><span class="j" lang="ja" style="font-size:21px">{w.text}</span>{w.reading !== w.text && <> <span class="m" lang="ja">{w.reading}</span></>}
+        <span class="roma" style="display:block">{romajiOf(w.reading || w.text)}</span></span>
       <span style="text-align:right;flex:none"><span style="font-size:14px;display:block">{w.meaning}</span><Squares states={byWord.get(w.id) ?? new Map()} /></span>
     </button>
   );

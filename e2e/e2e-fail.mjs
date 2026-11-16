@@ -12,7 +12,7 @@ const txt=()=>page.evaluate(()=>document.body.innerText);
 const click=async(t,sel='button')=>{const h=await page.evaluateHandle((t,sel)=>[...document.querySelectorAll(sel)].reverse().find(e=>e.textContent.trim().startsWith(t)&&!e.disabled),t,sel);const el=h.asElement();if(!el)return false;await el.click();return true};
 const waitText=async(re,ms=8000)=>{const t0=Date.now();while(Date.now()-t0<ms){if(re.test(await txt()))return true;await sleep(120)}return false};
 await page.evaluateOnNewDocument(()=>{const B='jb:/Japanese-Book-next/:';if(!localStorage.getItem(B+'profiles')){localStorage.setItem(B+'profiles',JSON.stringify([{id:'local',name:'Test',colour:0}]));localStorage.setItem(B+'settings',JSON.stringify({kanaSkip:true}))}});
-await page.goto('http://localhost:'+PORT+BASE,{waitUntil:'networkidle0'});await page.waitForSelector('.big');
+await page.goto('http://localhost:'+PORT+BASE,{waitUntil:'networkidle0'});await page.waitForSelector('.big');await sleep(1500);await page.waitForSelector('.big');
 await page.click('button[aria-label="Add or import words"]');await sleep(250);
 const [fc]=await Promise.all([page.waitForFileChooser(),click('Choose photos')]);await fc.accept([path.resolve('e2e/photos/photoA.jpg')]);await waitText(/Crop/);await sleep(700);await click('Read handwriting');
 ok('a failed recognition shows a clear error, not a blank or fake result',await waitText(/Could not read the photo/)&&/Nothing was saved/.test(await txt()));await page.screenshot({path:OUT+'/p13-error.png'});

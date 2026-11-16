@@ -237,6 +237,36 @@ textarea.input { padding: 12px 14px; min-height: 84px; resize: vertical; }
 .kana-disc { width: 168px; height: 168px; border-radius: 50%; border: 0; position: relative; font-family: var(--serif); font-weight: 700; font-size: 96px; line-height: 1; color: var(--ink);
   background: radial-gradient(circle at 50% 42%, var(--sf) 0 58%, var(--sk2) 59% 100%); box-shadow: var(--shadow), inset 0 0 0 1px var(--ru); animation: pop .4s cubic-bezier(.3, 1.5, .6, 1) both; }
 .kana-disc svg { position: absolute; right: 18px; bottom: 18px; color: var(--mu); }
+.kana-disc.small { width: 72px; height: 72px; font-size: 40px; flex: none; }
+.kana-detail { padding-top: 16px; }
+.kana-disc.two { white-space: nowrap; letter-spacing: -.04em; }
+.learn-top .kana-disc.two { font-size: 52px; }
+.kana-disc.small.two { font-size: 28px; }
+.why { margin-top: 10px; background: var(--sf); border: 1px solid var(--ru); border-radius: 14px; padding: 10px 14px; font-size: 14px; }
+.why summary { font-weight: 700; cursor: pointer; }
+.why p { margin: 8px 0 0; color: var(--mu); }
+.roma { font-size: 14px; color: var(--ac); letter-spacing: .02em; margin-top: 1px; }
+.learn-top { display: flex; align-items: center; justify-content: center; gap: 14px; width: 100%; }
+.learn-top .kana-disc { width: 132px; height: 132px; font-size: 72px; flex: none; }
+.learn-top .kana-disc svg { right: 12px; bottom: 12px; }
+.learn-write { flex: none; }
+.stroke-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.stroke-box { background: var(--sf); border: 1px solid var(--ru); border-radius: 14px; display: block; }
+.stroke-box .guide { stroke: var(--ru); stroke-width: .8; stroke-dasharray: 3 3; fill: none; }
+.stroke-box .stk { fill: none; stroke: var(--ink); stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.stroke-box .stk.draw { animation: stk-draw .9s ease-in-out both; stroke: var(--ac); }
+.stroke-box .stk-num { font-size: 8px; font-weight: 800; fill: var(--ac); }
+.stroke-bar { display: flex; align-items: center; gap: 6px; width: 100%; }
+.stroke-bar .m { font-size: 12px; }
+.stroke-bar .chip { min-height: 32px; padding: 0 12px; font-size: 13px; }
+@keyframes stk-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.origin-box { width: 100%; background: var(--sf); border: 1px solid var(--ru); border-radius: 14px; padding: 12px 14px; font-size: 15px; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.origin-box b { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--mu); }
+.origin-row { display: flex; align-items: center; gap: 10px; }
+.origin-from, .origin-to { font-size: 34px; line-height: 1; font-family: var(--serif); }
+.origin-to { color: var(--ac); font-weight: 700; }
+.origin-arrow { color: var(--mu); font-size: 20px; }
+.origin-name { flex: 1; text-align: right; font-size: 13px; }
 .roma-big { font-size: 34px; font-weight: 800; letter-spacing: .04em; color: var(--ac); line-height: 1; }
 .hint-box { width: 100%; background: var(--sf); border: 1px solid var(--ru); border-radius: 14px; padding: 12px 14px; font-size: 15px; text-align: left; }
 .hint-box b { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--mu); }
@@ -293,7 +323,7 @@ textarea.input { padding: 12px 14px; min-height: 84px; resize: vertical; }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @keyframes grow { from { width: 0; } }
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ac) 20%, transparent); } 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--ac) 8%, transparent); } }
-@media (prefers-reduced-motion: reduce) { .kana-disc, .stars > span.on, .lesson-row span, .stop.current .node, .bar > i.grow, .shake, .mcell.bad { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .stroke-box .stk.draw, .kana-disc, .stars > span.on, .lesson-row span, .stop.current .node, .bar > i.grow, .shake, .mcell.bad { animation: none; } }
 .voice-info { margin-top: 8px; padding: 10px 12px; background: var(--sf2); border-radius: 12px; font-size: 13px; line-height: 1.45; }
 .phone-voice summary { cursor: pointer; font-weight: 700; padding: 10px 0; color: var(--ind); }
 .step-line { margin-top: 8px; font-size: 12px; display: flex; gap: 8px; align-items: center; }

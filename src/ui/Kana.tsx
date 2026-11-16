@@ -2,6 +2,9 @@ import { useMemo, useState } from 'preact/hooks';
 import { useApp } from '../app/state';
 import { Blossom, Icon } from '../app/icons';
 import { speak } from '../app/speech';
+import { toRomaji } from 'wanakana';
+import { KANA_EXAMPLES } from '../domain/kanaExamples';
+import { HIRAGANA_INTRO, Origin, Writing } from './KanaWriting';
 import { KANA_ROWS, STAGE_NAMES, isKanaId, kanaOf, type KanaChar, type KanaRow, type KanaStage, type Script } from '../domain/kanaCourse';
 import { LESSON_SIZE, REVIEW_SESSION, learnedKana, lessonStatuses, planKana, type KanaPlan } from '../domain/kanaPlan';
 import type { SkillState } from '../domain/types';
@@ -54,8 +57,7 @@ export function KanaToday({ plan, onStart, compact = false }: { plan: KanaPlan; 
 const level = (s: SkillState | undefined) => (!s || s.lastAt === null ? 'new' : s.box === 0 ? 'miss' : s.box >= 4 ? 'strong' : 'ok');
 const POS: Record<string, number[]> = { y: [0, 2, 4], w: [0, 4, 5] }; // や row and わ row have gaps; ん sits on its own line
 
-function Grid({ rows, stage, rec }: { rows: KanaRow[]; stage: KanaStage; rec: Map<string, SkillState> }) {
-  const { settings } = useApp();
+function Grid({ rows, stage, rec, onPick }: { rows: KanaRow[]; stage: KanaStage; rec: Map<string, SkillState>; onPick: (k: KanaChar) => void }) {
   const cols = stage === 'combo' ? 3 : 5;
   const cells: (KanaChar | null)[] = [];
   for (const r of rows) {
@@ -69,8 +71,32 @@ function Grid({ rows, stage, rec }: { rows: KanaRow[]; stage: KanaStage; rec: Ma
   return (
     <div class="kgrid" style={`grid-template-columns:repeat(${cols},1fr)`}>
       {cells.map((c, i) => c
-        ? <button key={c.id} class={`kcell ${level(rec.get(c.id))}`} onClick={() => speak(c.char, settings.speechRate)} aria-label={`${c.char} ${c.romaji}`}><span class="j" lang="ja">{c.char}</span><small>{c.romaji}</small></button>
+        ? <button key={c.id} class={`kcell ${level(rec.get(c.id))}`} onClick={() => onPick(c)} aria-label={`${c.char} ${c.romaji}, how to write it`}><span class="j" lang="ja">{c.char}</span><small>{c.romaji}</small></button>
         : <span key={i} />)}
+    </div>
+  );
+}
+
+
+/** One kana in detail: its sound, how to write it, why it looks that way, and a memory hint. Opened from the chart. */
+function KanaDetail({ k, onClose }: { k: KanaChar; onClose: () => void }) {
+  const { settings } = useApp();
+  const ex = KANA_EXAMPLES[k.char];
+  return (
+    <div class="sheet-bg" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div class="sheet kana-detail" role="dialog" aria-modal="true" aria-label={`${k.char} ${k.romaji}`}>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class={`kana-disc small${k.char.length > 1 ? ' two' : ''}`} lang="ja" aria-label={`${k.char}, play the sound`} onClick={() => speak(k.char, settings.speechRate)}>{k.char}</button>
+          <div style="flex:1"><div class="roma-big">{k.romaji}</div><div class="m">{k.script}{k.stage === 'voiced' ? ' · with ゛ or ゜' : k.stage === 'combo' ? ' · combination' : ''}</div></div>
+          <button class="icon-btn ring" aria-label="Close" onClick={onClose}><Icon name="close" /></button>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:14px">
+          <Writing k={k} size={190} />
+          <Origin k={k} />
+          {k.hint && <div class="hint-box"><b>Memory hint</b><br />{k.hint}</div>}
+          {ex && <button class="example" onClick={() => speak(ex[0], settings.speechRate)}><span class="j" lang="ja">{ex[0]}</span><span class="m">{toRomaji(ex[0])} · {ex[1]}</span><Icon name="speaker" size={18} /></button>}
+        </div>
+      </div>
     </div>
   );
 }
@@ -105,6 +131,7 @@ export function Kana({ onStart, onSettings }: { onStart: StartKana; onSettings: 
   const plan = useKanaPlan();
   const [script, setScript] = useState<Script>(() => (plan.lesson?.row.script ?? 'hiragana'));
   const [view, setView] = useState<'path' | 'chart'>('path');
+  const [open, setOpen] = useState<KanaChar | null>(null);
   const rec = useMemo(() => new Map(states.filter((s) => s.skill === 'recognition' && isKanaId(s.wordId)).map((s) => [s.wordId, s])), [states]);
   const learned = learnedKana(states, script), total = kanaOf(script).length;
   const lessonsLeft = Math.ceil((kanaOf('hiragana').length - learnedKana(states, 'hiragana')) / LESSON_SIZE);
@@ -128,13 +155,15 @@ export function Kana({ onStart, onSettings }: { onStart: StartKana; onSettings: 
 
       {view === 'path' ? <Path script={script} onStart={onStart} /> : <>
         <div class="legend m"><span><i class="kcell new" />not yet</span><span><i class="kcell miss" />missed</span><span><i class="kcell ok" />learned</span><span><i class="kcell strong" />strong</span></div>
-        <div class="m" style="margin-top:4px">Tap any kana to hear it.</div>
+        <div class="m" style="margin-top:4px">Tap any kana to see how to write it, why it looks that way, and to hear it.</div>
+        {script === 'hiragana' && <details class="why"><summary>Where hiragana comes from</summary><p>{HIRAGANA_INTRO}</p></details>}
         {(['basic', 'voiced', 'combo'] as KanaStage[]).map((stage) => (
           <div class="section" key={stage}><h2>{STAGE_NAMES[stage]}</h2>
-            <Grid rows={KANA_ROWS.filter((r) => r.script === script && r.stage === stage)} stage={stage} rec={rec} />
+            <Grid rows={KANA_ROWS.filter((r) => r.script === script && r.stage === stage)} stage={stage} rec={rec} onPick={setOpen} />
           </div>
         ))}
       </>}
+      {open && <KanaDetail k={open} onClose={() => setOpen(null)} />}
     </div>
   );
 }

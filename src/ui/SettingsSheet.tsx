@@ -93,6 +93,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
         <div class="section"><h2>This device</h2><p class="m" style="margin:0 0 10px">{profile.name}'s words and answers are stored only on this device. There is no backup yet: deleting the app or clearing Safari's website data removes them.</p>
           <button class="btn danger" style="width:100%" onClick={reset}>Delete {profile.name}'s data on this device</button></div>
         <p class="m" style="margin-top:16px">THE JAPANESE BOOK · version {APP_VERSION}</p>
+        <p class="m" style="font-size:12px">Stroke order drawings: KanjiVG © Ulrich Apel, CC BY-SA 3.0 (kanjivg.tagaini.net).</p>
         <p class="m" style="margin-top:4px;font-size:11px">Voices: Kokoro (Apache 2.0) for words; Open JTalk with the Mei voice, © Nagoya Institute of Technology (CC BY 3.0), for single kana.</p>
       </div>
     </div>

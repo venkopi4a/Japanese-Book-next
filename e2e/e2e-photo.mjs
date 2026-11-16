@@ -24,7 +24,7 @@ const addMenu=async()=>{await page.click('button[aria-label="Add or import words
 const choose=async(files)=>{const [fc]=await Promise.all([page.waitForFileChooser(),click('Choose photos')]);await fc.accept(files);await sleep(700)};
 const P=path.resolve('e2e/photos')+'/';
 await page.evaluateOnNewDocument(()=>{const B='jb:/Japanese-Book-next/:';if(!localStorage.getItem(B+'profiles')){localStorage.setItem(B+'profiles',JSON.stringify([{id:'local',name:'Test',colour:0}]));localStorage.setItem(B+'settings',JSON.stringify({kanaSkip:true}))}});
-await page.goto('http://localhost:'+PORT+BASE,{waitUntil:'networkidle0'});await page.waitForSelector('.big');
+await page.goto('http://localhost:'+PORT+BASE,{waitUntil:'networkidle0'});await page.waitForSelector('.big');await sleep(1500);await page.waitForSelector('.big');
 await click('Notebook','.tabbar button');await sleep(200);
 const start=await dump();const startWords=start.words.length;
 await step('menu',async()=>{await addMenu();const t=await txt();ok('Add menu offers photo, library and typing',/Take a photo/.test(t)&&/Choose photos/.test(t)&&/Type a word/.test(t)&&!/Continue your last import/.test(t));
@@ -70,7 +70,7 @@ await step('dup-edit',async()=>{const h=await page.evaluateHandle(()=>[...docume
   const r=await rows();const x=r.find(x=>x.t==='先生');ok('a duplicate edited into a new word is accepted once the person confirms it',x&&!/dup/.test(x.cls))});
 let beforeLeave;await step('draft',async()=>{beforeLeave=await rows();await click('Cancel');await sleep(250);ok('leaving a review offers Save for later and Discard',/Save for later/.test(await txt())&&/Discard this import/.test(await txt()));await click('Save for later');await sleep(500);
   const d=await dump();ok('the photos and review are kept as a draft',d.drafts.length===1&&d.drafts[0].photos.length===2&&d.drafts[0].items.length>=7,`photos ${d.drafts[0]?.photos.length}, items ${d.drafts[0]?.items.length}`);
-  await page.reload({waitUntil:'networkidle0'});await page.waitForSelector('.big');await click('Notebook','.tabbar button');await addMenu();ok('the Add menu offers to continue after a reload',/Continue your last import/.test(await txt()));await click('Continue your last import');await waitText(/Review words/);await sleep(500);
+  await page.reload({waitUntil:'networkidle0'});await page.waitForSelector('.big');await sleep(1500);await page.waitForSelector('.big');await click('Notebook','.tabbar button');await addMenu();ok('the Add menu offers to continue after a reload',/Continue your last import/.test(await txt()));await click('Continue your last import');await waitText(/Review words/);await sleep(500);
   const after=await rows();ok('the review comes back with all edits and statuses',after.length===beforeLeave.length&&after.map(x=>x.t+x.cls).join()===beforeLeave.map(x=>x.t+x.cls).join(),`${after.length} rows`);
   const th=await page.evaluate(()=>[...document.querySelectorAll('.thumb')].map(t=>t.style.backgroundImage.startsWith('url(')));ok('the photos are still there for reference',th.length===2&&th.every(Boolean));
   await page.click('.thumb');await sleep(400);ok('a photo opens full screen',await page.evaluate(()=>!!document.querySelector('img[alt="Photo 1"]')));await shot('p07-photo-viewer');await click('','button[aria-label="Close photo"]');await sleep(200)});

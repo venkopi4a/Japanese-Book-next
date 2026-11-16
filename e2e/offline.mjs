@@ -19,11 +19,12 @@ await page.evaluate(()=>navigator.serviceWorker.ready);await sleep(800);
 const keys1=await page.evaluate(async()=>{const o={};for(const k of await caches.keys())o[k]=(await (await caches.open(k)).keys()).map(r=>r.url.split('/').pop()||'(root)');return o});
 ok('index.html is in the offline cache',Object.values(keys1).some(v=>v.includes('index.html')),JSON.stringify(keys1));
 // ---- UPDATE FLOW: serve a new version, reload, expect the prompt ----
-ROOT=SB;await page.reload({waitUntil:'networkidle0'});await sleep(1500);
-const prompt=await page.evaluate(()=>[...document.querySelectorAll('.toast')].map(t=>t.textContent).join('|'));
+ROOT=SB;await page.reload({waitUntil:'networkidle0'});
+// the new version downloads every recording first, so give it time
+let prompt='';for(let i=0;i<60&&!/update is ready/i.test(prompt);i++){await sleep(500);prompt=await page.evaluate(()=>[...document.querySelectorAll('.toast')].map(t=>t.textContent).join('|'))}
 ok('an update prompt appears when a new version is published',/update is ready/i.test(prompt),prompt);
 await page.evaluate(()=>[...document.querySelectorAll('.toast button')].find(b=>b.textContent==='Reload')?.click());
-await page.waitForNavigation({waitUntil:'networkidle0',timeout:8000}).catch(()=>{});await sleep(1200);await page.waitForSelector('.big');
+await page.waitForNavigation({waitUntil:'networkidle0',timeout:20000}).catch(()=>{});await sleep(1200);await page.waitForSelector('.big');
 const keys2=await page.evaluate(async()=>await caches.keys());
 ok('after Reload the new version is active and the old cache is gone',keys2.length===1&&/newversion/.test(keys2[0]),JSON.stringify(keys2));
 // ---- GENUINE OFFLINE: stop the server completely ----
