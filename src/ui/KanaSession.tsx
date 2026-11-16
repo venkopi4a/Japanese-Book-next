@@ -6,7 +6,7 @@ import { Blossom, Icon } from '../app/icons';
 import { mulberry32, shuffle } from '../domain/distractors';
 import { KANA_BY_ID, kanaOf, type KanaChar, type KanaRow } from '../domain/kanaCourse';
 import { KANA_EXAMPLES } from '../domain/kanaExamples';
-import { Origin, Writing } from './KanaWriting';
+import { Origin, TraceButton, Writing } from './KanaWriting';
 import { REVIEW_SESSION, kanaQuestion, learnedKana, lessonSteps, planKana, type KanaItem, type KanaQuestion, type LessonStep } from '../domain/kanaPlan';
 
 /** What a kana session is: a lesson (one row) or a review of due kana. */
@@ -162,6 +162,7 @@ export function KanaSession({ mode, onClose, onStart }: { mode: KanaMode; onClos
             </div>
             <div class="roma-big">{k.romaji}</div>
             {k.stage === 'combo' && <Writing k={k} />}
+            <TraceButton k={k} />
             <Origin k={k} />
             {k.hint && <div class="hint-box"><b>Memory hint</b><br />{k.hint}</div>}
             {ex && <button class="example" onClick={() => speak(ex[0], settings.speechRate)}><span class="j" lang="ja">{ex[0]}</span><span class="m">{toRomaji(ex[0])} · {ex[1]}</span><Icon name="speaker" size={18} /></button>}

@@ -239,6 +239,21 @@ textarea.input { padding: 12px 14px; min-height: 84px; resize: vertical; }
 .kana-disc svg { position: absolute; right: 18px; bottom: 18px; color: var(--mu); }
 .kana-disc.small { width: 72px; height: 72px; font-size: 40px; flex: none; }
 .kana-detail { padding-top: 16px; }
+.trace-btn { width: auto; min-height: 44px; padding: 0 22px; background: var(--sf); border: 1px solid var(--ac); color: var(--ac); font-weight: 700; border-radius: 22px; }
+.trace-sheet { padding-top: 16px; }
+.trace-box { display: block; width: min(100%, 300px); aspect-ratio: 1; margin: 12px auto 8px; background: var(--sf); border: 1px solid var(--ru); border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; }
+.trace-box .guide { stroke: var(--ru); stroke-width: .8; stroke-dasharray: 3 3; fill: none; }
+.trace-box .tr-guide { fill: none; stroke: var(--sk); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
+.trace-box .stk { fill: none; stroke: var(--ink); stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; }
+.trace-box .tr-help { fill: none; stroke: var(--ac); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; opacity: .35; animation: tr-pulse 1s ease-in-out infinite alternate; }
+.trace-box .tr-live { fill: none; stroke: var(--ac); stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; }
+.trace-box .tr-start circle { fill: var(--ac); }
+.trace-box .tr-start text { fill: #fff; font-size: 8px; font-weight: 800; text-anchor: middle; }
+.tr-msg { min-height: 44px; text-align: center; font-size: 15px; display: flex; align-items: center; justify-content: center; }
+.tr-done { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--ac); }
+.tr-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
+.tr-actions .btn.primary { flex: 1 1 100%; width: 100%; }
+@keyframes tr-pulse { from { opacity: .15; } to { opacity: .45; } }
 .kana-disc.two { white-space: nowrap; letter-spacing: -.04em; }
 .learn-top .kana-disc.two { font-size: 52px; }
 .kana-disc.small.two { font-size: 28px; }

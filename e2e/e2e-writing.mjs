@@ -29,6 +29,21 @@ const tab = async (n) => { await page.evaluate((n) => [...document.querySelector
 const allOf = (store) => page.evaluate(async (store) => { const d = await new Promise((res) => { const r = indexedDB.open('jb:/Japanese-Book-next/:local'); r.onsuccess = () => res(r.result); }); return new Promise((res) => { const q = d.transaction(store).objectStore(store).getAll(); q.onsuccess = () => res(q.result); }); }, store);
 const step = async (n, f) => { try { await f(); } catch (e) { ok(n, false, 'threw: ' + e.message); } };
 
+
+const STROKES = JSON.parse(fs.readFileSync(path.resolve('src/data/strokes.json'), 'utf8'));
+// screen coordinates along stroke i of a kana, as a finger would draw it (optionally pushed off by dx, dy, or reversed)
+const strokeScreen = async (ch, i, { dx = 0, dy = 0, rev = false, straight = false } = {}) => page.evaluate((d, dx, dy, rev, straight) => {
+  const NS = 'http://www.w3.org/2000/svg', s = document.createElementNS(NS, 'svg'), p = document.createElementNS(NS, 'path');
+  p.setAttribute('d', d); s.appendChild(p); document.body.appendChild(s);
+  const L = p.getTotalLength(), box = document.querySelector('.trace-box').getBoundingClientRect();
+  let pts = Array.from({ length: 24 }, (_, k) => { const q = p.getPointAtLength((L * k) / 23); return [q.x, q.y]; });
+  s.remove();
+  if (straight) { const a = pts[0], b = pts[pts.length - 1]; pts = pts.map((_, k) => [a[0] + ((b[0] - a[0]) * k) / 23, a[1] + ((b[1] - a[1]) * k) / 23]); }
+  if (rev) pts.reverse();
+  return pts.map(([x, y]) => [box.left + ((x + dx) / 109) * box.width, box.top + ((y + dy) / 109) * box.height]);
+}, STROKES[ch].p[i], dx, dy, rev, straight);
+const drag = async (pts) => { await page.mouse.move(pts[0][0], pts[0][1]); await page.mouse.down(); for (const [x, y] of pts.slice(1)) await page.mouse.move(x, y); await page.mouse.up(); await sleep(120); };
+const tmsg = () => page.$eval('.tr-msg', (e) => e.innerText);
 await page.goto(`http://localhost:${PORT}${BASE}`, { waitUntil: 'networkidle0' }); await sleep(300);
 await page.type('input[name=person]', 'Venko'); await click('Start'); await page.waitForSelector('.tabbar'); await sleep(300);
 
@@ -44,6 +59,7 @@ await step('lesson card', async () => {
   ok('the card explains the shape: comes from 安', /Why it looks like this/i.test(t) && /安/.test(t) && /calm/.test(t));
   ok('the card still shows the sound, memory hint and example', /Memory hint/i.test(t) && /\ba\b/.test(t) && /あめ/.test(t));
   ok('the card says how many strokes', /3 strokes/.test(t));
+  ok('the lesson card offers "Try writing it"', /Try writing it/.test(t));
   ok('no horizontal overflow (lesson card)', (await overflow()) <= 0);
   const fits = await page.evaluate(() => { const q = document.querySelector('.kana-session .q'); return q.scrollHeight - q.clientHeight; });
   await shot('w01-learn-card');
@@ -88,6 +104,46 @@ await step('chart detail', async () => {
   ok('katakana show strokes too, without a hiragana origin', (await page.$$eval('.kana-detail .stroke-box path.stk', (e) => e.length)) >= 1 && !/Why it looks like this/i.test(await txt()));
   await page.evaluate(() => document.querySelector('.kana-detail button[aria-label="Close"]')?.click()); await sleep(250);
   ok('no horizontal overflow (Kana chart)', (await overflow()) <= 0);
+});
+
+await step('tracing', async () => {
+  await tab('Kana'); await click('Chart', '.seg-toggle button'); await click('Hiragana', '.chip'); await sleep(200);
+  await page.evaluate(() => [...document.querySelectorAll('.kcell[aria-label]')].find((e) => e.getAttribute('aria-label').startsWith('あ '))?.click()); await sleep(400);
+  ok('the kana sheet offers "Try writing it"', /Try writing it/.test(await txt()));
+  await click('Try writing it'); await sleep(400); await page.waitForSelector('.trace-box');
+  ok('the tracing sheet asks for stroke 1 of 3 and says it is not graded', /Stroke 1 of 3/.test(await tmsg()) && /Not graded/.test(await txt()));
+  await shot('w07-trace-start');
+  // wrong: starts in the wrong place
+  await drag(await strokeScreen('あ', 0, { dy: 45 }));
+  ok('a stroke from the wrong place is refused with a hint, and stays on stroke 1', /Start at the number/.test(await tmsg()) && (await page.$$eval('.trace-box .stk', (e) => e.length)) === 0, await tmsg());
+  // wrong: drawn backwards
+  await drag(await strokeScreen('あ', 0, { rev: true }));
+  ok('a stroke drawn backwards is refused, and after two misses the stroke is shown', /other way/.test(await tmsg()) && !!(await page.$('.trace-box .tr-help')), await tmsg());
+  await shot('w08-trace-help');
+  // right: stroke 1, with a small wobble
+  await drag(await strokeScreen('あ', 0, { dx: 3, dy: -2 }));
+  ok('a good stroke is kept and the next one is asked for', /Stroke 2 of 3|Next stroke/.test(await tmsg()) && (await page.$$eval('.trace-box .stk', (e) => e.length)) === 1, await tmsg());
+  ok('the help disappears after a good stroke', !(await page.$('.trace-box .tr-help')));
+  // a straight line instead of the curve of stroke 3 is refused later; first do stroke 2 properly
+  await drag(await strokeScreen('あ', 1));
+  await drag(await strokeScreen('あ', 2, { straight: true }));
+  ok('a straight shortcut for the looping stroke is refused', /shape|guide|whole|end/i.test(await tmsg()) && (await page.$$eval('.trace-box .stk', (e) => e.length)) === 2, await tmsg());
+  await drag(await strokeScreen('あ', 2));
+  ok('finishing the last stroke says well done', /Well done/.test(await tmsg()) && (await page.$$eval('.trace-box .stk', (e) => e.length)) === 3, await tmsg());
+  await shot('w09-trace-done');
+  // from memory: hide the guide and go again
+  await click('Again, from memory'); await sleep(200);
+  ok('"from memory" hides the guide', (await page.$$eval('.trace-box .tr-guide', (e) => e.length)) === 0 && /Stroke 1 of 3/.test(await tmsg()));
+  await drag(await strokeScreen('あ', 0)); await drag(await strokeScreen('あ', 1)); await drag(await strokeScreen('あ', 2));
+  ok('it can be completed from memory too', /Well done/.test(await tmsg()));
+  ok('no horizontal overflow (tracing)', (await overflow()) <= 0);
+  await page.evaluate(() => document.querySelector('.trace-sheet button[aria-label="Close"]')?.click()); await sleep(250);
+  ok('tracing writes nothing to the learner history', (await allOf('attempts')).length === 0);
+  await page.evaluate(() => document.querySelector('.kana-detail button[aria-label="Close"]')?.click()); await sleep(250);
+  // a combination has no tracing
+  await page.evaluate(() => [...document.querySelectorAll('.kcell[aria-label]')].find((e) => e.getAttribute('aria-label').startsWith('きゃ '))?.click()); await sleep(400);
+  ok('combinations do not offer tracing', !/Try writing it/.test(await txt()));
+  await page.evaluate(() => document.querySelector('.kana-detail button[aria-label="Close"]')?.click()); await sleep(250);
 });
 
 await step('notebook romaji', async () => {

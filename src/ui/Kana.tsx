@@ -4,7 +4,7 @@ import { Blossom, Icon } from '../app/icons';
 import { speak } from '../app/speech';
 import { toRomaji } from 'wanakana';
 import { KANA_EXAMPLES } from '../domain/kanaExamples';
-import { HIRAGANA_INTRO, Origin, Writing } from './KanaWriting';
+import { HIRAGANA_INTRO, Origin, TraceButton, Writing } from './KanaWriting';
 import { KANA_ROWS, STAGE_NAMES, isKanaId, kanaOf, type KanaChar, type KanaRow, type KanaStage, type Script } from '../domain/kanaCourse';
 import { LESSON_SIZE, REVIEW_SESSION, learnedKana, lessonStatuses, planKana, type KanaPlan } from '../domain/kanaPlan';
 import type { SkillState } from '../domain/types';
@@ -92,6 +92,7 @@ function KanaDetail({ k, onClose }: { k: KanaChar; onClose: () => void }) {
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:14px">
           <Writing k={k} size={190} />
+          <TraceButton k={k} />
           <Origin k={k} />
           {k.hint && <div class="hint-box"><b>Memory hint</b><br />{k.hint}</div>}
           {ex && <button class="example" onClick={() => speak(ex[0], settings.speechRate)}><span class="j" lang="ja">{ex[0]}</span><span class="m">{toRomaji(ex[0])} · {ex[1]}</span><Icon name="speaker" size={18} /></button>}
