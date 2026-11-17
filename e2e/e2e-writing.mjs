@@ -44,7 +44,7 @@ const strokeScreen = async (ch, i, { dx = 0, dy = 0, rev = false, straight = fal
 }, STROKES[ch].p[i], dx, dy, rev, straight);
 const drag = async (pts) => { await page.mouse.move(pts[0][0], pts[0][1]); await page.mouse.down(); for (const [x, y] of pts.slice(1)) await page.mouse.move(x, y); await page.mouse.up(); await sleep(120); };
 const tmsg = () => page.$eval('.tr-msg', (e) => e.innerText);
-await page.goto(`http://localhost:${PORT}${BASE}`, { waitUntil: 'networkidle0' }); await sleep(300);
+await page.goto(`http://localhost:${PORT}${BASE}`, { waitUntil: 'networkidle0' }); await sleep(1500); await page.waitForSelector('input[name=person], .tabbar'); await sleep(300);
 await page.type('input[name=person]', 'Venko'); await click('Start'); await page.waitForSelector('.tabbar'); await sleep(300);
 
 await step('lesson card', async () => {

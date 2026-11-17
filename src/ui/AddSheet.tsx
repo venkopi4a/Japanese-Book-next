@@ -25,7 +25,7 @@ export function AddSheet({ onPick, onResume, onType, onClose }: { onPick: (files
         {draft !== null && opt(PHOTOS, 'Continue your last import', `${draft} ${draft === 1 ? 'word' : 'words'} waiting to be reviewed`, onResume)}
         {opt(CAMERA, 'Take a photo', 'Photograph a handwritten list', () => cam.current?.click())}
         {opt(PHOTOS, 'Choose photos', 'From your library, one or several', () => lib.current?.click())}
-        {opt('<path d="M5 19l1-4L16 5l3 3L9 18z"/>', 'Type a word', 'Add a single word by hand', onType)}
+        {opt('<path d="M5 19l1-4L16 5l3 3L9 18z"/>', 'Look up a word', 'Type it in English, pick the Japanese', onType)}
         <button class="btn accent" style="width:100%" onClick={onClose}>Cancel</button>
         <input class="vh" ref={cam} type="file" accept="image/*" capture="environment" onChange={picked} aria-label="Take a photo" tabIndex={-1} />
         <input class="vh" ref={lib} type="file" accept="image/*" multiple onChange={picked} aria-label="Choose photos" tabIndex={-1} />

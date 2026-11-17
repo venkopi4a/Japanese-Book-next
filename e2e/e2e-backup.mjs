@@ -38,7 +38,7 @@ await page.evaluateOnNewDocument(() => {
   URL.createObjectURL = (blob) => { if (blob instanceof Blob && blob.type === 'application/json') blob.text().then((t) => { window.__backup = t; }); return orig(blob); };
   HTMLAnchorElement.prototype.click = function () { window.__downloadName = this.download; };
 });
-await page.goto(`http://localhost:${PORT}${BASE}`, { waitUntil: 'networkidle0' }); await sleep(300);
+await page.goto(`http://localhost:${PORT}${BASE}`, { waitUntil: 'networkidle0' }); await sleep(1500); await page.waitForSelector('input[name=person]');
 await page.type('input[name=person]', 'Venko'); await click('Start'); await page.waitForSelector('.tabbar'); await sleep(300);
 const openSettings = async () => { await page.evaluate(() => document.querySelector('button[aria-label="Settings"]')?.click()); await sleep(400); };
 const closeSettings = async () => { await click('Done'); await sleep(300); };

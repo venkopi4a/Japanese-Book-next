@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { Icon } from './app/icons';
 import { AddSheet } from './ui/AddSheet';
+import { LookupSheet } from './ui/LookupSheet';
 import { Kana } from './ui/Kana';
 import { KanaSession, type KanaMode } from './ui/KanaSession';
 import { Notebook } from './ui/Notebook';
@@ -25,6 +26,7 @@ export function App() {
   const [kana, setKana] = useState<{ mode: KanaMode; key: number } | null>(null);
   const startKana = (mode: KanaMode) => { if (mode.kind === 'lesson' || mode.items.length) setKana({ mode, key: Date.now() }); };
   const [addOpen, setAddOpen] = useState(false);
+  const [lookup, setLookup] = useState(false);
   const [flow, setFlow] = useState<{ files: File[]; resume: boolean; key: number } | null>(null);
   const add = () => setAddOpen(true);
   return (
@@ -40,9 +42,10 @@ export function App() {
       {session && <Session key={session.key} title={session.title} items={session.items} onClose={() => setSession(null)} onAgain={(items) => setSession({ title: 'Missed words', items, key: Date.now() })} />}
       {kana && <KanaSession key={kana.key} mode={kana.mode} onStart={startKana} onClose={() => setKana(null)} />}
       {word && <WordSheet key={word.id ?? 'new'} wordId={word.id} onClose={() => setWord(null)} />}
-      {addOpen && <AddSheet onClose={() => setAddOpen(false)} onType={() => { setAddOpen(false); setWord({ id: null }); }}
+      {addOpen && <AddSheet onClose={() => setAddOpen(false)} onType={() => { setAddOpen(false); setLookup(true); }}
         onPick={(files) => { setAddOpen(false); setFlow({ files, resume: false, key: Date.now() }); }}
         onResume={() => { setAddOpen(false); setFlow({ files: [], resume: true, key: Date.now() }); }} />}
+      {lookup && <LookupSheet onClose={() => setLookup(false)} onManual={() => { setLookup(false); setWord({ id: null }); }} />}
       {flow && <PhotoFlow key={flow.key} files={flow.files} resume={flow.resume} onClose={() => setFlow(null)} onPractise={(items) => start('New words', items)} />}
       {settings && <SettingsSheet onClose={() => setSettings(false)} />}
     </div>
