@@ -20,7 +20,7 @@ const overflow=()=>page.evaluate(()=>document.documentElement.scrollWidth-window
 const clickText=async(t,sel='button')=>{const h=await page.evaluateHandle((t,sel)=>[...document.querySelectorAll(sel)].find(e=>e.textContent.trim().startsWith(t)&&!e.disabled),t,sel);const el=h.asElement();if(!el)return false;await el.click();return true};
 await page.evaluateOnNewDocument(()=>{const B='jb:/Japanese-Book-next/:';if(!localStorage.getItem(B+'profiles')){localStorage.setItem(B+'profiles',JSON.stringify([{id:'local',name:'Test',colour:0}]));localStorage.setItem(B+'settings',JSON.stringify({kanaSkip:true}))}});
 await page.goto('http://localhost:4173'+BASE,{waitUntil:'networkidle0'});
-await page.waitForSelector('.big');await sleep(300);
+await page.waitForSelector('.big');await sleep(1500);await page.waitForSelector('.big');await sleep(300);
 let t=await txt();
 ok('first run seeds 10 new words on Today',/10 to practise/.test(t)&&/0 reviews, 10 new words/.test(t),t.split('\n').slice(0,8).join(' | '));
 ok('no horizontal overflow (Today)',(await overflow())<=0);

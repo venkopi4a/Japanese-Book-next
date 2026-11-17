@@ -3,10 +3,11 @@ import { wordsIntroducedToday } from '../domain/session';
 import type { Attempt, ExerciseType, MistakeDetail, Skill, SkillState, Word } from '../domain/types';
 import { normaliseAnswer } from '../domain/kana';
 import type { ReviewItem } from '../import/review';
+import type { MergeResult, Snapshot } from './backup';
 import type { ImportDraft, JBDb, OutboxEntry, PhotoRecord, SessionRecord } from './db';
 import type { LibraryWord } from './library';
 
-export const APP_VERSION = '0.9.0';
+export const APP_VERSION = '0.10.0';
 const uuid = () => globalThis.crypto.randomUUID();
 
 export type NewWord = Partial<Word> & Pick<Word, 'text' | 'reading' | 'meaning'>;
@@ -175,6 +176,73 @@ export class Repo {
       toAdd.push({ text: it.entry.text, reading: it.entry.reading, meaning: it.entry.meaning, topic: opts.topic ?? it.entry.topic, unit: opts.unit, note: it.entry.note, source: 'photo', photoId: it.entry.photo !== null ? opts.photoIds[it.entry.photo] ?? null : null });
     }
     return { added: toAdd.length ? await this.addWords(toAdd, now) : [], skipped };
+  }
+
+  // ---- backup ----
+  async snapshot(): Promise<Snapshot> {
+    const [words, skillStates, attempts, sessions, photos, librarySeen] = await Promise.all([
+      this.db.getAll('words'), this.db.getAll('skillStates'), this.db.getAll('attempts'), this.db.getAll('sessions'), this.db.getAll('photos'),
+      this.meta<string[]>('librarySeen', []),
+    ]);
+    return { words, skillStates, attempts, sessions, photos, librarySeen };
+  }
+  lastBackupAt(): Promise<number | null> { return this.meta<number | null>('lastBackupAt', null); }
+  markBackedUp(now = Date.now()) { return this.db.put('meta', now, 'lastBackupAt'); }
+
+  /**
+   * Restores a backup by merging it in. Nothing is ever deleted and no existing answer is touched:
+   * answers, sessions and photos are added when missing; a word or skill is replaced only by a more recent copy.
+   * Built-in words get a fresh random id on every device, so a backup's built-in word is matched to this device's
+   * copy by its library id and its answers are attached to that copy (no duplicates).
+   * Everything is written in one transaction: it all happens or none of it does.
+   */
+  async mergeSnapshot(s: Snapshot): Promise<MergeResult> {
+    const tx = this.db.transaction(['words', 'skillStates', 'attempts', 'sessions', 'photos', 'meta'], 'readwrite');
+    const res: MergeResult = { words: 0, skillStates: 0, attempts: 0, sessions: 0, photos: 0 };
+    const words = tx.objectStore('words');
+    const local = await words.getAll();
+    const localById = new Map(local.map((w) => [w.id, w]));
+    const libraryTwin = new Map(local.filter((w) => w.libraryId).map((w) => [w.libraryId!, w.id]));
+    const idMap = new Map<string, string>();
+    for (const w of s.words) idMap.set(w.id, (w.libraryId && libraryTwin.get(w.libraryId)) || w.id);
+    const mapId = (id: string) => idMap.get(id) ?? id;
+
+    for (const w of s.words) {
+      const id = mapId(w.id);
+      const cur = localById.get(id);
+      // a built-in word this device never touched is only a fresh copy: the backup's version (edits, favourite, deleted) wins
+      const untouched = !!cur && cur.updatedAt === cur.createdAt && cur.deletedAt === null;
+      const backupEdited = w.updatedAt !== w.createdAt;
+      if (!cur || w.updatedAt > cur.updatedAt || (untouched && backupEdited)) { words.put({ ...w, id }); res.words++; }
+    }
+
+    const states = tx.objectStore('skillStates');
+    const have = new Map((await states.getAll()).map((x) => [`${x.wordId}|${x.skill}`, x]));
+    const when = (x: SkillState) => x.lastAt ?? x.introducedAt;
+    for (const st of s.skillStates) {
+      const next = { ...st, wordId: mapId(st.wordId) };
+      const cur = have.get(`${next.wordId}|${next.skill}`);
+      if (!cur || when(next) > when(cur)) { states.put(next); res.skillStates++; }
+    }
+
+    const attempts = tx.objectStore('attempts');
+    const attemptIds = new Set(await attempts.getAllKeys());
+    for (const a of s.attempts) if (!attemptIds.has(a.id)) { attempts.add({ ...a, wordId: mapId(a.wordId) }); res.attempts++; }
+
+    const sessions = tx.objectStore('sessions');
+    const sessionIds = new Set(await sessions.getAllKeys());
+    for (const x of s.sessions) if (!sessionIds.has(x.id)) { sessions.add(x); res.sessions++; }
+
+    const photos = tx.objectStore('photos');
+    const photoIds = new Set(await photos.getAllKeys());
+    for (const p of s.photos) if (!photoIds.has(p.id)) { photos.add(p); res.photos++; }
+
+    const meta = tx.objectStore('meta');
+    const seen = new Set<string>(((await meta.get('librarySeen')) as string[] | undefined) ?? []);
+    s.librarySeen.forEach((x) => seen.add(x));
+    meta.put([...seen], 'librarySeen');
+    await tx.done;
+    return res;
   }
 
   /** Clears everything this account stored on this device (used when signing out). */
