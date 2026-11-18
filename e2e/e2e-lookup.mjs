@@ -41,7 +41,7 @@ await step('open the lookup from the Add menu', async () => {
   await tab('Notebook'); await click('Add'); await sleep(300);
   ok('the menu says "Look up a word"', /Look up a word/.test(await txt()));
   await click('Look up a word'); await page.waitForSelector('input[name=english]'); await sleep(400);
-  ok('it shows a hint and the English box', /Type an English word/.test(await txt()));
+  ok('it shows a hint and the English box', /English letters/.test(await txt()));
   ok('the box has focus', await page.evaluate(() => document.activeElement?.getAttribute('name') === 'english'));
   await shot('l01-empty');
 });
@@ -87,6 +87,27 @@ await step('a word already in the notebook cannot be added twice', async () => {
   const r2 = await results();
   ok('reopened: 猫 shows "In notebook" and is disabled', /In notebook/.test(r2[0] || '') && await page.evaluate(() => document.querySelector('[data-result] button').disabled), r2[0]);
   ok('still only one 猫 in the notebook', (await allOf('words')).filter((x) => x.text === '猫').length === 1);
+});
+
+await step('Japanese in English letters (romaji)', async () => {
+  await typeQ('inu');
+  const r = await results();
+  ok('"inu" gives 犬 first, with reading and meaning', /^犬 いぬ inu\s+dog/.test(r[0] || ''), r[0]);
+  await shot('l05-romaji');
+  await typeQ('arigatou');
+  const r2 = await results();
+  ok('"arigatou" gives ありがとう', /^ありがとう/.test(r2[0] || ''), r2[0]);
+  await typeQ('gakkō');
+  ok('"gakkō" with a long-vowel mark gives 学校', /^学校 がっこう/.test((await results())[0] || ''));
+  await typeQ('konnichiwa');
+  const r3 = await results();
+  ok('"konnichiwa" gives こんにちは, which is already a built-in word, so it shows "In notebook"', /^こんにちは/.test(r3[0] || '') && /In notebook/.test(r3[0] || ''), r3[0]);
+  await typeQ('tsukue');
+  const r4 = await results();
+  ok('"tsukue" gives 机 (desk)', /^机 つくえ tsukue\s+desk/.test(r4[0] || ''), r4[0]);
+  await page.evaluate(() => document.querySelector('[data-result] button[name=add-result]').click()); await sleep(600);
+  const w = (await allOf('words')).find((x) => x.text === '机');
+  ok('adding it from romaji saves the word with its reading and meaning', !!w && w.reading === 'つくえ' && w.meaning === 'desk' && w.source === 'user', JSON.stringify(w));
 });
 
 await step('no match and the by-hand fallback', async () => {

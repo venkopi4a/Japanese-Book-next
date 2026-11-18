@@ -1,3 +1,4 @@
+import { toRomaji } from 'wanakana';
 import type { WordKind } from './types';
 
 /** One dictionary entry: [written form, reading, part of speech, commonness rank (0 = most common), senses (each a list of English glosses)]. */
@@ -5,7 +6,9 @@ export type DictEntry = [string, string, string, number, string[][]];
 
 export interface Match { text: string; reading: string; meaning: string; pos: string; kind: WordKind; rank: number }
 interface Hit { e: number; s: number; g: number; v: boolean }
-export interface DictIndex { entries: DictEntry[]; whole: Map<string, Hit[]>; token: Map<string, Hit[]> }
+export interface DictIndex { entries: DictEntry[]; whole: Map<string, Hit[]>; token: Map<string, Hit[]>; sounds?: Sound[] }
+/** How an entry sounds in romaji: exactly as Hepburn spells it, and with spelling variants folded together (see `loose`). */
+interface Sound { e: number; strict: string; loose: string }
 
 /** Lower-case, drop "(...)" notes and a leading to/a/an/the, so "to eat" and "eat" and "a cat (domestic)" all line up. */
 export const norm = (s: string) => {
@@ -54,6 +57,35 @@ export function meaningOf(senses: string[][], first = 0): string {
   return out.slice(0, 3).join(', ');
 }
 
+/** Typed romaji, tidied: lower case, macrons spelled out (ō -> ou), no spaces, apostrophes or hyphens. */
+export const strictRomaji = (s: string) =>
+  s.toLowerCase().replace(/ā/g, 'aa').replace(/ī/g, 'ii').replace(/ū/g, 'uu').replace(/ē/g, 'ee').replace(/ō/g, 'ou').replace(/[^a-z]/g, '');
+
+/**
+ * Folds the ways people spell the same Japanese sound, so "ookii", "ōkii", "ohkii" are not needed one by one:
+ * long vowels collapse (ou, oo -> o), Hepburn and Nihon-shiki meet (shi/si, chi/ti, tsu/tu, fu/hu, ji/zi, sha/sya), wo -> o.
+ */
+export const loose = (romaji: string) =>
+  strictRomaji(romaji)
+    .replace(/shi/g, 'si').replace(/sh([aueo])/g, 'sy$1').replace(/chi/g, 'ti').replace(/ch([aueo])/g, 'ty$1')
+    .replace(/tsu/g, 'tu').replace(/fu/g, 'hu').replace(/ji/g, 'zi').replace(/j([aueo])/g, 'zy$1').replace(/wo/g, 'o')
+    .replace(/ou|oo/g, 'o').replace(/uu/g, 'u').replace(/aa/g, 'a').replace(/ii/g, 'i').replace(/ee|ei/g, 'e');
+
+/** Builds the romaji spellings ahead of the first search (about 150 ms), so typing never stalls. */
+export const warmUp = (ix: DictIndex) => { soundsOf(ix); };
+
+function soundsOf(ix: DictIndex): Sound[] {
+  if (ix.sounds) return ix.sounds;
+  const out: Sound[] = [];
+  ix.entries.forEach((en, e) => {
+    const readings = [en[1]];
+    // "konnichiwa" is spelled こんにちは: the particle は, へ at the end of a word sounds like わ, え
+    if (/[はへ]$/.test(en[1]) && en[1].length > 2) readings.push(en[1].slice(0, -1) + (en[1].endsWith('は') ? 'わ' : 'え'));
+    for (const r of readings) { const strict = strictRomaji(toRomaji(r)); if (strict) out.push({ e, strict, loose: loose(strict) }); }
+  });
+  return (ix.sounds = out);
+}
+
 const JA = /[\u3040-\u30ff\u3400-\u9fff]/;
 const WEAK_POS = new Set(['suffix', 'prefix', 'counter']);
 
@@ -90,6 +122,15 @@ export function lookup(ix: DictIndex, query: string, limit = 8): Match[] {
         const toks = new Set(gl.split(' '));
         if (!words.every((w) => toks.has(w))) continue;
         offer(h.e, gl.startsWith(n + ' ') || gl.endsWith(' ' + n) ? 80 : 450, h.s, h.g, !wantVerb || h.v);
+      }
+    }
+    // the same letters may be Japanese in romaji ("neko", "arigatou"): match readings. English matches win ties.
+    const typed = strictRomaji(q), typedLoose = loose(q);
+    if (/^[a-zāīūēō' -]+$/i.test(q) && typed.length >= 2) {
+      for (const so of soundsOf(ix)) {
+        if (so.strict === typed) offer(so.e, 150, 0, 0);
+        else if (so.loose === typedLoose) offer(so.e, 210, 0, 0);
+        else if (typedLoose.length >= 3 && so.loose.startsWith(typedLoose)) offer(so.e, 500, 0, 0);
       }
     }
   }

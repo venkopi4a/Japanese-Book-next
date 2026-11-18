@@ -7,7 +7,7 @@ import type { MergeResult, Snapshot } from './backup';
 import type { ImportDraft, JBDb, OutboxEntry, PhotoRecord, SessionRecord } from './db';
 import type { LibraryWord } from './library';
 
-export const APP_VERSION = '0.11.0';
+export const APP_VERSION = '0.12.0';
 const uuid = () => globalThis.crypto.randomUUID();
 
 export type NewWord = Partial<Word> & Pick<Word, 'text' | 'reading' | 'meaning'>;
