@@ -147,6 +147,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
         <p class="m" style="margin-top:16px">THE JAPANESE BOOK · version {APP_VERSION}</p>
         <p class="m" style="font-size:12px">Stroke order drawings: KanjiVG © Ulrich Apel, CC BY-SA 3.0 (kanjivg.tagaini.net).</p>
         <p class="m" style="margin-top:4px;font-size:11px">Voices: Kokoro (Apache 2.0) for words; Open JTalk with the Mei voice, © Nagoya Institute of Technology (CC BY 3.0), for single kana.</p>
+        <p class="m" style="margin-top:4px;font-size:11px">Word lookup: JMdict © Electronic Dictionary Research and Development Group (CC BY-SA 4.0, edrdg.org); word frequency from wordfreq (CC BY-SA 4.0).</p>
       </div>
     </div>
   );

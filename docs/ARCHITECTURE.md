@@ -46,6 +46,9 @@ The app's own recordings are played first (see `docs/AUDIO.md`). They were remov
 Settings > Backup writes one JSON file (`japanese-book-<name>-<date>.json`): words, skill states, attempts, sessions, kept photos (base64) and settings. It goes to the phone's share sheet (Save to Files, AirDrop, Mail), or downloads. Restore merges into the current person and never deletes: attempts, sessions and photos are added when their id is missing; a word or skill is replaced only by a more recent copy; built-in words are matched by library id (every device seeds its own copies with random ids) and their answers are attached to this device's copy. It is one transaction. Files from a newer app version, or damaged files, are refused before anything is written.
 Accounts and sync (Stage 3) were considered and dropped on 2026-11-16: two people, one phone each, nothing to sync.
 
+## v0.11: word lookup
+Add > Look up a word searches `src/data/dictionary.json` (26,000 everyday words from JMdict, a 2021 snapshot via the `jamdict-data` PyPI package, ranked by the wordfreq list; regenerate with `scripts/make-dictionary.py`). It is a lazy-loaded chunk (about 1 MB compressed) and is precached for offline use. `src/domain/lookup.ts` builds an index of English glosses and scores matches: log of commonness, plus penalties for partial matches, later glosses and minor senses, suffixes/prefixes/counters, and non-verbs when the query starts with "to". A saved word gets the matched sense's short meaning, its kind from the part of speech, and source `user`.
+
 ## Planned for later stages
 Interface and design system (Stage 2), Supabase accounts, Row Level Security and sync (Stage 3),
 photo import through a secure server-side function (Stage 4), progress screens (Stage 5).

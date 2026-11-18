@@ -27,7 +27,7 @@ await page.evaluateOnNewDocument(()=>{const B='jb:/Japanese-Book-next/:';if(!loc
 await page.goto('http://localhost:'+PORT+BASE,{waitUntil:'networkidle0'});await page.waitForSelector('.big');await sleep(1500);await page.waitForSelector('.big');
 await click('Notebook','.tabbar button');await sleep(200);
 const start=await dump();const startWords=start.words.length;
-await step('menu',async()=>{await addMenu();const t=await txt();ok('Add menu offers photo, library and typing',/Take a photo/.test(t)&&/Choose photos/.test(t)&&/Type a word/.test(t)&&!/Continue your last import/.test(t));
+await step('menu',async()=>{await addMenu();const t=await txt();ok('Add menu offers photo, library and typing',/Take a photo/.test(t)&&/Choose photos/.test(t)&&/Look up a word/.test(t)&&!/Continue your last import/.test(t));
   const attrs=await page.evaluate(()=>[...document.querySelectorAll('input[type=file]')].map(i=>({cap:i.getAttribute('capture'),multi:i.multiple,acc:i.accept})));
   ok('camera input uses the rear camera and the library input accepts several images',attrs.some(a=>a.cap==='environment'&&a.acc==='image/*')&&attrs.some(a=>a.multi&&!a.cap),JSON.stringify(attrs));await shot('p01-add-menu')});
 await step('crop',async()=>{await choose([P+'photoA.jpg',P+'photoB.jpg']);ok('crop step opens for the first of two photos',await waitText(/Crop/)&&/1 of 2/.test(await txt()));

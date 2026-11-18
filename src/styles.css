@@ -44,6 +44,8 @@ h2 { font-family: var(--serif); font-size: 19px; margin: 0 0 6px; }
 .btn { min-height: 48px; padding: 0 18px; border-radius: var(--r); border: 1px solid var(--ru); background: var(--sf); transition: transform .12s, background-color .15s, border-color .15s, opacity .15s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .btn:active { transform: scale(.98); }
 .btn.primary { background: var(--ac); color: var(--onac); border-color: var(--ac); font-weight: 700; width: 100%; min-height: 54px; font-size: 17px; box-shadow: 0 8px 18px -10px var(--ac); }
+.btn.add { background: var(--ac); color: var(--onac); border-color: var(--ac); font-weight: 700; min-height: 44px; padding: 0 16px; }
+.btn.add:disabled { background: var(--sf); color: var(--mu); border-color: var(--ru); font-weight: 400; }
 .btn.accent { background: none; border-color: transparent; color: var(--ind); font-weight: 700; }
 .btn.danger { color: var(--warn); }
 .btn { white-space: nowrap; }

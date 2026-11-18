@@ -44,7 +44,7 @@ self.addEventListener('fetch',(e)=>{
 // for example /Japanese-Book-next/ for a preview or /Japanese-Book/ for the live site.
 export default defineConfig({
   base: process.env.VITE_BASE ?? '/',
-  build: { assetsDir: '' }, // every built file sits in one flat folder, so uploads on the GitHub website are simple
+  build: { assetsDir: '', chunkSizeWarningLimit: 3000 }, // every built file sits in one flat folder, so uploads on the GitHub website are simple
   plugins: [preact(), offlineWorker()],
   test: { environment: 'node', setupFiles: ['tests/setup.ts'] },
 });

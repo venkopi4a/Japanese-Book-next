@@ -35,7 +35,7 @@ await page.evaluate(()=>{const i=document.querySelector('input[type=search]');i.
 await clickText('学生','.row');await sleep(250);await shot('05-word');t=await txt();ok('word detail opens',/Lesson \/ unit/.test(t)&&/not started/.test(t));
 await clickText('Back');await sleep(150);
 // add word validation
-await clickText('Add');await sleep(250);await clickText('Type a word');await sleep(250);await clickText('Add word');await sleep(100);t=await txt();ok('add form validates empty input',/Enter the Japanese word/.test(t));
+await clickText('Add');await sleep(250);await clickText('Look up a word');await sleep(250);await clickText('Can');await sleep(250);await clickText('Add word');await sleep(100);t=await txt();ok('add form validates empty input',/Enter the Japanese word/.test(t));
 await page.type('input[name=text]','猫');await page.type('input[name=reading]','ねこ');await page.type('input[name=meaning]','cat');
 await shot('06-add-form');await clickText('Add word');await sleep(300);t=await txt();ok('word added and toast shown',/Added 猫/.test(t));
 await page.type('input[type=search]','neko');await sleep(200);t=await txt();ok('new word searchable',/猫/.test(t));
