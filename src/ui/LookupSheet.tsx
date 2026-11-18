@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { useApp } from '../app/state';
 import { romajiOf } from '../app/exercise';
-import { buildIndex, lookup, type DictIndex, type Match } from '../domain/lookup';
+import { buildIndex, lookup, warmUp, type DictIndex, type Match } from '../domain/lookup';
 
 let cached: Promise<DictIndex> | null = null;
 /** The dictionary is a separate file (about 1 MB compressed), loaded the first time someone looks a word up and then kept for offline use. */
@@ -18,7 +18,7 @@ export function LookupSheet({ onClose, onManual }: { onClose: () => void; onManu
   const [added, setAdded] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
-  useEffect(() => { loadIndex().then(setIx, () => setFailed(true)); input.current?.focus(); }, []);
+  useEffect(() => { loadIndex().then((i) => { setIx(i); setTimeout(() => warmUp(i), 50); }, () => setFailed(true)); input.current?.focus(); }, []);
 
   const have = useMemo(() => new Set(words.filter((w) => !w.deletedAt).map((w) => keyOf(w.text, w.reading))), [words]);
   const [debounced, setDebounced] = useState('');
@@ -44,12 +44,12 @@ export function LookupSheet({ onClose, onManual }: { onClose: () => void; onManu
           <h2 style="font-size:22px;margin:0">Add a word</h2>
           <button class="btn" onClick={onClose}>Done{added.size ? ` (${added.size} added)` : ''}</button>
         </div>
-        <input ref={input} class="input" type="search" name="english" aria-label="English word" placeholder="Type it in English, e.g. cat, to eat" value={q} onInput={(e) => setQ((e.target as HTMLInputElement).value)} enterkeyhint="search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck={false} />
+        <input ref={input} class="input" type="search" name="english" aria-label="English word" placeholder="English or romaji: cat, to eat, neko" value={q} onInput={(e) => setQ((e.target as HTMLInputElement).value)} enterkeyhint="search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck={false} />
         <div style="margin-top:6px" aria-live="polite">
           {failed && <p class="m">The dictionary could not load. Check your connection once, then try again.</p>}
           {!failed && !ix && typed && <p class="m">Loading the dictionary…</p>}
-          {ix && !typed && <p class="m">Type an English word and pick the Japanese one. Try <b>cat</b>, <b>to eat</b> or <b>thank you</b>.</p>}
-          {ix && typed && !results.length && <p class="m">No match for “{debounced.trim()}”. Try a simpler word (cat instead of kitten), or add it by hand below.</p>}
+          {ix && !typed && <p class="m">Type it in English (<b>cat</b>, <b>to eat</b>) or the Japanese word in English letters (<b>neko</b>, <b>arigatou</b>), then pick the right one.</p>}
+          {ix && typed && !results.length && <p class="m">No match for “{debounced.trim()}”. Check the spelling, try a simpler word (cat instead of kitten), or add it by hand below.</p>}
           {results.map((m) => {
             const k = keyOf(m.text, m.reading);
             const done = added.has(k), inBook = have.has(k) && !done;

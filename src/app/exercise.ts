@@ -32,7 +32,8 @@ export interface Known {
 }
 export const KNOW_NOTHING: Known = { met: new Set(), readingKnown: new Set(), katakanaDone: false };
 
-export const romajiOf = (kana: string) => toRomaji(kana);
+/** Hepburn romaji. The greetings こんにちは / こんばんは end in the particle は, which is read "wa". */
+export const romajiOf = (kana: string) => toRomaji(kana).replace(/(konnichi|konban)ha$/, '$1wa');
 
 /**
  * Reading help for a Japanese word: the kana reading under kanji until its reading is known,
