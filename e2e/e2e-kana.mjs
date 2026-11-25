@@ -37,14 +37,14 @@ await step('welcome', async () => {
   await shot('k01-welcome');
   await page.type('input[name=person]', 'Venko'); await click('Start'); await page.waitForSelector('.tabbar'); await sleep(300);
   const t2 = await txt();
-  ok('a brand-new learner sees the first kana lesson first, and words are open too', /Today's kana/i.test(t2) && /あ い う え お/.test(t2) && /Lesson 1 of/.test(t2) && /about \d+ min/.test(t2) && /Start lesson/.test(t2) && /Words/i.test(t2) && /to practise/.test(t2) && t2.search(/Today's kana/i) < t2.search(/to practise/), t2.split('\n').slice(0, 12).join(' | '));
+  ok('a brand-new learner sees the first kana lesson first, and words are open too', /Today's kana/i.test(t2) && /あ い う え お/.test(t2) && /Lesson 1 of/.test(t2) && /about \d+ min/.test(t2) && /Start lesson/.test(t2) && /Words/i.test(t2) && /Next lesson · Greetings/.test(t2) && t2.search(/Today's kana/i) < t2.search(/Next lesson · Greetings/), t2.split('\n').slice(0, 12).join(' | '));
   ok('greeting uses the name', /、Venko/.test(t2));
   ok('no horizontal overflow (Today, kana first)', (await overflow()) <= 0);
   await shot('k02-today-kana');
 });
 
 await step('practice locked', async () => {
-  await tab('Practice'); const t = await txt();
+  await tab('Words'); await click('Practise', '.seg-toggle button'); await sleep(150); const t = await txt();
   const open = await page.evaluate(() => [...document.querySelectorAll('.list .row')].some((r) => !r.disabled));
   ok('vocabulary can be studied from the start: nothing is locked', !/Vocabulary opens after hiragana/.test(t) && open);
 });
@@ -154,18 +154,59 @@ await step('unlock', async () => {
   });
   await page.reload({ waitUntil: 'networkidle0' }); await page.waitForSelector('.tabbar'); await sleep(300);
   const t = await txt();
-  ok('with hiragana learned, words come first on Today', /to practise/.test(t) && /10 new words/.test(t) && /104 learned/.test(t), t.split('\n').slice(0, 10).join(' | '));
+  ok('with hiragana learned, words come first on Today', t.search(/WORDS/i) < t.search(/TODAY'S KANA/i) && /Next lesson · Greetings 1 of/.test(t) && /104 learned/.test(t), t.split('\n').slice(0, 10).join(' | '));
   ok('katakana is offered next, alongside vocabulary', /ア イ ウ エ オ/.test(t));
   await shot('k08-today-unlocked');
 });
 
-await step('teach-first and reading help', async () => {
-  await click('Start practice'); await sleep(350);
-  const t = await txt();
-  const kanjiWord = await page.evaluate(() => document.querySelector('.qcard .ja')?.textContent);
-  ok('new words are taught on a lesson card (reading, romaji and meaning visible at once)', /New word/.test(t) && /asked about it tomorrow/.test(t) && !!(await page.$('.qcard .roma')), kanjiWord);
+await step('word lesson', async () => {
+  const meanings = await page.evaluate(async () => {
+    const d = await new Promise((res) => { const r = indexedDB.open('jb:/Japanese-Book-next/:local'); r.onsuccess = () => res(r.result); });
+    const ws = await new Promise((res) => { const q = d.transaction('words').objectStore('words').getAll(); q.onsuccess = () => res(q.result); });
+    return Object.fromEntries(ws.map((w) => [w.text, w.meaning]));
+  });
+  await click('Start lesson'); await sleep(350);
+  let t = await txt();
+  ok('a word lesson starts with a learn card: word, kana, romaji, meaning and a step counter', !!(await page.$('.word-disc')) && /New word · Greetings/i.test(t) && /Greetings 1 · New word/.test(t) && /1 of 9/.test(t) && !!(await page.$('.roma-big')) && !!(await page.$('.word-meaning')), (t.match(/\d+ of \d+/) || [''])[0]);
   await shot('k09-word-lesson');
-  await page.click('button[aria-label="End session"]'); await sleep(300);
+  const c = { learn: 0, quiz: 0, wrong: 0, match: 0 };
+  let n = 0;
+  while (n++ < 60) {
+    t = await txt();
+    if (/Lesson complete/.test(t)) break;
+    if (await page.$('.word-disc')) { c.learn++; await click('Got it'); await sleep(250); continue; }
+    if (await page.$('.match.words')) {
+      if (!c.match) await shot('k09c-word-match');
+      const left = await page.$$eval('.match.words > div:first-child button', (b) => b.map((x) => x.childNodes[0].textContent));
+      for (const word of left) {
+        await page.evaluate((word) => [...document.querySelectorAll('.match.words > div:first-child button')].find((b) => b.childNodes[0].textContent === word).click(), word);
+        await page.evaluate((m) => [...document.querySelectorAll('.match.words > div:last-child button')].find((b) => b.textContent === m).click(), meanings[word]);
+        await sleep(80);
+      }
+      c.match++; await sleep(900); continue;
+    }
+    const opts = await page.$$('.opt:not([disabled])');
+    if (!opts.length) { if (!(await click('Continue'))) await sleep(200); continue; }
+    if (!c.quiz) await shot('k09b-word-check');
+    const prompt = await page.evaluate(() => document.querySelector('.qcard .ja')?.textContent);
+    const texts = await Promise.all(opts.map((o) => o.evaluate((e) => e.textContent)));
+    const idx = texts.indexOf(meanings[prompt]);
+    await opts[idx < 0 ? 0 : idx].click(); c.quiz++; await sleep(250);
+    if (/Not quite/.test(await txt())) { c.wrong++; await click('Continue'); await sleep(250); } else await sleep(800);
+  }
+  t = await txt();
+  ok('the lesson is short: 4 learn cards, 4 quick checks, a matching game, then the end screen', /Lesson complete/.test(t) && c.learn === 4 && c.quiz === 4 && c.wrong === 0 && c.match === 1, JSON.stringify(c));
+  ok('the end screen shows blossoms, the lesson words, word progress and Next lesson', (await page.$$('.stars > span')).length === 3 && (await page.$$('.word-chips span')).length === 4 && /4 learned/.test(t) && /Next lesson/.test(t), t.split('\n').slice(0, 14).join(' | '));
+  await shot('k09d-word-end');
+  await click('Done'); await sleep(400);
+  await tab('Words'); t = await txt();
+  ok('the Words tab shows units and lessons; lesson 1 is done, lesson 2 is next, nothing locked', /Your units/.test(t) && /Greetings/.test(t) && /Tap to practise/.test(t) && /Next up/.test(t) && /4 of \d+ words learned/.test(t), t.split('\n').slice(0, 16).join(' | '));
+  ok('no horizontal overflow (Words)', (await overflow()) <= 0);
+  await shot('k09e-word-path');
+  await tab('Today');
+});
+
+await step('reading help', async () => {
   // seed some met words so recall questions can be checked for reading help
   await page.evaluate(async () => {
     const d = await new Promise((res) => { const r = indexedDB.open('jb:/Japanese-Book-next/:local'); r.onsuccess = () => res(r.result); });
@@ -175,7 +216,7 @@ await step('teach-first and reading help', async () => {
     await new Promise((r) => (tx.oncomplete = r));
   });
   await page.reload({ waitUntil: 'networkidle0' }); await page.waitForSelector('.tabbar');
-  await tab('Practice'); await click('Recall', '.row'); await sleep(350);
+  await tab('Words'); await click('Practise', '.seg-toggle button'); await sleep(150); await click('Recall', '.row'); await sleep(350);
   const helps = await page.$$eval('.opt .ohelp', (e) => e.map((x) => x.textContent));
   ok('Japanese answer options show their kana reading', helps.length >= 2 && helps.every((h) => /[ぁ-んァ-ン]/.test(h)), helps.join(' / '));
   await shot('k10-recall-help');
@@ -215,7 +256,7 @@ await step('people', async () => {
   await page.reload({ waitUntil: 'networkidle0' }); await sleep(300);
   ok('with two people the picker shows on start', /Who’s studying\?/.test(await txt()));
   await page.click('button[aria-label="Study as Venko"]'); await page.waitForSelector('.tabbar'); await sleep(300);
-  t = await txt(); ok('switching back keeps the first person\'s progress', /to practise/.test(t) && /、Venko/.test(t));
+  t = await txt(); ok('switching back keeps the first person\'s progress', /104 learned/.test(t) && /、Venko/.test(t));
   // iPhone Home Screen: ways in that need neither the phone keyboard nor pop-ups
   await page.click('button[aria-label="Settings"]'); await sleep(300); await click('Switch person'); await sleep(300);
   await click('+ Add a person'); await sleep(150);

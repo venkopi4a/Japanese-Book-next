@@ -5,6 +5,7 @@ import { topicCounts } from '../app/topics';
 import { DAY, startOfDay } from '../domain/scheduler';
 import { planMistakes, planToday, planWeak, wordsIntroducedToday } from '../domain/session';
 import { KanaToday, useKanaPlan, type StartKana } from './Kana';
+import { useWordPath, type StartWordLesson } from './WordPath';
 import { streak } from '../domain/stats';
 import type { SessionItem } from './Session';
 
@@ -13,10 +14,12 @@ export const ART = `${import.meta.env.BASE_URL}art-banner.jpg`;
 const asSession = (items: { wordId: string; skill: any; kind: 'new' | 'review'; reason: string }[]): SessionItem[] => items.map((i) => ({ ...i, promote: true }));
 const greeting = () => { const h = new Date().getHours(); return h < 5 || h >= 18 ? 'こんばんは' : h < 11 ? 'おはよう' : 'こんにちは'; };
 
-export function Today({ onStart, onKana, onKanaTab, onAdd, onSettings, onTopic }: { onStart: (title: string, items: SessionItem[]) => void; onKana: StartKana; onKanaTab: () => void; onAdd: () => void; onSettings: () => void; onTopic: (topic: string) => void }) {
+export function Today({ onStart, onLesson, onKana, onKanaTab, onAdd, onSettings, onTopic }: { onStart: (title: string, items: SessionItem[]) => void; onLesson: StartWordLesson; onKana: StartKana; onKanaTab: () => void; onAdd: () => void; onSettings: () => void; onTopic: (topic: string) => void }) {
   const { words, states, attempts, settings, profile, kana, hiraganaDone } = useApp();
   const kanaPlan = useKanaPlan();
   const kanaFirst = !hiraganaDone;
+  const path = useWordPath();
+  const nextLesson = path.next;
   const now = Date.now();
   const d = useMemo(() => {
     const day = startOfDay(now);
@@ -49,18 +52,22 @@ export function Today({ onStart, onKana, onKanaTab, onAdd, onSettings, onTopic }
 
       {(() => {
         // Words and kana are both always open: study whatever you like. Whichever track you are on comes first.
+        // Words: the next lesson teaches new words; reviews bring back the ones that are due. Both one tap away.
+        const reviews = plan.reviews.length;
         const wordsCard = (
-          <div class={`card${kanaFirst ? '' : ' pull'}`} key="words">
-            <div class="eyebrow" style="margin:0 0 4px">Words</div>
-            {total > 0
-              ? <div class="big">{total} <span style="font-size:20px">to practise</span></div>
-              : <div class="big" style="font-size:34px">All done for today</div>}
-            <div class="m" style="margin:4px 0 16px">{total > 0 ? `${plan.reviews.length} ${plan.reviews.length === 1 ? 'review' : 'reviews'}, ${plan.news.length} new ${plan.news.length === 1 ? 'word' : 'words'}${plan.deferred ? `, ${plan.deferred} more waiting` : ''}` : 'Come back tomorrow, or practise something extra.'}</div>
-            <button class="btn primary" disabled={total === 0} onClick={today}>Start practice</button>
-            <div style="display:flex;gap:10px;margin-top:10px">
-              <button class="btn" style="flex:1;padding:0 10px" disabled={weak.length === 0} onClick={() => onStart('Weak words', asSession(weak.slice(0, 15)))}>Weak words · {weak.length}</button>
-              <button class="btn" style="flex:1;padding:0 10px" onClick={onAdd}>Add words</button>
-            </div>
+          <div class={`card lesson-card${kanaFirst ? '' : ' pull'}`} key="words">
+            <div style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow" style="margin:0">Words</div><span class="m">{path.sum.learned}/{path.sum.total} learned</span></div>
+            {nextLesson ? <>
+              <div class="m" style="margin-top:6px">{nextLesson.done ? 'Continue where you left off' : `Next lesson · ${nextLesson.lesson.unit} ${nextLesson.lesson.n} of ${nextLesson.lesson.of}`}</div>
+              <div class="lesson-words">{nextLesson.lesson.words.map((w) => <span key={w.id} class="j" lang="ja">{w.text}</span>)}</div>
+              <div class="m" style="margin:2px 0 14px">{nextLesson.lesson.words.length} new words · about {Math.max(2, Math.round((nextLesson.lesson.words.length * 2 + 1) / 5))} min</div>
+            </> : <div class="big" style="font-size:30px;margin:6px 0 10px">Every lesson done</div>}
+            {reviews > 0 && (!nextLesson || plan.overdue > 0)
+              ? <><button class="btn primary" onClick={() => onStart('Review', asSession(plan.reviews))}>Review {reviews} {reviews === 1 ? 'word' : 'words'}</button>
+                {nextLesson && <button class="btn" style="width:100%;margin-top:8px" onClick={() => onLesson(nextLesson.lesson)}>{nextLesson.done ? 'Continue lesson' : 'Start lesson'}</button>}</>
+              : <>{nextLesson && <button class="btn primary" onClick={() => onLesson(nextLesson.lesson)}>{nextLesson.done ? 'Continue lesson' : 'Start lesson'}</button>}
+                {reviews > 0 && <button class="btn" style="width:100%;margin-top:8px" onClick={() => onStart('Review', asSession(plan.reviews))}>Review · {reviews} due</button>}</>}
+            {weak.length > 0 && <button class="link" style="margin-top:6px" onClick={() => onStart('Weak words', asSession(weak.slice(0, 15)))}>Weak words · {weak.length}</button>}
           </div>
         );
         const kanaCard = (kanaPlan.lesson || kanaPlan.reviews.length > 0) ? <KanaToday key="kana" plan={kanaPlan} onStart={onKana} compact={!kanaFirst} /> : null;

@@ -7,6 +7,8 @@ import { KanaSession, type KanaMode } from './ui/KanaSession';
 import { Notebook } from './ui/Notebook';
 import { PhotoFlow } from './ui/PhotoFlow';
 import { Practice } from './ui/Practice';
+import { WordSession } from './ui/WordSession';
+import type { WordLesson } from './domain/wordPath';
 import { Progress } from './ui/Progress';
 import { Session, type SessionItem } from './ui/Session';
 import { SettingsSheet } from './ui/SettingsSheet';
@@ -14,7 +16,7 @@ import { Today } from './ui/Today';
 import { WordSheet } from './ui/WordSheet';
 
 type Tab = 'today' | 'kana' | 'notebook' | 'practice' | 'progress';
-const TABS: [Tab, string][] = [['today', 'Today'], ['kana', 'Kana'], ['notebook', 'Notebook'], ['practice', 'Practice'], ['progress', 'Progress']];
+const TABS: [Tab, string][] = [['today', 'Today'], ['kana', 'Kana'], ['notebook', 'Notebook'], ['practice', 'Words'], ['progress', 'Progress']];
 
 export function App() {
   const [tab, setTab] = useState<Tab>('today');
@@ -23,6 +25,8 @@ export function App() {
   const [settings, setSettings] = useState(false);
   const [pTopics, setPTopics] = useState<{ topics: string[]; key: number }>({ topics: [], key: 0 });
   const start = (title: string, items: SessionItem[]) => items.length && setSession({ title, items, key: Date.now() });
+  const [wordLesson, setWordLesson] = useState<{ lesson: WordLesson; key: number } | null>(null);
+  const startLesson = (lesson: WordLesson) => setWordLesson({ lesson, key: Date.now() });
   const [kana, setKana] = useState<{ mode: KanaMode; key: number } | null>(null);
   const startKana = (mode: KanaMode) => { if (mode.kind === 'lesson' || mode.items.length) setKana({ mode, key: Date.now() }); };
   const [addOpen, setAddOpen] = useState(false);
@@ -31,15 +35,16 @@ export function App() {
   const add = () => setAddOpen(true);
   return (
     <div class="shell">
-      {tab === 'today' && <Today onStart={start} onKana={startKana} onKanaTab={() => setTab('kana')} onAdd={add} onSettings={() => setSettings(true)} onTopic={(t) => { setPTopics({ topics: [t], key: Date.now() }); setTab('practice'); }} />}
+      {tab === 'today' && <Today onStart={start} onLesson={startLesson} onKana={startKana} onKanaTab={() => setTab('kana')} onAdd={add} onSettings={() => setSettings(true)} onTopic={(t) => { setPTopics({ topics: [t], key: Date.now() }); setTab('practice'); }} />}
       {tab === 'kana' && <Kana onStart={startKana} onSettings={() => setSettings(true)} />}
       {tab === 'notebook' && <Notebook onOpen={(id) => setWord({ id })} onAdd={add} onSettings={() => setSettings(true)} />}
-      {tab === 'practice' && <Practice key={pTopics.key} initialTopics={pTopics.topics} onStart={start} onAdd={add} onSettings={() => setSettings(true)} />}
+      {tab === 'practice' && <Practice key={pTopics.key} initialTopics={pTopics.topics} onStart={start} onLesson={startLesson} onAdd={add} onSettings={() => setSettings(true)} />}
       {tab === 'progress' && <Progress onStart={start} onAdd={add} onSettings={() => setSettings(true)} onOpen={(id) => setWord({ id })} />}
       <nav class="tabbar" aria-label="Main">
         {TABS.map(([k, label]) => <button key={k} aria-current={tab === k ? 'page' : undefined} onClick={() => setTab(k)}><Icon name={k} />{label}</button>)}
       </nav>
       {session && <Session key={session.key} title={session.title} items={session.items} onClose={() => setSession(null)} onAgain={(items) => setSession({ title: 'Missed words', items, key: Date.now() })} />}
+      {wordLesson && <WordSession key={wordLesson.key} lesson={wordLesson.lesson} onStart={startLesson} onClose={() => setWordLesson(null)} />}
       {kana && <KanaSession key={kana.key} mode={kana.mode} onStart={startKana} onClose={() => setKana(null)} />}
       {word && <WordSheet key={word.id ?? 'new'} wordId={word.id} onClose={() => setWord(null)} />}
       {addOpen && <AddSheet onClose={() => setAddOpen(false)} onType={() => { setAddOpen(false); setLookup(true); }}
