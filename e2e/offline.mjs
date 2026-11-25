@@ -14,7 +14,7 @@ const b=await puppeteer.launch({args:chromium.args,executablePath:await chromium
 const page=await b.newPage();await page.setViewport({width:390,height:844,isMobile:true,hasTouch:true});
 const click=async(pg,t,sel='button')=>{const h=await pg.evaluateHandle((t,sel)=>[...document.querySelectorAll(sel)].find(e=>e.textContent.trim().startsWith(t)&&!e.disabled),t,sel);const el=h.asElement();if(!el)return false;await el.click();return true};
 await page.evaluateOnNewDocument(()=>{const B='jb:/Japanese-Book-next/:';if(!localStorage.getItem(B+'profiles')){localStorage.setItem(B+'profiles',JSON.stringify([{id:'local',name:'Test',colour:0}]));localStorage.setItem(B+'settings',JSON.stringify({kanaSkip:true}))}});
-await page.goto('http://localhost:4176'+BASE,{waitUntil:'networkidle0'});await page.waitForSelector('.big');
+await page.goto('http://localhost:4176'+BASE,{waitUntil:'networkidle0'});await page.waitForSelector('.tabbar');
 await page.evaluate(()=>navigator.serviceWorker.ready);await sleep(800);
 const keys1=await page.evaluate(async()=>{const o={};for(const k of await caches.keys())o[k]=(await (await caches.open(k)).keys()).map(r=>r.url.split('/').pop()||'(root)');return o});
 ok('index.html is in the offline cache',Object.values(keys1).some(v=>v.includes('index.html')),JSON.stringify(keys1));
@@ -24,7 +24,7 @@ ROOT=SB;await page.reload({waitUntil:'networkidle0'});
 let prompt='';for(let i=0;i<60&&!/update is ready/i.test(prompt);i++){await sleep(500);prompt=await page.evaluate(()=>[...document.querySelectorAll('.toast')].map(t=>t.textContent).join('|'))}
 ok('an update prompt appears when a new version is published',/update is ready/i.test(prompt),prompt);
 await page.evaluate(()=>[...document.querySelectorAll('.toast button')].find(b=>b.textContent==='Reload')?.click());
-await page.waitForNavigation({waitUntil:'networkidle0',timeout:20000}).catch(()=>{});await sleep(1200);await page.waitForSelector('.big');
+await page.waitForNavigation({waitUntil:'networkidle0',timeout:20000}).catch(()=>{});await sleep(1200);await page.waitForSelector('.tabbar');
 const keys2=await page.evaluate(async()=>await caches.keys());
 ok('after Reload the new version is active and the old cache is gone',keys2.length===1&&/newversion/.test(keys2[0]),JSON.stringify(keys2));
 // ---- GENUINE OFFLINE: stop the server completely ----
@@ -34,8 +34,8 @@ for(const u of [BASE,BASE+'index.html',BASE+'?from=homescreen']){
   await p2.goto('http://localhost:4176'+u,{waitUntil:'load'}).catch(()=>{});await sleep(600);
   ok(`opens with the server stopped: ${u}`,await p2.evaluate(()=>!!document.querySelector('.tabbar')).catch(()=>false));
   if(u===BASE){
-    await p2.waitForSelector('.big');
-    ok('study works offline: a lesson is saved',await (async()=>{await click(p2,'Start practice');await sleep(300);await click(p2,'Got it');await sleep(1100);
+    await p2.waitForSelector('.tabbar');
+    ok('study works offline: a lesson is saved',await (async()=>{await click(p2,'Start lesson');await sleep(300);await click(p2,'Got it');await sleep(1100);
       return p2.evaluate(async()=>{const db=await new Promise(res=>{const r=indexedDB.open('jb:/Japanese-Book-next/:local');r.onsuccess=()=>res(r.result)});const n=await new Promise(res=>{const q=db.transaction('skillStates').objectStore('skillStates').count();q.onsuccess=()=>res(q.result)});return n>=1})})());
   }
   await p2.close()}

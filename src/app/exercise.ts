@@ -33,7 +33,17 @@ export interface Known {
 export const KNOW_NOTHING: Known = { met: new Set(), readingKnown: new Set(), katakanaDone: false };
 
 /** Hepburn romaji. The greetings こんにちは / こんばんは end in the particle は, which is read "wa". */
-export const romajiOf = (kana: string) => toRomaji(kana).replace(/(konnichi|konban)ha$/, '$1wa');
+/**
+ * Romaji as it is said, not letter by letter: the particle は is "wa" and を is "o".
+ * は at the end of a phrase is the topic particle (こんにちは konnichiwa, これは kore wa, おなまえは onamae wa);
+ * a lone は is "wa" when the word is the particle (pass its meaning). を is pronounced "o" everywhere.
+ */
+export function romajiOf(kana: string, meaning = ''): string {
+  if (/particle/i.test(meaning) && kana === 'は') return 'wa';
+  if (/particle/i.test(meaning) && kana === 'へ') return 'e';
+  const r = toRomaji(kana.replace(/を/g, 'お'));
+  return kana.length > 1 && kana.endsWith('は') ? r.replace(/ha$/, 'wa') : r;
+}
 
 /**
  * Reading help for a Japanese word: the kana reading under kanji until its reading is known,

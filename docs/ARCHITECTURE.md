@@ -64,3 +64,9 @@ photo import through a secure server-side function (Stage 4), progress screens (
 - Kana levels are derived from answers (`kanaSummary` in `kanaPlan.ts`): learned = right at least once (a later miss does not undo it; before, one missed review dropped a kana back to "not learned" and re-locked vocabulary, so a finished hiragana course showed 98 of 104); mastered = last 3 first-try answers right on at least 2 days.
 - The vocabulary lock and the "I already read hiragana" setting are gone: words and kana are always open.
 - Today shows both tracks (kana first until hiragana is learned) and a progress block with learned and mastered per script.
+
+## v0.14: word lessons
+- The Words tab (was Practice) has Lessons and Practise. Lessons: units by topic in a beginner order (Greetings, People … Grammar; new topics follow alphabetically), each split evenly into lessons of 3-5 words. A lesson is learn card → quick check per word, then a matching game; it is saved as it goes and resumes without repeating. Nothing is locked; the first unfinished lesson is suggested.
+- Word levels use the kana rule (learned: right once; mastered: last 3 first-try answers right on 2+ days) for unit rings, lesson blossoms and counts.
+- Today: a Words card with the next lesson and reviews, a Kana card, and a progress block.
+- Romaji follows pronunciation (particle は = wa, を = o). The starter word お名前は was misspelled おはまえは; fixed, and repaired on phones where it was never edited.

@@ -8,6 +8,7 @@ import { planMistakes, planToday, planWeak, unlockedSkills, wordsIntroducedToday
 import { kanaOf } from '../domain/kanaCourse';
 import type { Skill, SkillState } from '../domain/types';
 import type { SessionItem } from './Session';
+import { WordLessonCard, WordPath, useWordPath, type StartWordLesson } from './WordPath';
 
 const SKILLS: [Skill, string, string][] = [
   ['recognition', 'Recognition', 'See the Japanese, choose the meaning'],
@@ -18,7 +19,9 @@ const SKILLS: [Skill, string, string][] = [
 ];
 const wrap = (items: { wordId: string; skill: Skill; kind: 'new' | 'review'; reason: string }[]): SessionItem[] => items.map((i) => ({ ...i, promote: true }));
 
-export function Practice({ onStart, onAdd, onSettings, initialTopics }: { onStart: (title: string, items: SessionItem[]) => void; onAdd: () => void; onSettings: () => void; initialTopics: string[] }) {
+export function Practice({ onStart, onLesson, onAdd, onSettings, initialTopics }: { onStart: (title: string, items: SessionItem[]) => void; onLesson: StartWordLesson; onAdd: () => void; onSettings: () => void; initialTopics: string[] }) {
+  const [view, setView] = useState<'lessons' | 'practise'>(initialTopics.length ? 'practise' : 'lessons');
+  const path = useWordPath();
   const { words, states, attempts, settings } = useApp();
   const [topics, setTopics] = useState<string[]>(initialTopics);
   const [units, setUnits] = useState<string[]>([]);
@@ -58,10 +61,18 @@ export function Practice({ onStart, onAdd, onSettings, initialTopics }: { onStar
   );
   return (
     <div class="screen">
-      <div class="head"><h1>Practice</h1>
+      <div class="head"><h1>Words</h1>
         <button class="btn accent" onClick={onAdd} aria-label="Add or import words"><Icon name="plus" size={18} /> Add</button>
         <button class="icon-btn ring" aria-label="Settings" onClick={onSettings}><Icon name="gear" size={20} /></button>
       </div>
+      <div class="seg-toggle" role="group" aria-label="View" style="margin:0 0 14px">
+        <button aria-pressed={view === 'lessons'} onClick={() => setView('lessons')}>Lessons</button>
+        <button aria-pressed={view === 'practise'} onClick={() => setView('practise')}>Practise</button>
+      </div>
+      {view === 'lessons' ? <>
+        <WordLessonCard next={path.next} onStart={onLesson} />
+        <div class="section" style="margin-top:18px"><h2>Your units</h2><WordPath onStart={onLesson} /></div>
+      </> : <>
       <div class="eyebrow" style="margin-top:6px">Topic</div>
       <div class="chips" role="group" aria-label="Topics">
         <button class="chip" aria-pressed={topics.length === 0} onClick={() => setTopics([])}>All topics</button>
@@ -85,6 +96,7 @@ export function Practice({ onStart, onAdd, onSettings, initialTopics }: { onStar
         {SKILLS.map(([skill, name, sub]) => mode(name, sub, d.free(skill)))}
       </div>
       <p class="m" style="margin-top:14px">Extra practice never moves a word’s schedule forward when it is not due. A wrong answer still counts.</p>
+      </>}
     </div>
   );
 }

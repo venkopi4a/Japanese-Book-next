@@ -7,7 +7,10 @@ import type { MergeResult, Snapshot } from './backup';
 import type { ImportDraft, JBDb, OutboxEntry, PhotoRecord, SessionRecord } from './db';
 import type { LibraryWord } from './library';
 
-export const APP_VERSION = '0.13.0';
+/** Starter words whose text was wrong in an earlier version: libraryId → [wrong, right]. */
+export const LIBRARY_TEXT_FIXES: Record<string, [string, string]> = { t6mo0by: ['おはまえは', 'おなまえは'] };
+
+export const APP_VERSION = '0.14.0';
 const uuid = () => globalThis.crypto.randomUUID();
 
 export type NewWord = Partial<Word> & Pick<Word, 'text' | 'reading' | 'meaning'>;
@@ -40,6 +43,7 @@ export class Repo {
 
   /** Adds starter words this account has not received yet. Deleted starter words never come back. */
   async seedLibrary(library: LibraryWord[], now = Date.now()): Promise<number> {
+    await this.fixLibraryTypos(now);
     const seen = new Set(await this.meta<string[]>('librarySeen', []));
     const fresh = library.filter((l) => !seen.has(l.id));
     if (!fresh.length) return 0;
@@ -53,6 +57,14 @@ export class Repo {
     tx.objectStore('meta').put([...seen], 'librarySeen');
     await tx.done;
     return fresh.length;
+  }
+
+  /** Corrects known mistakes in starter words already saved, but only where the learner never changed the text. */
+  private async fixLibraryTypos(now: number) {
+    for (const [libraryId, [wrong, right]] of Object.entries(LIBRARY_TEXT_FIXES)) {
+      const hit = (await this.db.getAll('words')).find((w) => w.libraryId === libraryId && w.text === wrong);
+      if (hit) await this.updateWord(hit.id, { text: right }, now);
+    }
   }
 
   async addWords(input: NewWord[], now = Date.now()): Promise<Word[]> {

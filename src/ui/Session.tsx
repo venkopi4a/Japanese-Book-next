@@ -145,11 +145,11 @@ export function Session({ title, items, onClose, onAgain }: { title: string; ite
   }
   if (!word) return null;
   const progress = Math.min(100, Math.round((resolved.current / Math.max(1, total.current)) * 100));
-  const count = `${Math.min(resolved.current + 1, total.current)} / ${total.current}`;
+  const count = `${Math.min(resolved.current + 1, total.current)} of ${total.current}`;
 
   // new word: lesson card
   if (q.flash) {
-    const roma = romajiOf(word.reading || word.text);
+    const roma = romajiOf(word.reading || word.text, word.meaning);
     return (
       <Overlay>
         <Top progress={progress} count={count} onClose={onClose} label="New word" />
@@ -207,12 +207,12 @@ export function Session({ title, items, onClose, onAgain }: { title: string; ite
         )}
 
         {fb && (
-          <div class={`feedback ${fb.correct ? 'good' : 'bad'}`} role="status">
+          <div class={`feedback rich ${fb.correct ? 'good' : 'bad'}`} role="status">
             <b>{fb.correct ? (fb.mistakes.length ? 'Correct' : 'Lovely') : 'Not quite'}</b>
             {!fb.correct && ex.typed && <div style="margin-top:4px">Answer: <span class="j" lang="ja" style="font-size:20px">{ex.answer}</span></div>}
             {fb.mistakes.length > 0 && explainMistakes(fb.mistakes).map((l) => <div class="m" key={l} style="margin-top:2px">{l}</div>)}
             {fb.variantNote && <div class="m" style="margin-top:2px">{fb.variantNote}</div>}
-            <div class="m" style="margin-top:6px"><span lang="ja">{word.text}</span> · <span lang="ja">{word.reading}</span> · {romajiOf(word.reading || word.text)} · {word.meaning}</div>
+            <div class="m" style="margin-top:6px"><span lang="ja">{word.text}</span> · <span lang="ja">{word.reading}</span> · {romajiOf(word.reading || word.text, word.meaning)} · {word.meaning}</div>
             {!fb.correct && !q.second && <div class="m" style="margin-top:6px">It will come back once more at the end.</div>}
           </div>
         )}
@@ -231,7 +231,7 @@ function Top({ progress, count, onClose, label }: { progress: number; count: str
       <button class="icon-btn" aria-label="End session" onClick={onClose}><Icon name="close" /></button>
       <div style="flex:1">
         <div class="track" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}><i style={`width:${progress}%`}>{progress > 0 && <span class="tip"><Blossom size={22} /></span>}</i></div>
-        <div class="m" style="margin-top:8px;font-size:12px;display:flex;justify-content:space-between"><span>{label}</span><span>{count}</span></div>
+        <div class="m step-line"><span>{label}</span><b class="step-count">{count}</b></div>
       </div>
       <span style="width:8px" />
     </div>
