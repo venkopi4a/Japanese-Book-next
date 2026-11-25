@@ -17,3 +17,9 @@ Actions tab -> open the red run -> the failing step shows the reason. Paste that
 
 ## iPhone note
 After a deploy, open the installed app twice: the first open fetches the update, the "Reload" prompt appears, tap it. Settings should then show the new version.
+
+
+## Since 2026-11-25: published from the gh-pages branch
+The workflow now pushes the built `dist` folder to the `gh-pages` branch instead of using `upload-pages-artifact` / `deploy-pages`. GitHub's artifact service kept answering "No artifacts named github-pages were found" right after a successful upload (Publish #18 to #20, also with deploy-pages v5 and after a re-run), so nothing went live.
+
+One-time setting (done by Venko): **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: gh-pages, / (root) → Save.**
