@@ -37,7 +37,7 @@ await step('welcome', async () => {
   await shot('k01-welcome');
   await page.type('input[name=person]', 'Venko'); await click('Start'); await page.waitForSelector('.tabbar'); await sleep(300);
   const t2 = await txt();
-  ok('a brand-new learner starts with hiragana, not vocabulary', /Today's kana/i.test(t2) && /あ い う え お/.test(t2) && /Lesson 1 of/.test(t2) && /about \d+ min/.test(t2) && /Start lesson/.test(t2) && /Opens after hiragana/.test(t2), t2.split('\n').slice(0, 12).join(' | '));
+  ok('a brand-new learner sees the first kana lesson first, and words are open too', /Today's kana/i.test(t2) && /あ い う え お/.test(t2) && /Lesson 1 of/.test(t2) && /about \d+ min/.test(t2) && /Start lesson/.test(t2) && /Words/i.test(t2) && /to practise/.test(t2) && t2.search(/Today's kana/i) < t2.search(/to practise/), t2.split('\n').slice(0, 12).join(' | '));
   ok('greeting uses the name', /、Venko/.test(t2));
   ok('no horizontal overflow (Today, kana first)', (await overflow()) <= 0);
   await shot('k02-today-kana');
@@ -45,8 +45,8 @@ await step('welcome', async () => {
 
 await step('practice locked', async () => {
   await tab('Practice'); const t = await txt();
-  const disabled = await page.evaluate(() => [...document.querySelectorAll('.list .row')].every((r) => r.disabled));
-  ok('vocabulary practice is locked until hiragana is learned', /Vocabulary opens after hiragana/.test(t) && disabled);
+  const open = await page.evaluate(() => [...document.querySelectorAll('.list .row')].some((r) => !r.disabled));
+  ok('vocabulary can be studied from the start: nothing is locked', !/Vocabulary opens after hiragana/.test(t) && open);
 });
 
 await step('chart', async () => {
@@ -154,7 +154,7 @@ await step('unlock', async () => {
   });
   await page.reload({ waitUntil: 'networkidle0' }); await page.waitForSelector('.tabbar'); await sleep(300);
   const t = await txt();
-  ok('learning hiragana opens vocabulary', /to practise/.test(t) && /10 new words/.test(t), t.split('\n').slice(0, 10).join(' | '));
+  ok('with hiragana learned, words come first on Today', /to practise/.test(t) && /10 new words/.test(t) && /104 learned/.test(t), t.split('\n').slice(0, 10).join(' | '));
   ok('katakana is offered next, alongside vocabulary', /ア イ ウ エ オ/.test(t));
   await shot('k08-today-unlocked');
 });
@@ -184,7 +184,7 @@ await step('teach-first and reading help', async () => {
 
 await step('progress', async () => {
   await tab('Progress'); const t = await txt();
-  ok('progress shows level, words ring, kana bars, streak calendar and milestones', /level \d/i.test(t) && /of 104 words/.test(t) && /Hiragana/.test(t) && /104 \/ 104/.test(t) && /days? in a row/.test(t) && /Milestones/.test(t) && /best ever/.test(t));
+  ok('progress shows level, words ring, kana bars, streak calendar and milestones', /level \d/i.test(t) && /of 104 words/.test(t) && /Hiragana/.test(t) && /104 learned · \d+ mastered of 104/.test(t) && /days? in a row/.test(t) && /Milestones/.test(t) && /best ever/.test(t));
   ok('hiragana milestone is marked done', await page.evaluate(() => [...document.querySelectorAll('.mile.done')].some((m) => /Hiragana/.test(m.textContent))));
   ok('no horizontal overflow (Progress)', (await overflow()) <= 0);
   await shot('k11-progress');
@@ -211,7 +211,7 @@ await step('people', async () => {
   t = await txt(); ok('a second person can be added', /Mila/.test(t) && /Venko/.test(t));
   await shot('k14-picker');
   await page.click('button[aria-label="Study as Mila"]'); await page.waitForSelector('.tabbar'); await sleep(300);
-  t = await txt(); ok('the second person starts fresh with their own progress', /あ い う え お/.test(t) && /0 of 104 learned/.test(t) && /、Mila/.test(t), t.split('\n').slice(0, 8).join(' | '));
+  t = await txt(); ok('the second person starts fresh with their own progress', /あ い う え お/.test(t) && /0 learned · 0 mastered of 104/.test(t) && /、Mila/.test(t), t.split('\n').slice(0, 8).join(' | '));
   await page.reload({ waitUntil: 'networkidle0' }); await sleep(300);
   ok('with two people the picker shows on start', /Who’s studying\?/.test(await txt()));
   await page.click('button[aria-label="Study as Venko"]'); await page.waitForSelector('.tabbar'); await sleep(300);

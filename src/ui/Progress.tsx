@@ -2,7 +2,6 @@ import { useMemo } from 'preact/hooks';
 import { useApp } from '../app/state';
 import { Blossom, Icon } from '../app/icons';
 import { kanaOf } from '../domain/kanaCourse';
-import { learnedKana } from '../domain/kanaPlan';
 import { levelFor, milestones } from '../domain/levels';
 import { DAY, masteryOf, startOfDay } from '../domain/scheduler';
 import { planWeak } from '../domain/session';
@@ -34,7 +33,7 @@ function Ring({ mastered, learned, total }: { mastered: number; learned: number;
 }
 
 export function Progress({ onStart, onAdd, onSettings, onOpen }: { onStart: (title: string, items: SessionItem[]) => void; onAdd: () => void; onSettings: () => void; onOpen: (id: string) => void }) {
-  const { words, states, attempts, profile } = useApp();
+  const { words, states, attempts, profile, kana } = useApp();
   const now = Date.now();
   const d = useMemo(() => {
     const vocabStates = states.filter((s) => !isKanaId(s.wordId));
@@ -54,7 +53,7 @@ export function Progress({ onStart, onAdd, onSettings, onOpen }: { onStart: (tit
     const weekday = (new Date(today).getDay() + 6) % 7; // Monday first
     const firstDay = startOfDay(today - (21 + weekday) * DAY + 3_600_000);
     const calendar = Array.from({ length: 28 }, (_, i) => { const t = startOfDay(firstDay + i * DAY + 3_600_000); return { t, n: t > today ? -1 : dayCount(t) }; });
-    const hira = learnedKana(states, 'hiragana'), kata = learnedKana(states, 'katakana');
+    const hira = kana.learned.hiragana, kata = kana.learned.katakana;
     const best = bestStreak(attempts, studied);
     return {
       mastered, learned, started, hira, kata, calendar, best,
@@ -63,7 +62,7 @@ export function Progress({ onStart, onAdd, onSettings, onOpen }: { onStart: (tit
       miles: milestones({ words: mastered + learned, hiragana: hira, hiraganaTotal: kanaOf('hiragana').length, katakana: kata, katakanaTotal: kanaOf('katakana').length, bestStreak: best, anyStudy: states.length > 0 }),
       ret: retention(vocabAttempts), acc: skillAccuracy(vocabAttempts, now), conf: confusionPairs(vocabAttempts).slice(0, 5), weak: planWeak(states, attempts),
     };
-  }, [words, states, attempts]);
+  }, [words, states, attempts, kana]);
   const lv = d.level;
   const toNext = lv.to === null ? 0 : lv.to - (d.mastered + d.learned + d.hira + d.kata);
   const maxDay = Math.max(1, ...d.calendar.map((x) => x.n));
@@ -100,10 +99,11 @@ export function Progress({ onStart, onAdd, onSettings, onOpen }: { onStart: (tit
       </div>
 
       <div class="section"><h2>Kana</h2>
-        {([['Hiragana', d.hira, kanaOf('hiragana').length], ['Katakana', d.kata, kanaOf('katakana').length]] as const).map(([n, v, t]) => (
-          <div key={n} style="margin-top:10px"><div style="display:flex;justify-content:space-between"><span>{n}</span><span class="m">{v} / {t}</span></div>
-            <div class="bar" style="margin-top:4px"><i style={`width:${(v / t) * 100}%;background:var(--ind)`} /></div></div>
+        {([['Hiragana', 'hiragana'], ['Katakana', 'katakana']] as const).map(([n, sc]) => (
+          <div key={n} style="margin-top:10px"><div style="display:flex;justify-content:space-between"><span>{n}</span><span class="m">{kana.learned[sc]} learned · {kana.mastered[sc]} mastered of {kana.total[sc]}</span></div>
+            <div class="bar duo" style="margin-top:4px"><i class="learned" style={`width:${(kana.learned[sc] / kana.total[sc]) * 100}%`} /><i class="mastered" style={`width:${(kana.mastered[sc] / kana.total[sc]) * 100}%`} /></div></div>
         ))}
+        <p class="m" style="margin:6px 0 0;font-size:12px">Mastered: last 3 answers right, on at least 2 different days.</p>
       </div>
 
       <div class="section"><h2>Streak</h2>

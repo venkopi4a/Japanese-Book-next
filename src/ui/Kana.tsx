@@ -6,7 +6,7 @@ import { toRomaji } from 'wanakana';
 import { KANA_EXAMPLES } from '../domain/kanaExamples';
 import { HIRAGANA_INTRO, Origin, TraceButton, Writing } from './KanaWriting';
 import { KANA_ROWS, STAGE_NAMES, isKanaId, kanaOf, type KanaChar, type KanaRow, type KanaStage, type Script } from '../domain/kanaCourse';
-import { LESSON_SIZE, REVIEW_SESSION, learnedKana, lessonStatuses, planKana, type KanaPlan } from '../domain/kanaPlan';
+import { REVIEW_SESSION, lessonStatuses, planKana, type KanaLevel, type KanaPlan } from '../domain/kanaPlan';
 import type { SkillState } from '../domain/types';
 import type { KanaMode } from './KanaSession';
 
@@ -54,10 +54,11 @@ export function KanaToday({ plan, onStart, compact = false }: { plan: KanaPlan; 
   );
 }
 
-const level = (s: SkillState | undefined) => (!s || s.lastAt === null ? 'new' : s.box === 0 ? 'miss' : s.box >= 4 ? 'strong' : 'ok');
+/** Chart colours follow the same levels as every other count in the app. */
+const CELL: Record<KanaLevel, string> = { new: 'new', learning: 'miss', learned: 'ok', mastered: 'strong' };
 const POS: Record<string, number[]> = { y: [0, 2, 4], w: [0, 4, 5] }; // や row and わ row have gaps; ん sits on its own line
 
-function Grid({ rows, stage, rec, onPick }: { rows: KanaRow[]; stage: KanaStage; rec: Map<string, SkillState>; onPick: (k: KanaChar) => void }) {
+function Grid({ rows, stage, levels, onPick }: { rows: KanaRow[]; stage: KanaStage; levels: Map<string, KanaLevel>; onPick: (k: KanaChar) => void }) {
   const cols = stage === 'combo' ? 3 : 5;
   const cells: (KanaChar | null)[] = [];
   for (const r of rows) {
@@ -71,7 +72,7 @@ function Grid({ rows, stage, rec, onPick }: { rows: KanaRow[]; stage: KanaStage;
   return (
     <div class="kgrid" style={`grid-template-columns:repeat(${cols},1fr)`}>
       {cells.map((c, i) => c
-        ? <button key={c.id} class={`kcell ${level(rec.get(c.id))}`} onClick={() => onPick(c)} aria-label={`${c.char} ${c.romaji}, how to write it`}><span class="j" lang="ja">{c.char}</span><small>{c.romaji}</small></button>
+        ? <button key={c.id} class={`kcell ${CELL[levels.get(c.id) ?? 'new']}`} onClick={() => onPick(c)} aria-label={`${c.char} ${c.romaji}, how to write it`}><span class="j" lang="ja">{c.char}</span><small>{c.romaji}</small></button>
         : <span key={i} />)}
     </div>
   );
@@ -104,8 +105,8 @@ function KanaDetail({ k, onClose }: { k: KanaChar; onClose: () => void }) {
 
 /** The course as a path: one stop per lesson, in order. Finished stops show how strong they are and can be practised. */
 function Path({ script, onStart }: { script: Script; onStart: StartKana }) {
-  const { states, toast } = useApp();
-  const all = useMemo(() => lessonStatuses(states), [states]);
+  const { states, toast, kana } = useApp();
+  const all = useMemo(() => lessonStatuses(states, kana.levels), [states, kana]);
   return (
     <div class="path">
       {(['basic', 'voiced', 'combo'] as KanaStage[]).map((stage) => (
@@ -128,26 +129,24 @@ function Path({ script, onStart }: { script: Script; onStart: StartKana }) {
 }
 
 export function Kana({ onStart, onSettings }: { onStart: StartKana; onSettings: () => void }) {
-  const { states, vocabLocked } = useApp();
+  const { states, kana } = useApp();
   const plan = useKanaPlan();
   const [script, setScript] = useState<Script>(() => (plan.lesson?.row.script ?? 'hiragana'));
   const [view, setView] = useState<'path' | 'chart'>('path');
   const [open, setOpen] = useState<KanaChar | null>(null);
   const rec = useMemo(() => new Map(states.filter((s) => s.skill === 'recognition' && isKanaId(s.wordId)).map((s) => [s.wordId, s])), [states]);
-  const learned = learnedKana(states, script), total = kanaOf(script).length;
-  const lessonsLeft = Math.ceil((kanaOf('hiragana').length - learnedKana(states, 'hiragana')) / LESSON_SIZE);
+  const learned = kana.learned[script], mastered = kana.mastered[script], total = kana.total[script];
 
   return (
     <div class="screen">
       <div class="head"><h1>Kana</h1><button class="icon-btn ring" aria-label="Settings" onClick={onSettings}><Icon name="gear" size={20} /></button></div>
-      {vocabLocked && <p class="m" style="margin:-4px 0 14px">Start here. Vocabulary opens when hiragana is done (about {lessonsLeft} short {lessonsLeft === 1 ? 'lesson' : 'lessons'} to go).</p>}
       <KanaToday plan={plan} onStart={onStart} compact />
 
       <div class="chips" role="group" aria-label="Script" style="margin-top:20px">
         {(['hiragana', 'katakana'] as Script[]).map((s) => <button key={s} class="chip" aria-pressed={script === s} onClick={() => setScript(s)}>{s === 'hiragana' ? 'Hiragana ひらがな' : 'Katakana カタカナ'}</button>)}
       </div>
-      <div class="bar" style="margin:6px 0 6px" role="progressbar" aria-valuenow={learned} aria-valuemin={0} aria-valuemax={total}><i style={`width:${(learned / total) * 100}%`} /></div>
-      <div class="m">{learned} of {total} learned</div>
+      <div class="bar duo" style="margin:6px 0 6px" role="progressbar" aria-valuenow={learned} aria-valuemin={0} aria-valuemax={total}><i class="learned" style={`width:${(learned / total) * 100}%`} /><i class="mastered" style={`width:${(mastered / total) * 100}%`} /></div>
+      <div class="m">{learned} of {total} learned · {mastered} mastered{mastered === total ? ' · complete' : ''}</div>
 
       <div class="seg-toggle" role="group" aria-label="View">
         <button aria-pressed={view === 'path'} onClick={() => setView('path')}>Lessons</button>
@@ -155,12 +154,12 @@ export function Kana({ onStart, onSettings }: { onStart: StartKana; onSettings: 
       </div>
 
       {view === 'path' ? <Path script={script} onStart={onStart} /> : <>
-        <div class="legend m"><span><i class="kcell new" />not yet</span><span><i class="kcell miss" />missed</span><span><i class="kcell ok" />learned</span><span><i class="kcell strong" />strong</span></div>
+        <div class="legend m"><span><i class="kcell new" />not yet</span><span><i class="kcell miss" />not right yet</span><span><i class="kcell ok" />learned</span><span><i class="kcell strong" />mastered</span></div>
         <div class="m" style="margin-top:4px">Tap any kana to see how to write it, why it looks that way, and to hear it.</div>
         {script === 'hiragana' && <details class="why"><summary>Where hiragana comes from</summary><p>{HIRAGANA_INTRO}</p></details>}
         {(['basic', 'voiced', 'combo'] as KanaStage[]).map((stage) => (
           <div class="section" key={stage}><h2>{STAGE_NAMES[stage]}</h2>
-            <Grid rows={KANA_ROWS.filter((r) => r.script === script && r.stage === stage)} stage={stage} rec={rec} onPick={setOpen} />
+            <Grid rows={KANA_ROWS.filter((r) => r.script === script && r.stage === stage)} stage={stage} levels={kana.levels} onPick={setOpen} />
           </div>
         ))}
       </>}

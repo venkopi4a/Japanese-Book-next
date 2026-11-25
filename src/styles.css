@@ -346,3 +346,7 @@ textarea.input { padding: 12px 14px; min-height: 84px; resize: vertical; }
 .step-line { margin-top: 8px; font-size: 12px; display: flex; gap: 8px; align-items: center; }
 .step-line > span:first-child { flex: 1; }
 .step-count { color: var(--ink); font-size: 13px; font-weight: 700; background: var(--sf2); padding: 2px 8px; border-radius: 10px; }
+.bar.duo { position: relative; }
+.bar.duo > i { position: absolute; left: 0; top: 0; }
+.bar.duo > i.learned { background: var(--sk); }
+.bar.duo > i.mastered { background: var(--ok); }
