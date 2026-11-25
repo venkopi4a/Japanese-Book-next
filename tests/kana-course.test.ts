@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '../src/domain/distractors';
 import { KANA, KANA_ROWS, kanaOf, isKanaId } from '../src/domain/kanaCourse';
-import { STRUGGLE_LIMIT, kanaIntroducedToday, kanaQuestion, learnedKana, lessonStatuses, lessonSteps, planKana, scriptDone } from '../src/domain/kanaPlan';
+import { STRUGGLE_LIMIT, kanaIntroducedToday, kanaQuestion, kanaSummary, lessonStatuses, lessonSteps, planKana } from '../src/domain/kanaPlan';
 import { DAY, newState } from '../src/domain/scheduler';
-import type { SkillState } from '../src/domain/types';
+import type { Attempt, SkillState } from '../src/domain/types';
 
 const NOW = new Date(2026, 10, 11, 10).getTime();
 const st = (id: string, p: Partial<SkillState> = {}, skill: SkillState['skill'] = 'recognition'): SkillState => ({ ...newState(id, skill, NOW - 3 * DAY), ...p });
@@ -65,11 +65,11 @@ describe('kana plan: short lessons that resume', () => {
     expect(p.goalReached).toBe(true);
     expect(p.lesson?.row.label).toBe('た ち つ て と');
   });
-  it('lesson statuses: done, then one current, then locked; strength grows with the boxes', () => {
+  it('lesson statuses: done, then one current, then locked; without mastery a finished lesson has 1 blossom', () => {
     const states = [...KANA_ROWS[0]!.chars.map((k) => ans(k.id, { box: 4 })), ...KANA_ROWS[1]!.chars.map((k) => ans(k.id, { box: 1 }))];
     const l = lessonStatuses(states);
     expect(l.slice(0, 4).map((x) => x.status)).toEqual(['done', 'done', 'current', 'locked']);
-    expect(l[0]!.strength).toBe(3);
+    expect(l[0]!.strength).toBe(1);
     expect(l[1]!.strength).toBe(1);
   });
   it('due kana come back as reviews with a reason', () => {
@@ -82,13 +82,42 @@ describe('kana plan: short lessons that resume', () => {
     const onlyShown = hira.slice(0, STRUGGLE_LIMIT).map((k) => st(k.id)); // shown on cards, never answered: not struggling
     expect(planKana(onlyShown, { now: NOW }).held).toBe(false);
   });
-  it('hiragana is done once every hiragana has been answered right after its lesson', () => {
-    const almost = hira.slice(1).map((k) => st(k.id, { box: 1 }));
-    expect(learnedKana(almost, 'hiragana')).toBe(103);
-    expect(scriptDone(almost, 'hiragana')).toBe(false);
-    expect(scriptDone([...almost, st(hira[0]!.id, { box: 0 })], 'hiragana')).toBe(false);
-    expect(scriptDone([...almost, st(hira[0]!.id, { box: 2 })], 'hiragana')).toBe(true);
-    expect(scriptDone([...almost, st(hira[0]!.id, { box: 2 })], 'katakana')).toBe(false);
+  const att = (kanaId: string, correct: boolean, ts: number, firstTry = true): Attempt => ({ id: kanaId + ts + Math.random(), wordId: kanaId, sessionId: 's', ts, exercise: 'kana-sound-mc', skill: 'recognition', shown: '', expected: '', submitted: '', correct, firstTry, boxBefore: 0, responseMs: 1, mistakes: [], options: null, appVersion: 't', deviceId: 'd' });
+  it('a kana answered right once stays learned after a later miss (the 98 of 104 bug)', () => {
+    const k = hira[0]!.id;
+    const states = [st(k, { box: 0, lastAt: NOW, lastCorrect: false })]; // missed in a review: back to box 0
+    const sum = kanaSummary(states, [att(k, true, NOW - 3 * DAY), att(k, false, NOW)]);
+    expect(sum.levels.get(k)).toBe('learned');
+    expect(sum.learned.hiragana).toBe(1);
+  });
+  it('levels: new, learning (never right), learned, mastered (last 3 first tries right, on 2+ days)', () => {
+    const [a, b, c, d] = hira.map((k) => k.id);
+    const sum = kanaSummary([st(b!, { lastAt: NOW })], [
+      att(b!, false, NOW),
+      att(c!, true, NOW - DAY), att(c!, true, NOW), att(c!, true, NOW + 1000), // 3 right, 2 days
+      att(d!, true, NOW), att(d!, true, NOW + 1), att(d!, true, NOW + 2), // 3 right, same day: not yet mastered
+    ]);
+    expect([a, b, c, d].map((k) => sum.levels.get(k!))).toEqual(['new', 'learning', 'mastered', 'learned']);
+    expect(sum.mastered.hiragana).toBe(1);
+    expect(sum.learned.hiragana).toBe(2);
+    expect(sum.total).toEqual({ hiragana: 104, katakana: 104 });
+  });
+  it('a miss on a retry does not break mastery, a first-try miss does', () => {
+    const k = hira[0]!.id;
+    const base = [att(k, true, NOW - 2 * DAY), att(k, true, NOW - DAY), att(k, true, NOW)];
+    expect(kanaSummary([], [...base, att(k, false, NOW + 5, false)]).levels.get(k)).toBe('mastered');
+    expect(kanaSummary([], [...base, att(k, false, NOW + 5)]).levels.get(k)).toBe('learned');
+  });
+  it('older data: a kana whose state reached box 1 counts as learned even without its answers', () => {
+    expect(kanaSummary([st(hira[0]!.id, { box: 1, lastAt: NOW })], []).levels.get(hira[0]!.id)).toBe('learned');
+  });
+  it('lesson strength follows mastery: 3 blossoms when every kana of the row is mastered', () => {
+    const row = KANA_ROWS[0]!;
+    const states = row.chars.map((k) => st(k.id, { lastAt: NOW, box: 1 }));
+    const levels = new Map(row.chars.map((k, i) => [k.id, i < 3 ? 'mastered' as const : 'learned' as const]));
+    expect(lessonStatuses(states, levels)[0]!.strength).toBe(2);
+    expect(lessonStatuses(states, new Map(row.chars.map((k) => [k.id, 'mastered' as const])))[0]!.strength).toBe(3);
+    expect(lessonStatuses(states, new Map())[0]!.strength).toBe(1);
   });
 });
 

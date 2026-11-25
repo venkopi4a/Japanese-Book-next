@@ -4,7 +4,7 @@ import type { ComponentChildren } from 'preact';
 import { dbName, openUserDb } from '../data/db';
 import { LIBRARY } from '../data/library';
 import { Repo } from '../data/repo';
-import { scriptDone } from '../domain/kanaPlan';
+import { kanaSummary, type KanaSummary } from '../domain/kanaPlan';
 import type { Attempt, SkillState, Word } from '../domain/types';
 import type { Profile } from './profiles';
 import { DEFAULTS, applyTheme, loadSettings, saveSettings, type Settings } from './settings';
@@ -16,8 +16,9 @@ interface Ctx {
   settings: Settings; setSettings: (p: Partial<Settings>) => void;
   reload: () => Promise<void>; toast: (text: string, action?: ToastMsg['action']) => void;
   profile: Profile; switchProfile: () => void;
-  /** Vocabulary waits until hiragana is learned, unless this person said they already read it. */
-  vocabLocked: boolean;
+  /** How well each kana is known (new / learning / learned / mastered) and the counts per script. */
+  kana: KanaSummary;
+  /** Every hiragana learned (answered right at least once). Nothing is locked by it: words and kana are always open. */
   hiraganaDone: boolean;
   /** Until katakana is learned, katakana words show romaji help. */
   katakanaDone: boolean;
@@ -64,8 +65,9 @@ export function AppProvider({ profile, onSwitch, children }: { profile: Profile;
 
   const value = useMemo(() => {
     if (!ctx) return null;
-    const hiraganaDone = scriptDone(ctx.states, 'hiragana');
-    return { ...ctx, settings, setSettings, toast, profile, switchProfile: onSwitch, hiraganaDone, vocabLocked: !hiraganaDone && !settings.kanaSkip, katakanaDone: scriptDone(ctx.states, 'katakana') };
+    const kana = kanaSummary(ctx.states, ctx.attempts);
+    const done = (sc: 'hiragana' | 'katakana') => kana.learned[sc] === kana.total[sc];
+    return { ...ctx, settings, setSettings, toast, profile, switchProfile: onSwitch, kana, hiraganaDone: done('hiragana'), katakanaDone: done('katakana') };
   }, [ctx, settings, setSettings, toast, profile, onSwitch]);
   if (!value) return <div class="shell"><div class="empty"><span class="j">単語帳</span>Opening {profile.name}'s notebook</div></div>;
   return (

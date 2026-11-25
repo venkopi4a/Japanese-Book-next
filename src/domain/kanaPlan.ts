@@ -1,7 +1,7 @@
 import { nearMisses, shuffle, type Rng } from './distractors';
 import { KANA, KANA_ROWS, isKanaId, kanaOf, type KanaChar, type KanaRow, type Script } from './kanaCourse';
 import { isDue, reasonFor, startOfDay } from './scheduler';
-import type { Skill, SkillState } from './types';
+import type { Attempt, Skill, SkillState } from './types';
 
 /** Kana use two skills: see it and pick the sound (recognition), hear it and pick the kana (listening). */
 export const KANA_SKILLS: Skill[] = ['recognition', 'listening'];
@@ -35,29 +35,64 @@ const recState = (states: SkillState[]) => {
 /** A kana is answered once its sight question has been answered at least once (a lesson card alone does not count). */
 const answered = (s: SkillState | undefined) => !!s && s.lastAt !== null;
 
+/**
+ * How well each kana is known, from the answers given (never from a single box number, so one miss cannot undo it):
+ * - new: never answered
+ * - learning: answered, but never right yet
+ * - learned: answered right at least once (a later miss does not take this away)
+ * - mastered: the last 3 first-try answers were all right, on at least 2 different days ("consistent")
+ */
+export type KanaLevel = 'new' | 'learning' | 'learned' | 'mastered';
+export const MASTERY_STREAK = 3;
+
+export interface KanaSummary {
+  levels: Map<string, KanaLevel>;
+  learned: Record<Script, number>;   // learned or mastered
+  mastered: Record<Script, number>;
+  total: Record<Script, number>;
+}
+
+export function kanaSummary(states: SkillState[], attempts: Attempt[]): KanaSummary {
+  const byKana = new Map<string, Attempt[]>();
+  for (const a of attempts) if (isKanaId(a.wordId)) (byKana.get(a.wordId) ?? byKana.set(a.wordId, []).get(a.wordId)!).push(a);
+  const rec = recState(states);
+  const levels = new Map<string, KanaLevel>();
+  const learned = { hiragana: 0, katakana: 0 }, mastered = { hiragana: 0, katakana: 0 }, total = { hiragana: 0, katakana: 0 };
+  for (const k of KANA) {
+    total[k.script]++;
+    const list = (byKana.get(k.id) ?? []).sort((x, y) => x.ts - y.ts);
+    const s = rec.get(k.id);
+    // older versions: a state that reached box 1 was answered right even if its answers are not all here
+    const everRight = list.some((a) => a.correct) || (s?.correct ?? 0) > 0 || (s?.box ?? 0) >= 1;
+    const firsts = list.filter((a) => a.firstTry).slice(-MASTERY_STREAK);
+    const consistent = firsts.length === MASTERY_STREAK && firsts.every((a) => a.correct) && new Set(firsts.map((a) => startOfDay(a.ts))).size >= 2;
+    const level: KanaLevel = consistent ? 'mastered' : everRight ? 'learned' : list.length || answered(s) ? 'learning' : 'new';
+    levels.set(k.id, level);
+    if (level === 'learned' || level === 'mastered') learned[k.script]++;
+    if (level === 'mastered') mastered[k.script]++;
+  }
+  return { levels, learned, mastered, total };
+}
+
 export type LessonStatus = 'done' | 'current' | 'locked';
-/** Each lesson's status and strength (0-3 blossoms, from how well its kana are known). */
-export function lessonStatuses(states: SkillState[]): { row: KanaRow; status: LessonStatus; strength: number; done: number }[] {
+/**
+ * Each lesson's status and strength (0-3 blossoms). Done = every kana in it answered. Strength: 3 when all its kana
+ * are mastered, 2 when at least half are, 1 otherwise. The first unfinished lesson is the current one.
+ */
+export function lessonStatuses(states: SkillState[], levels?: Map<string, KanaLevel>): { row: KanaRow; status: LessonStatus; strength: number; done: number }[] {
   const rec = recState(states);
   let currentFound = false;
   return KANA_ROWS.map((row) => {
     const done = row.chars.filter((c) => answered(rec.get(c.id))).length;
     const complete = done === row.chars.length;
-    const avg = row.chars.reduce((sum, c) => sum + (rec.get(c.id)?.box ?? 0), 0) / row.chars.length;
-    const strength = !complete ? 0 : avg >= 4 ? 3 : avg >= 2 ? 2 : 1;
+    const m = levels ? row.chars.filter((c) => levels.get(c.id) === 'mastered').length : 0;
+    const strength = !complete ? 0 : m === row.chars.length ? 3 : m * 2 >= row.chars.length ? 2 : 1;
     let status: LessonStatus = 'locked';
     if (complete) status = 'done';
     else if (!currentFound) { status = 'current'; currentFound = true; }
     return { row, status, strength, done };
   });
 }
-
-/** A kana counts as learned once it is answered right after its lesson (recognition box 1 or higher). */
-export const learnedKana = (states: SkillState[], script?: Script) => {
-  const rec = recState(states);
-  return (script ? kanaOf(script) : KANA).filter((k) => (rec.get(k.id)?.box ?? 0) >= 1).length;
-};
-export const scriptDone = (states: SkillState[], script: Script) => learnedKana(states, script) === kanaOf(script).length;
 
 /** Kana introduced today, for the daily goal. */
 export const kanaIntroducedToday = (states: SkillState[], now: number) =>

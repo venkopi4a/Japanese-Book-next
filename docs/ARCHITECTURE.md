@@ -59,3 +59,8 @@ photo import through a secure server-side function (Stage 4), progress screens (
 - Extra practice by skill records every answer but does not move a word forward on the schedule unless it was due. A wrong answer still counts.
 - A typed answer is only diagnosed character by character when it is a near miss, so wild guesses never feed the confusion statistics.
 - The offline worker (`sw.js`) is generated at build time and precaches every built file. Updates show a Reload prompt.
+
+## v0.13: honest kana counts, nothing locked
+- Kana levels are derived from answers (`kanaSummary` in `kanaPlan.ts`): learned = right at least once (a later miss does not undo it; before, one missed review dropped a kana back to "not learned" and re-locked vocabulary, so a finished hiragana course showed 98 of 104); mastered = last 3 first-try answers right on at least 2 days.
+- The vocabulary lock and the "I already read hiragana" setting are gone: words and kana are always open.
+- Today shows both tracks (kana first until hiragana is learned) and a progress block with learned and mastered per script.

@@ -120,10 +120,6 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
 
         <div class="section" style="margin-top:22px"><h2>Kana</h2></div>
         <label class="field" style="margin-top:4px"><span>New kana per day</span><select class="select" value={settings.kanaLimit} onChange={(e) => sel('kanaLimit', (e.target as HTMLSelectElement).value)}>{[5, 10, 15, 20, 25].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
-        {!hiraganaDone && <>
-          <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px"><span style="margin:0;color:var(--ink);font-size:16px">I already read hiragana</span><input type="checkbox" name="kanaSkip" checked={settings.kanaSkip} onChange={(e) => setSettings({ kanaSkip: (e.target as HTMLInputElement).checked })} style="width:24px;height:24px" /></label>
-          <p class="m" style="margin:6px 0 0">Vocabulary opens after you learn hiragana. Tick this only if you can already read it.</p>
-        </>}
 
         <div class="section" style="margin-top:22px"><h2>Words</h2></div>
         <label class="field" style="margin-top:4px"><span>New words per day</span><select class="select" value={settings.newLimit} onChange={(e) => sel('newLimit', (e.target as HTMLSelectElement).value)}>{[3, 5, 10, 15, 20].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>

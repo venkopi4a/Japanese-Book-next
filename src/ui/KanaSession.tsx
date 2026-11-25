@@ -7,7 +7,7 @@ import { mulberry32, shuffle } from '../domain/distractors';
 import { KANA_BY_ID, kanaOf, type KanaChar, type KanaRow } from '../domain/kanaCourse';
 import { KANA_EXAMPLES } from '../domain/kanaExamples';
 import { Origin, TraceButton, Writing } from './KanaWriting';
-import { REVIEW_SESSION, kanaQuestion, learnedKana, lessonSteps, planKana, type KanaItem, type KanaQuestion, type LessonStep } from '../domain/kanaPlan';
+import { REVIEW_SESSION, kanaQuestion, lessonSteps, planKana, type KanaItem, type KanaQuestion, type LessonStep } from '../domain/kanaPlan';
 
 /** What a kana session is: a lesson (one row) or a review of due kana. */
 export type KanaMode = { kind: 'lesson'; row: KanaRow; index: number } | { kind: 'review'; items: KanaItem[]; title: string };
@@ -25,7 +25,7 @@ function buildSteps(mode: KanaMode, states: Parameters<typeof lessonSteps>[1], r
 }
 
 export function KanaSession({ mode, onClose, onStart }: { mode: KanaMode; onClose: () => void; onStart: (m: KanaMode) => void }) {
-  const { repo, states, settings, reload } = useApp();
+  const { repo, states, settings, reload, kana } = useApp();
   const rng = useRef(mulberry32(Date.now()));
   const [queue, setQueue] = useState<Step[]>(() => buildSteps(mode, states, rng.current));
   const [picked, setPicked] = useState<string | null>(null);
@@ -112,7 +112,7 @@ export function KanaSession({ mode, onClose, onStart }: { mode: KanaMode; onClos
     const stars = pct === 100 ? 3 : pct >= 80 ? 2 : 1;
     const mins = Math.max(1, Math.round((Date.now() - s.started) / 60000));
     const script = mode.kind === 'lesson' ? mode.row.script : KANA_BY_ID.get(mode.items[0]?.kanaId ?? '')?.script ?? 'hiragana';
-    const learned = learnedKana(states, script), all = kanaOf(script).length;
+    const learned = kana.learned[script], all = kana.total[script];
     const plan = planKana(states, { now: Date.now(), newLimit: settings.kanaLimit });
     const nextLesson = plan.lesson && (mode.kind !== 'lesson' || plan.lesson.row.id !== mode.row.id) ? plan.lesson : null;
     return (
